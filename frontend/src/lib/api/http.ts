@@ -11,7 +11,11 @@ export class ApiError extends Error {
 }
 
 /** Appelle l'API en ajoutant le jeton d'accès ; renvoie vers Keycloak si la session a expiré. */
-export async function apiRequest<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
+export async function apiRequest<T>(
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  path: string,
+  body?: unknown,
+): Promise<T> {
   const token = await accessToken()
   if (!token) {
     await login()
@@ -31,7 +35,8 @@ export async function apiRequest<T>(method: 'GET' | 'POST', path: string, body?:
   if (!response.ok) {
     throw new ApiError(response.status, await errorMessage(response))
   }
-  return (await response.json()) as T
+  // 204 : succès sans contenu (ex. suppression).
+  return (response.status === 204 ? undefined : await response.json()) as T
 }
 
 // Format d'erreur Micronaut : { message, _embedded: { errors: [{ message }] } }.

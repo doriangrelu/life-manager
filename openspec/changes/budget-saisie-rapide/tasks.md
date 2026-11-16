@@ -33,7 +33,7 @@
 
 ## 7. PWA
 
-- [ ] 7.1 [frontend] Client d'API budget, conversion montant saisi ↔ centimes avec tests unitaires (Vitest : « 12,5 », « 12,50 », « 0,1 », saisies invalides) ; vérifié par `bun run test` et `bun run check`
+- [x] 7.1 [frontend] Client d'API budget, conversion montant saisi ↔ centimes avec tests unitaires (Vitest : « 12,5 », « 12,50 », « 0,1 », saisies invalides) ; vérifié par `bun run test` et `bun run check`
 - [ ] 7.2 [frontend] Onglets « Budget » / « Foyer » dans le foyer sélectionné ; vérifié dans le navigateur
 - [ ] 7.3 [frontend] Formulaire de saisie rapide (valeurs pré-remplies, clavier numérique, confirmation, remise à zéro) ; vérifié dans le navigateur en affichage mobile
 - [ ] 7.4 [frontend] Écran du mois (totaux, répartitions avec noms des membres, liste, mois précédent / suivant) ; vérifié dans le navigateur

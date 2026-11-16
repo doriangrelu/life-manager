@@ -7,7 +7,7 @@
   import { rememberedHouseholdId, rememberHouseholdId } from './lib/preferences'
   import AppHeader from './lib/components/AppHeader.svelte'
   import CreateOrJoin from './lib/components/CreateOrJoin.svelte'
-  import HouseholdView from './lib/components/HouseholdView.svelte'
+  import HouseholdTabs from './lib/components/HouseholdTabs.svelte'
 
   let profile = $state<UserProfile | null>(null)
   let households = $state<HouseholdSummary[]>([])
@@ -65,7 +65,7 @@
       />
     {:else}
       {#key selectedId}
-        <HouseholdView householdId={selectedId} />
+        <HouseholdTabs householdId={selectedId} {profile} />
       {/key}
     {/if}
   </main>
