@@ -1,13 +1,14 @@
 ## Why
 
-Toutes les fonctionnalités du MVP (budget, véhicules, courses) manipulent des données partagées au sein d'un foyer. Avant de construire le moindre domaine, il faut savoir **qui** est connecté et **à quels foyers** il a accès. C'est aussi l'occasion de poser le squelette technique (backend Micronaut natif, Keycloak, PWA) sur lequel tout le reste s'appuiera.
+Toutes les fonctionnalités du MVP (budget, véhicules, courses) manipulent des données partagées au sein d'un foyer. Avant de construire le moindre domaine, il faut savoir **qui** est connecté et **à quels foyers** il a accès, et poser le squelette technique commun.
 
 ## What Changes
 
 - Mise en place d'un **Keycloak** (realm `life-manager`) comme fournisseur d'identité OIDC : inscription, connexion, mot de passe oublié sont délégués à Keycloak.
 - Création du **backend Micronaut** (Maven, compilable en GraalVM native image) : PostgreSQL, migrations Flyway.
 - **Jetons traités comme opaques** : le backend ne décode ni ne valide aucun JWT ; chaque jeton est vérifié par **introspection** auprès de Keycloak.
-- **Endpoint `whoami` maison** : l'identité de l'utilisateur est servie par le backend à partir de l'introspection (le `userinfo` de Keycloak n'est pas utilisé).
+- **Endpoint `whoami` maison** : le profil de l'utilisateur est servi par le backend (le `userinfo` de Keycloak n'est pas utilisé).
+- **Architecture** : monolithe modulaire en clean architecture (`docs/architecture.md`) avec deux domaines séparés, `identity` et `household`, chacun dans son schéma de base ; un *kernel* partagé gère les agrégats et la publication de leurs événements sur le bus Micronaut.
 - Provisionnement automatique d'un **profil utilisateur local** au premier appel authentifié.
 - **Foyers multiples** : un utilisateur peut créer plusieurs foyers et être membre de plusieurs ; invitation par code à usage unique ; consultation des membres.
 - **Cloisonnement par appartenance** : toute ressource d'un foyer dont l'utilisateur n'est pas membre est inaccessible.

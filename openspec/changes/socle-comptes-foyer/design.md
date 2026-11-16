@@ -1,76 +1,132 @@
 ## Context
 
-Le dépôt ne contient encore aucun code : ce change pose à la fois le socle fonctionnel (comptes, foyers) et le squelette technique. Choix arrêtés : authentification **Keycloak / OIDC** avec **jetons opaques introspectés**, backend **Micronaut** construit avec **Maven** et compilé en GraalVM native image, **PWA** unique pour mobile et desktop, auto-hébergement sur un VPS OVH. Deux utilisateurs visés au départ, mais un utilisateur doit pouvoir gérer plusieurs foyers (ex. résidence principale et maison de famille).
+Le dépôt ne contient encore aucun code : ce change pose à la fois le socle fonctionnel (comptes, foyers) et le squelette technique. Choix arrêtés : authentification **Keycloak / OIDC** avec **jetons opaques introspectés**, backend **Micronaut** construit avec **Maven** et compilé en GraalVM native image, **PWA** unique, auto-hébergement sur un VPS OVH. L'architecture suit `docs/architecture.md` : monolithe modulaire en clean architecture, domaines séparés jusque dans la base, communication inter-domaines par événements.
 
 ## Goals / Non-Goals
 
 **Goals:**
 - Identifier l'utilisateur sur chaque appel API sans gérer de mots de passe ni valider de JWT côté backend.
-- Permettre à un utilisateur d'appartenir à plusieurs foyers et fournir un cloisonnement réutilisable par les futurs domaines.
-- Avoir un backend qui compile et tourne en natif dès le premier change.
-- Un parcours bout en bout dans la PWA : connexion → créer/rejoindre un foyer → choisir un foyer → le consulter.
+- Permettre à un utilisateur d'appartenir à plusieurs foyers, avec un cloisonnement réutilisable par les futurs domaines.
+- Poser le *kernel*, la plateforme technique et les règles d'architecture vérifiées automatiquement.
+- Un backend qui compile et tourne en natif dès le premier change.
+- Un parcours bout en bout dans la PWA.
 
 **Non-Goals:**
 - Déploiement production, TLS, sauvegardes (change dédié).
 - Rôles, départ d'un foyer, retrait de membre, suppression.
+- *Outbox* et broker externe.
 - Hors-ligne et push dans la PWA.
 
 ## Decisions
 
-**1. Keycloak comme IdP, jetons traités comme opaques.**
-Keycloak porte inscription, connexion, reset de mot de passe. Le backend considère le jeton d'accès comme une chaîne opaque : aucun décodage, aucune vérification de signature locale. Chaque jeton est vérifié via l'endpoint d'**introspection** de Keycloak (RFC 7662), en s'authentifiant avec un client confidentiel `life-manager-api` (secret fourni par variable d'environnement). Un jeton est accepté seulement si la réponse contient `active: true` et l'audience attendue.
-L'option *lightweight access token* est activée sur le client `life-manager-pwa` pour que le jeton transporté par le navigateur ne contienne pas de données personnelles ; les claims utiles (`sub`, `email`, `name`, `preferred_username`) sont exposés uniquement dans la réponse d'introspection (mappers « Add to token introspection »).
-Alternative écartée : validation locale des JWT via JWKS — plus performante mais refusée (pas de JWT validé côté backend, révocation immédiate souhaitée).
+### 1. Domaines métiers
 
-**2. Intégration Micronaut.**
-Micronaut Security n'offre pas d'introspection prête à l'emploi côté resource server : on implémente un `TokenValidator` qui appelle l'introspection via le client HTTP Micronaut et construit l'`Authentication` à partir de la réponse. Le lecteur de jeton `Authorization: Bearer` standard est conservé. Les réponses actives sont mises en cache 30 s (clé : empreinte SHA-256 du jeton, jamais le jeton en clair) pour limiter la charge sur Keycloak.
+| Domaine | Package | Schéma | Responsabilité |
+|---|---|---|---|
+| Identité | `identity` | `identity` | Profil local de l'utilisateur, synchronisé depuis Keycloak |
+| Foyer | `household` | `household` | Foyers, appartenance, invitations, annuaire local des membres |
 
-**3. `whoami` maison, pas de `userinfo`.**
-Keycloak refuse l'appel à `userinfo` avec ce mode de jetons ; la PWA obtient donc l'identité via `GET /api/whoami`, construit par le backend à partir du profil local. La PWA ne lit jamais le contenu du jeton.
+S'y ajoutent deux packages sans métier : `kernel` (briques DDD) et `platform` (sécurité, erreurs HTTP).
+L'identifiant d'un utilisateur, commun à tous les domaines, est le **`sub` Keycloak** (UUID) : chaque domaine peut le lire dans l'authentification sans interroger `identity`, ce qui reste vrai après un découpage.
 
-**4. Profil local provisionné à la volée (JIT).**
-Lors de la construction de l'`Authentication`, le backend crée ou met à jour `user_account` à partir des claims d'introspection. Le `sub` est la clé de rattachement ; l'`id` interne (UUID) est utilisé dans toutes les relations.
+### 2. Kernel
 
-**5. Modèle de données (PostgreSQL, Flyway, Micronaut Data JDBC).**
-- `user_account(id, keycloak_sub UNIQUE, email, display_name, created_at)`
-- `household(id, name, created_by, created_at)`
-- `household_member(household_id, user_id, joined_at, PRIMARY KEY (household_id, user_id))` — relation n-n : un utilisateur peut être dans plusieurs foyers.
-- `household_invitation(id, household_id, code UNIQUE, expires_at, used_at, used_by, created_by, created_at)`
-Micronaut Data JDBC plutôt que JPA : moins de réflexion, meilleur comportement en native image.
+- `AggregateRoot<ID>` : identifiant + liste d'événements enregistrés (`recordEvent`, `pullEvents`).
+- `DomainEvent` : interface marqueur avec `occurredAt()`.
+- `DomainException` (abstraite) et `InvalidValueException` (forme de donnée invalide).
+- Port `DomainEventPublisher` + adaptateur s'appuyant sur `ApplicationEventPublisher` de Micronaut.
+Le use case sauvegarde l'agrégat puis publie ses événements via ce port.
 
-**6. Foyer ciblé explicitement + contrôle d'appartenance.**
-Avec plusieurs foyers par utilisateur, il n'y a plus de « foyer courant » implicite côté serveur : chaque route d'un foyer porte son identifiant (`/api/households/{householdId}/…`). Un composant `HouseholdAccess` vérifie l'appartenance de l'utilisateur authentifié avant tout traitement ; un foyer dont il n'est pas membre est traité comme inexistant (`404`). Les futurs domaines suivront le même schéma d'URL et filtreront par `household_id` vérifié. Le dernier foyer sélectionné est mémorisé côté PWA uniquement (préférence d'affichage).
-Limite : 10 foyers maximum par utilisateur, pour borner les abus sur une instance auto-hébergée.
+### 3. Domaine `identity`
 
-**7. Code d'invitation.**
-8 caractères dans un alphabet sans ambiguïté (sans 0/O/1/I), généré par `SecureRandom`, stocké en clair car l'écran du foyer réaffiche le code actif. Valable 7 jours, un seul code actif par foyer : en générer un nouveau fait expirer le précédent. Consommation transactionnelle (`UPDATE … WHERE used_at IS NULL AND expires_at > now()`).
+**Agrégat `UserAccount`** — invariant : un profil par utilisateur Keycloak, toujours avec un email et un nom valides.
+- Value objects : `UserId` (UUID du `sub`), `EmailAddress`, `DisplayName` (1 à 100 caractères, espaces rognés).
+- Méthodes : `register(...)` → `UserRegistered` ; `updateProfile(email, name)` → `UserProfileChanged` seulement si quelque chose change.
 
-**8. API REST** (préfixe `/api`) :
-- `GET /api/whoami` — profil + liste des foyers (id, nom)
-- `GET /api/households` — foyers de l'utilisateur
-- `POST /api/households` — créer
-- `GET /api/households/{householdId}` — détail et membres
-- `POST /api/households/{householdId}/invitations` — générer un code
-- `POST /api/households/join` — rejoindre avec `{ code }`
-- `GET /health` — public
+**Use cases** : `SyncUserAccount` (crée ou met à jour le profil), `GetCurrentUser` (whoami).
+**Événements de contrat** : `UserRegisteredV1`, `UserProfileChangedV1` (`userId`, `email`, `displayName`, `occurredAt`).
+**Déclenchement de la synchro** : la plateforme publie un événement technique `UserAuthenticated` (sub, email, nom) quand une introspection réelle a lieu (pas sur un résultat en cache) ; un listener d'`identity` appelle `SyncUserAccount`. L'écoute est synchrone, donc le profil existe avant que la requête atteigne un contrôleur.
 
-**9. PWA : Vite + TypeScript + Svelte, `oidc-client-ts`, `vite-plugin-pwa`.**
-Hypothèse retenue faute de préférence exprimée. Le jeton est conservé en mémoire/sessionStorage et renouvelé par refresh token ; il n'est jamais décodé côté client.
+### 4. Domaine `household`
 
-**10. Structure du dépôt.**
-`backend/` (Maven wrapper, Java 21, Micronaut 4, build natif via `./mvnw package -Dpackaging=native-image`), `frontend/`, `infra/keycloak/realm-life-manager.json`, `docker-compose.yml` à la racine.
+**Agrégat `Household`** — invariants : nom valide, au moins un membre, pas de membre en double.
+- Value objects : `HouseholdId`, `HouseholdName` (1 à 100 caractères), `MemberId` (UUID du `sub`).
+- Entité interne : `Membership` (`MemberId`, date d'adhésion).
+- Méthodes : `create(name, founder)` → `HouseholdCreated` ; `addMember(member, at)` → `MemberJoined`.
+
+**Agrégat `Invitation`** — invariants : usage unique, pas d'acceptation après expiration.
+- Value objects : `InvitationId`, `InvitationCode` (8 caractères dans `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`), `InvitationStatus` (`PENDING`, `ACCEPTED`, `REVOKED`).
+- Méthodes : `issue(household, code, now)` (valable 7 jours) ; `accept(member, now)` → `InvitationAccepted` ; `revoke()`.
+
+Séparer `Invitation` de `Household` garde `Household` petit : les deux n'ont pas d'invariant commun.
+
+**Annuaire des membres** (`MemberProfile` : `MemberId`, nom d'affichage) : copie locale, sans comportement métier, alimentée par les événements de contrat d'`identity`. Ce n'est pas un agrégat : un port out `MemberDirectory` et sa table.
+
+**Use cases** : `CreateHousehold`, `ListMyHouseholds`, `GetHousehold`, `IssueInvitation`, `JoinHousehold`, `UpdateMemberProfile` (appelé par le listener).
+**Services applicatifs** :
+- `HouseholdAccess` : charge un foyer seulement si l'utilisateur en est membre, sinon `HouseholdNotFoundException` (→ 404). Utilisé par tous les use cases ciblant un foyer.
+- `MembershipQuota` : vérifie le plafond de 10 foyers, partagé par `CreateHousehold` et `JoinHousehold`.
+
+**Exception assumée** : `JoinHousehold` modifie deux agrégats (`Invitation` acceptée, `Household` avec un membre de plus) dans **une seule transaction**. Ils sont dans le même domaine et le même schéma, et une acceptation sans adhésion n'aurait pas de sens pour l'utilisateur. `IssueInvitation` révoque l'éventuelle invitation en attente avant d'en créer une nouvelle, dans la même transaction.
+
+### 5. Base de données
+
+Une base PostgreSQL `lifemanager`, deux schémas, **une datasource et une configuration Flyway par domaine**, aucune clé étrangère entre schémas.
+- `identity.user_account(id PK = sub, email, display_name, created_at, updated_at)`
+- `household.household(id, name, created_at)`
+- `household.membership(household_id FK, member_id, joined_at, PK (household_id, member_id))`
+- `household.invitation(id, household_id FK, code UNIQUE, status, expires_at, accepted_by, created_at)`
+- `household.member_profile(member_id PK, display_name, updated_at)`
+Persistance avec Micronaut Data JDBC (moins de réflexion que JPA, adapté au natif) ; entités de table séparées des objets métier, mapping MapStruct.
+
+### 6. Authentification (`platform.infrastructure.security`)
+
+- Jeton traité comme **opaque** : jamais décodé, vérifié par l'endpoint d'**introspection** Keycloak (RFC 7662) avec le client confidentiel `life-manager-api` ; accepté si `active: true` et audience correcte.
+- `TokenValidator` maison (Micronaut n'offre pas l'introspection côté resource server) ; cache Caffeine de 30 s, clé = SHA-256 du jeton.
+- *Lightweight access token* activé sur `life-manager-pwa` ; les claims utiles sont fournis seulement dans la réponse d'introspection.
+- 401 si jeton absent ou inactif, 503 si Keycloak est injoignable.
+- `whoami` maison : Keycloak n'accepte pas `userinfo` avec ce mode de jetons.
+
+### 7. API REST (préfixe `/api`)
+
+| Route | Domaine |
+|---|---|
+| `GET /api/whoami` | identity |
+| `GET /api/households` / `POST /api/households` | household |
+| `GET /api/households/{householdId}` | household |
+| `POST /api/households/{householdId}/invitations` | household |
+| `POST /api/households/join` | household |
+| `GET /health` (public) | platform |
+
+Limitation des tentatives sur `/join` : Bucket4j, 10 essais par utilisateur et par heure.
+
+### 8. Qualité
+
+- Tests ArchUnit pour les règles de dépendance de `docs/architecture.md`.
+- Checkstyle dans le build Maven : longueur de méthode et de classe, complexité cyclomatique ≤ 10.
+- Tests unitaires du domaine sans framework ; tests d'intégration avec Testcontainers (PostgreSQL) et un faux endpoint d'introspection.
+
+### 9. PWA
+
+Vite + TypeScript + Svelte, `oidc-client-ts`, `vite-plugin-pwa`. Le jeton est gardé en mémoire/sessionStorage, renouvelé par refresh token, jamais décodé. Au démarrage : `whoami` puis `GET /api/households`.
+
+### 10. Structure du dépôt
+
+`backend/` (Maven wrapper, Java 25, Micronaut 4, build natif `./mvnw package -Dpackaging=native-image`), `frontend/`, `infra/keycloak/realm-life-manager.json`, `docker-compose.yml`.
 
 ## Risks / Trade-offs
 
-- **Un appel Keycloak par requête** (hors cache) → latence et dépendance forte à Keycloak. Mitigation : cache court ; Keycloak et le backend sur la même machine.
-- **Délai de révocation égal au TTL du cache** (30 s) → acceptable pour l'usage.
-- **Empreinte de Keycloak** (JVM, ~500 Mo de RAM) → contredit en partie la sobriété du backend natif. Mitigation : surveiller sur le VPS ; base PostgreSQL partagée (base séparée).
-- **Native image et réflexion** (sérialisation, client HTTP) → build natif en CI dès ce change.
-- **Force brute sur `/join`** (≈ 10¹² combinaisons) → limitation du nombre de tentatives par utilisateur.
+- **Un appel Keycloak par requête hors cache** → latence et dépendance forte ; cache 30 s, services sur la même machine.
+- **Délai de révocation = TTL du cache** (30 s) → acceptable.
+- **Événements perdus sans outbox** (arrêt entre commit et publication) → un nom de membre peut rester périmé jusqu'à la prochaine modification du profil ; risque accepté à cette échelle, outbox à prévoir avec le broker.
+- **Deux datasources** → deux pools de connexions ; tailles réduites (2 à 5).
+- **Empreinte de Keycloak** (~500 Mo de RAM) → à surveiller sur le VPS.
+- **Natif et réflexion** (sérialisation, MapStruct, client HTTP) → build natif en CI dès ce change.
+- **Java 25 + Micronaut 4 + GraalVM** : compatibilité à confirmer à la tâche 2.1 ; repli sur Java 21 si besoin, après accord.
 
 ## Migration Plan
 
-Projet vierge : pas de migration. La migration Flyway `V1__…` crée le schéma initial.
+Projet vierge : chaque domaine a sa migration Flyway `V1__…` dans son schéma.
 
 ## Open Questions
 

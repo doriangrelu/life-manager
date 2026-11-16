@@ -1,0 +1,38 @@
+# Java / Maven
+target/
+*.class
+*.log
+hs_err_pid*
+.mvn/wrapper/maven-wrapper.jar
+
+# Node / Vite (PWA)
+node_modules/
+dist/
+dev-dist/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+
+# Secrets et configuration locale
+.env
+.env.*
+!.env.example
+*.local
+
+# IDE
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.settings/
+.project
+.classpath
+.factorypath
+
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code (réglages personnels)
+.claude/settings.local.json

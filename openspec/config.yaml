@@ -10,13 +10,20 @@ context: |
   MVP : budget (saisie rapide), véhicules (carnet, CT, rappels), liste de courses partagée, socle comptes/foyer.
   Contraintes : mobile + desktop, backend Java compilé en natif (GraalVM), auto-hébergé sur VPS OVH.
   Projet perso : rester concis, éviter la sur-spécification.
+  Architecture backend : docs/architecture.md (clean architecture, monolithe modulaire,
+  un domaine = un package + un schéma de base, communication inter-domaines par événements de contrat).
 
 rules:
   proposal:
     - Keep proposals under 400 words
     - Always state what is out of scope
+  design:
+    - Follow docs/architecture.md; name the business domains, aggregates, value objects and events involved
+    - State which database schema each table belongs to; never share tables or foreign keys across domains
+    - Any cross-domain need goes through contract events, justify any exception
   tasks:
     - Break tasks into chunks of max 2 hours
+    - Each task names the domain and layer it touches
 
 # Per-operation guidance (optional)
 # Add advisory guidance for how apply and archive work should be conducted.

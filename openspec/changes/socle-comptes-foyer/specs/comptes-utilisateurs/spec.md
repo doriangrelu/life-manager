@@ -40,17 +40,12 @@ Le système SHALL créer automatiquement un profil utilisateur local lors du pre
 
 ### Requirement: Endpoint whoami
 
-Le système SHALL exposer un endpoint `whoami` retournant le profil de l'utilisateur courant et la liste des foyers dont il est membre. La PWA SHALL obtenir l'identité de l'utilisateur uniquement par cet endpoint, sans lire le contenu du jeton ni appeler le `userinfo` de Keycloak.
+Le système SHALL exposer un endpoint `whoami` retournant uniquement le profil de l'utilisateur courant (identifiant, email, nom d'affichage). La PWA SHALL obtenir l'identité de l'utilisateur uniquement par cet endpoint, sans lire le contenu du jeton ni appeler le `userinfo` de Keycloak.
 
-#### Scenario: Utilisateur sans foyer
+#### Scenario: Consultation du profil
 
-- **WHEN** un utilisateur authentifié qui n'appartient à aucun foyer appelle `whoami`
-- **THEN** la réponse contient son profil et une liste de foyers vide
-
-#### Scenario: Utilisateur membre de plusieurs foyers
-
-- **WHEN** un utilisateur authentifié membre de deux foyers appelle `whoami`
-- **THEN** la réponse contient son profil et les deux foyers (identifiant et nom)
+- **WHEN** un utilisateur authentifié appelle `whoami`
+- **THEN** la réponse contient son identifiant, son email et son nom d'affichage, et aucune donnée d'un autre domaine
 
 ### Requirement: Connexion depuis la PWA
 

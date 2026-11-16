@@ -80,6 +80,11 @@ Le système SHALL permettre à un membre de consulter un de ses foyers : nom, li
 - **WHEN** un membre consulte un de ses foyers
 - **THEN** il obtient le nom du foyer et la liste de ses membres
 
+#### Scenario: Changement de nom d'un membre
+
+- **WHEN** un membre modifie son nom d'affichage dans Keycloak puis utilise l'application
+- **THEN** son nouveau nom apparaît dans la liste des membres de chacun de ses foyers
+
 ### Requirement: Cloisonnement des données par foyer
 
 Le système SHALL vérifier, pour toute requête ciblant un foyer, que l'utilisateur authentifié en est membre avant tout traitement, et SHALL traiter un foyer dont il n'est pas membre, ainsi que toutes ses ressources, comme inexistant.
@@ -96,7 +101,7 @@ Le système SHALL vérifier, pour toute requête ciblant un foyer, que l'utilisa
 
 ### Requirement: Parcours foyer dans la PWA
 
-La PWA SHALL proposer à un utilisateur connecté sans foyer de créer un foyer ou d'en rejoindre un avec un code. Elle SHALL permettre à un membre de plusieurs foyers de choisir le foyer affiché, mémoriser ce choix sur l'appareil, et à tout moment créer ou rejoindre un autre foyer. L'écran d'un foyer SHALL afficher ses membres et permettre de générer et copier un code d'invitation.
+La PWA SHALL charger la liste des foyers de l'utilisateur via l'API du domaine foyer. Elle SHALL proposer à un utilisateur connecté sans foyer de créer un foyer ou d'en rejoindre un avec un code. Elle SHALL permettre à un membre de plusieurs foyers de choisir le foyer affiché, mémoriser ce choix sur l'appareil, et à tout moment créer ou rejoindre un autre foyer. L'écran d'un foyer SHALL afficher ses membres et permettre de générer et copier un code d'invitation.
 
 #### Scenario: Premier lancement sans foyer
 
