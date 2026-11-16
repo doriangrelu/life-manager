@@ -90,4 +90,8 @@
   .row label {
     min-width: 0;
   }
+  .row input,
+  .row select {
+    width: 100%;
+  }
 </style>

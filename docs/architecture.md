@@ -18,7 +18,8 @@ Un domaine = un package de premier niveau, avec son propre schéma de base.
 | Identité | `identity` | Profil utilisateur local, rattaché au compte Keycloak |
 | Foyer | `household` | Foyers, membres, invitations |
 | Budget | `budget` | Dépenses, catégories, vue mensuelle |
-| _à venir_ | `vehicle`, `shopping`, `reminder` | Un par domaine du MVP |
+| Véhicule | `vehicle` | Fiches véhicules, échéances (CT, révision), carnet d'entretien |
+| _à venir_ | `shopping`, `reminder` | Un par domaine du MVP |
 
 ## Arborescence des packages
 

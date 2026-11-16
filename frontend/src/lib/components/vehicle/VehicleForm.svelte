@@ -70,6 +70,9 @@
   .row label {
     min-width: 0;
   }
+  .row input {
+    width: 100%;
+  }
   @media (max-width: 480px) {
     .row {
       grid-template-columns: 1fr;
