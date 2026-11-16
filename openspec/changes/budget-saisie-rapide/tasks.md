@@ -21,15 +21,15 @@
 
 ## 5. Dépenses
 
-- [ ] 5.1 [budget/domain] Agrégat `Expense` (saisie, correction, suppression) et ses événements ; vérifié par des tests unitaires
-- [ ] 5.2 [budget/infrastructure/out] Repository, mapper et adaptateur des dépenses ; vérifié par le test d'intégration de 5.4
-- [ ] 5.3 [budget/application] Service `ExpenseRules`, use cases `RecordExpense`, `CorrectExpense`, `DeleteExpense` ; vérifié par des tests d'intégration (catégorie archivée ou d'un autre foyer → 400, payeur étranger → 400, modification invalide sans effet)
-- [ ] 5.4 [budget/infrastructure/in/web] Routes `/expenses` (POST, PUT, DELETE) avec validation des DTO ; vérifié par un test d'intégration de bout en bout (saisie, correction, suppression, 404 sur dépense inconnue ou foyer étranger)
+- [x] 5.1 [budget/domain] Agrégat `Expense` (saisie, correction, suppression) et ses événements ; vérifié par des tests unitaires
+- [x] 5.2 [budget/infrastructure/out] Repository, mapper et adaptateur des dépenses ; vérifié par le test d'intégration de 5.4
+- [x] 5.3 [budget/application] Service `ExpenseRules`, use cases `RecordExpense`, `CorrectExpense`, `DeleteExpense` ; vérifié par des tests d'intégration (catégorie archivée ou d'un autre foyer → 400, payeur étranger → 400, modification invalide sans effet)
+- [x] 5.4 [budget/infrastructure/in/web] Routes `/expenses` (POST, PUT, DELETE) avec validation des DTO ; vérifié par un test d'intégration de bout en bout (saisie, correction, suppression, 404 sur dépense inconnue ou foyer étranger)
 
 ## 6. Vue mensuelle
 
-- [ ] 6.1 [budget/application + infrastructure/out] Port `MonthlyBudgetReadModel` (requêtes d'agrégation SQL) et use case `GetMonthlyBudget` ; vérifié par un test d'intégration reprenant les exemples chiffrés des specs (total, catégories triées, payeurs, bénéficiaires, mois vide)
-- [ ] 6.2 [budget/infrastructure/in/web] Route `GET /budget/{yyyy-MM}` (mois invalide → 400) ; vérifié par un test d'intégration
+- [x] 6.1 [budget/application + infrastructure/out] Port `MonthlyBudgetReadModel` (requêtes d'agrégation SQL) et use case `GetMonthlyBudget` ; vérifié par un test d'intégration reprenant les exemples chiffrés des specs (total, catégories triées, payeurs, bénéficiaires, mois vide)
+- [x] 6.2 [budget/infrastructure/in/web] Route `GET /budget/{yyyy-MM}` (mois invalide → 400) ; vérifié par un test d'intégration
 
 ## 7. PWA
 

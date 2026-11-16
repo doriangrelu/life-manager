@@ -10,8 +10,8 @@ Le système SHALL fournir, pour un foyer et un mois donnés, le total des dépen
 
 #### Scenario: Mois avec dépenses
 
-- **WHEN** un membre consulte un mois comportant 30 € et 20 € en « Courses » et 50 € en « Transport »
-- **THEN** il obtient un total de 100 €, puis « Transport » 50 € et « Courses » 50 €, triés par montant décroissant
+- **WHEN** un membre consulte un mois comportant 30 € et 25 € en « Courses » et 45 € en « Transport »
+- **THEN** il obtient un total de 100 €, puis « Courses » 55 € et « Transport » 45 €, triés par montant décroissant
 
 #### Scenario: Mois sans dépense
 

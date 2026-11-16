@@ -3,6 +3,10 @@ micronaut:
     name: life-manager
   server:
     port: ${SERVER_PORT:8080}
+  serde:
+    serialization:
+      # Contrat d'API explicite : listes vides ([]) et absences (null) sont toujours écrites dans le JSON.
+      inclusion: always
   http:
     services:
       keycloak:
