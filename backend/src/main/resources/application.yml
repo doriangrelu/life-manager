@@ -3,6 +3,21 @@ micronaut:
     name: life-manager
   server:
     port: ${SERVER_PORT:8080}
+  http:
+    services:
+      keycloak:
+        url: ${KEYCLOAK_URL:`http://localhost:8180`}
+        read-timeout: 5s
+        connect-timeout: 2s
+
+# Les jetons sont opaques : chacun est vérifié par l'introspection Keycloak (jamais décodé).
+security:
+  introspection:
+    path: /realms/life-manager/protocol/openid-connect/token/introspect
+    client-id: ${KEYCLOAK_API_CLIENT_ID:life-manager-api}
+    client-secret: ${KEYCLOAK_API_CLIENT_SECRET:dev-api-secret-change-me}
+    audience: life-manager-api
+    cache-ttl: 30s
 
 # Une datasource par domaine métier : même base, schéma et compte différents.
 # Découper un domaine en service = changer son URL.

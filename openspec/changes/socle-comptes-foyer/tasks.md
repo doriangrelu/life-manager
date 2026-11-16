@@ -19,10 +19,10 @@
 
 ## 4. Plateforme : sécurité et erreurs
 
-- [ ] 4.1 [platform/security] `TokenValidator` par introspection Keycloak (client confidentiel, `active` + audience, 401 / 503) ; aucune dépendance `security-jwt`
-- [ ] 4.2 [platform/security] Cache d'introspection Caffeine (30 s, clé SHA-256) et publication de `UserAuthenticated` sur introspection réelle + tests
-- [ ] 4.3 [platform/security] Faux endpoint d'introspection et support Testcontainers pour les tests d'intégration
-- [ ] 4.4 [platform/web] Traduction des exceptions (`InvalidValueException` → 400, `…NotFoundException` → 404, conflits → 409) en réponses JSON homogènes
+- [x] 4.1 [platform/security] `TokenValidator` par introspection Keycloak (client confidentiel, `active` + audience, 401 / 503) ; aucune dépendance `security-jwt`
+- [x] 4.2 [platform/security] Cache d'introspection Caffeine (30 s, clé SHA-256) et publication de `UserAuthenticated` sur introspection réelle + tests
+- [x] 4.3 [platform/security] Faux endpoint d'introspection et support Testcontainers pour les tests d'intégration
+- [x] 4.4 [platform/web] Traduction des exceptions (`InvalidValueException` → 400, `…NotFoundException` → 404, conflits → 409) en réponses JSON homogènes
 
 ## 5. Domaine identity
 

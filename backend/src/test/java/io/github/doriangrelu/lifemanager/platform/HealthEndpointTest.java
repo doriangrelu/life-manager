@@ -1,6 +1,6 @@
 package io.github.doriangrelu.lifemanager.platform;
 
-import io.github.doriangrelu.lifemanager.support.PostgresTestSupport;
+import io.github.doriangrelu.lifemanager.support.IntegrationTestSupport;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.HttpClient;
@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class HealthEndpointTest extends PostgresTestSupport {
+class HealthEndpointTest extends IntegrationTestSupport {
 
     @Inject
     @Client("/")

@@ -3,7 +3,7 @@ package io.github.doriangrelu.lifemanager.kernel.infrastructure.event;
 import io.github.doriangrelu.lifemanager.kernel.application.port.out.DomainEventPublisher;
 import io.github.doriangrelu.lifemanager.kernel.domain.aggregate.AggregateRoot;
 import io.github.doriangrelu.lifemanager.kernel.domain.event.DomainEvent;
-import io.github.doriangrelu.lifemanager.support.PostgresTestSupport;
+import io.github.doriangrelu.lifemanager.support.IntegrationTestSupport;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class MicronautDomainEventPublisherTest extends PostgresTestSupport {
+class MicronautDomainEventPublisherTest extends IntegrationTestSupport {
 
     record TestEvent(Instant occurredAt) implements DomainEvent {
     }
