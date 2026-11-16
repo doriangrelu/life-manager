@@ -1,17 +1,17 @@
 ## 1. Socle du domaine shopping
 
 - [ ] 1.1 [infra] Schéma `shopping` et compte `shopping_app` dans `infra/postgres/init`, `docker-compose.yml`, `.env.example` et `db/test-init.sql` ; vérifié en recréant la base de dev
-- [ ] 1.2 [shopping/infrastructure/out] Datasource et Flyway `shopping`, migration `V1` (household_member, shopping_item) ; `shopping` ajouté aux domaines d'ArchUnit et des tests d'intégration ; vérifié par `./mvnw verify`
-- [ ] 1.3 [shopping/domain] Value objects (`ShoppingItemId`, `HouseholdId`, `MemberId`, `ItemLabel`) et agrégat `ShoppingItem` (ajout, cochage, décochage idempotents) ; vérifié par des tests unitaires
+- [x] 1.2 [shopping/infrastructure/out] Datasource et Flyway `shopping`, migration `V1` (household_member, shopping_item) ; `shopping` ajouté aux domaines d'ArchUnit et des tests d'intégration ; vérifié par `./mvnw verify`
+- [x] 1.3 [shopping/domain] Value objects (`ShoppingItemId`, `HouseholdId`, `MemberId`, `ItemLabel`) et agrégat `ShoppingItem` (ajout, cochage, décochage idempotents) ; vérifié par des tests unitaires
 
 ## 2. Membres et accès
 
-- [ ] 2.1 [shopping/application + infrastructure] Port et table `household_member`, use case `RegisterHouseholdMember`, écouteur des événements du foyer, service `ShoppingAccess` ; vérifié par le test d'intégration de 3.2
+- [x] 2.1 [shopping/application + infrastructure] Port et table `household_member`, use case `RegisterHouseholdMember`, écouteur des événements du foyer, service `ShoppingAccess` ; vérifié par le test d'intégration de 3.2
 
 ## 3. Liste
 
-- [ ] 3.1 [shopping/infrastructure/out] Repository, mapper et adaptateur des articles (tri, suppression des cochés) ; vérifié par le test de 3.2
-- [ ] 3.2 [shopping/application + infrastructure/in/web] `ListShoppingItems`, `AddShoppingItem`, `CheckShoppingItem`, `UncheckShoppingItem`, `RemoveShoppingItem`, `ClearCheckedItems` et routes `/shopping-items` ; vérifié par un test d'intégration (ordre, partage, cochage idempotent, vidage, 400 et 404)
+- [x] 3.1 [shopping/infrastructure/out] Repository, mapper et adaptateur des articles (tri, suppression des cochés) ; vérifié par le test de 3.2
+- [x] 3.2 [shopping/application + infrastructure/in/web] `ListShoppingItems`, `AddShoppingItem`, `CheckShoppingItem`, `UncheckShoppingItem`, `RemoveShoppingItem`, `ClearCheckedItems` et routes `/shopping-items` ; vérifié par un test d'intégration (ordre, partage, cochage idempotent, vidage, 400 et 404)
 
 ## 4. PWA
 

@@ -60,6 +60,15 @@ datasources:
     dialect: POSTGRES
     maximum-pool-size: 5
 
+  shopping:
+    url: ${SHOPPING_DB_URL:`jdbc:postgresql://localhost:5432/lifemanager`}
+    username: ${SHOPPING_DB_USER:shopping_app}
+    password: ${SHOPPING_DB_PASSWORD:shopping}
+    schema: shopping
+    driver-class-name: org.postgresql.Driver
+    dialect: POSTGRES
+    maximum-pool-size: 5
+
 # Une configuration Flyway (et donc un historique de migrations) par domaine.
 flyway:
   datasources:
@@ -79,6 +88,10 @@ flyway:
       enabled: true
       locations: classpath:db/migration/vehicle
       default-schema: vehicle
+    shopping:
+      enabled: true
+      locations: classpath:db/migration/shopping
+      default-schema: shopping
 
 # Fuseau des utilisateurs : sert à savoir quel jour on est (ex. refuser une dépense datée de demain).
 life-manager:

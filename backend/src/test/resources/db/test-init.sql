@@ -3,3 +3,4 @@ CREATE SCHEMA identity;
 CREATE SCHEMA household;
 CREATE SCHEMA budget;
 CREATE SCHEMA vehicle;
+CREATE SCHEMA shopping;
