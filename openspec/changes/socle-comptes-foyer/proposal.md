@@ -29,7 +29,7 @@ _Aucune (projet vierge)._
 ## Impact
 
 - Nouveau code : `backend/` (Micronaut, Java 21, Maven), `frontend/` (PWA), `docker-compose.yml`, export du realm Keycloak.
-- Nouvelles dépendances d'infrastructure : PostgreSQL, Keycloak (à déployer à terme sur le VPS OVH).
+- Nouvelle infrastructure : PostgreSQL et Keycloak.
 - Tous les changes suivants s'appuieront sur l'utilisateur courant et sur un foyer explicitement ciblé.
 
 ## Hors périmètre
