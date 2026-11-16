@@ -44,6 +44,8 @@ cd frontend && bun install && bun run dev   # PWA sur http://localhost:5173
 | Realm de l'application | http://localhost:8180/realms/life-manager | comptes créés par l'admin (pas d'inscription libre) |
 | PostgreSQL | `localhost:5432`, base `lifemanager` | un compte par domaine : `identity_app`, `household_app` |
 
-Le realm est défini dans [infra/keycloak/realm-life-manager.json](infra/keycloak/realm-life-manager.json) et importé au démarrage de Keycloak s'il n'existe pas encore. Pour repartir de zéro : `docker compose down -v`.
+Le realm est défini dans [infra/keycloak/realm-life-manager.json](infra/keycloak/realm-life-manager.json) et importé au démarrage de Keycloak s'il n'existe pas encore.
+
+**Repartir de zéro** (après un changement du realm, d'un script d'init PostgreSQL, ou quand un nouveau domaine dépend d'événements que les anciennes données n'ont jamais produits) : `docker compose down -v && docker compose up -d`, puis relancer `./infra/keycloak/create-dev-users.sh`. Toutes les données de dev sont effacées.
 
 > Les secrets présents dans ce dépôt (mots de passe, secret du client `life-manager-api`) sont des valeurs **de développement uniquement**.

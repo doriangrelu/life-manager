@@ -34,16 +34,16 @@
 ## 7. PWA
 
 - [x] 7.1 [frontend] Client d'API budget, conversion montant saisi ↔ centimes avec tests unitaires (Vitest : « 12,5 », « 12,50 », « 0,1 », saisies invalides) ; vérifié par `bun run test` et `bun run check`
-- [ ] 7.2 [frontend] Onglets « Budget » / « Foyer » dans le foyer sélectionné ; vérifié dans le navigateur
-- [ ] 7.3 [frontend] Formulaire de saisie rapide (valeurs pré-remplies, clavier numérique, confirmation, remise à zéro) ; vérifié dans le navigateur en affichage mobile
-- [ ] 7.4 [frontend] Écran du mois (totaux, répartitions avec noms des membres, liste, mois précédent / suivant) ; vérifié dans le navigateur
-- [ ] 7.5 [frontend] Modification et suppression d'une dépense depuis la liste ; vérifié dans le navigateur
-- [ ] 7.6 [frontend] Gestion des catégories (ajout, renommage, archivage, réactivation) ; vérifié dans le navigateur
+- [x] 7.2 [frontend] Onglets « Budget » / « Foyer » dans le foyer sélectionné ; vérifié dans le navigateur
+- [x] 7.3 [frontend] Formulaire de saisie rapide (valeurs pré-remplies, clavier numérique, confirmation, remise à zéro) ; vérifié dans le navigateur en affichage mobile
+- [x] 7.4 [frontend] Écran du mois (totaux, répartitions avec noms des membres, liste, mois précédent / suivant) ; vérifié dans le navigateur
+- [x] 7.5 [frontend] Modification et suppression d'une dépense depuis la liste ; vérifié dans le navigateur
+- [x] 7.6 [frontend] Gestion des catégories (ajout, renommage, archivage, réactivation) ; vérifié dans le navigateur
 
 ## 8. Intégration
 
-- [ ] 8.1 [ci] Tests Vitest ajoutés au job PWA de la CI ; vérifié par un run CI vert
-- [ ] 8.2 [doc] `docs/architecture.md` (domaine budget dans le tableau des domaines) et README (réinitialisation de la base de dev) à jour ; parcours complet à deux comptes vérifié dans le navigateur (saisie par l'un, visible par l'autre)
+- [x] 8.1 [ci] Tests Vitest ajoutés au job PWA de la CI ; vérifié par un run CI vert
+- [x] 8.2 [doc] `docs/architecture.md` (domaine budget dans le tableau des domaines) et README (réinitialisation de la base de dev) à jour ; parcours complet à deux comptes vérifié dans le navigateur (saisie par l'un, visible par l'autre)
 
 ## Workflow follow-up
 
