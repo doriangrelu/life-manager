@@ -48,11 +48,11 @@
 
 ## 7. PWA minimale
 
-- [ ] 7.1 [frontend] Initialiser `frontend/` (Vite, TypeScript, Svelte, `vite-plugin-pwa`) et le proxy `/api`
-- [ ] 7.2 [frontend] `oidc-client-ts` : connexion PKCE, callback, renouvellement, déconnexion ; client HTTP ajoutant le jeton sans le décoder
-- [ ] 7.3 [frontend] Chargement de `whoami` puis des foyers, sélecteur de foyer mémorisé sur l'appareil
-- [ ] 7.4 [frontend] Écran « Créer ou rejoindre un foyer »
-- [ ] 7.5 [frontend] Écran du foyer (membres, génération et copie du code)
+- [x] 7.1 [frontend] Initialiser `frontend/` (Vite, TypeScript, Svelte, `vite-plugin-pwa`) et le proxy `/api`
+- [x] 7.2 [frontend] `oidc-client-ts` : connexion PKCE, callback, renouvellement, déconnexion ; client HTTP ajoutant le jeton sans le décoder
+- [x] 7.3 [frontend] Chargement de `whoami` puis des foyers, sélecteur de foyer mémorisé sur l'appareil
+- [x] 7.4 [frontend] Écran « Créer ou rejoindre un foyer »
+- [x] 7.5 [frontend] Écran du foyer (membres, génération et copie du code)
 - [ ] 7.6 [frontend] Vérification manuelle à deux comptes et deux foyers, desktop et mobile
 
 ## 8. Intégration continue
