@@ -4,3 +4,4 @@ CREATE SCHEMA household;
 CREATE SCHEMA budget;
 CREATE SCHEMA vehicle;
 CREATE SCHEMA shopping;
+CREATE SCHEMA reminder;

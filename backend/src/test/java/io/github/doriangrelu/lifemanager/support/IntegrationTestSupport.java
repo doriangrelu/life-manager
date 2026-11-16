@@ -23,7 +23,7 @@ public abstract class IntegrationTestSupport implements TestPropertyProvider {
     public Map<String, String> getProperties() {
         var properties = new HashMap<String, String>();
         // Toutes les datasources de domaine pointent sur le même PostgreSQL de test.
-        for (String domain : List.of("identity", "household", "budget", "vehicle", "shopping")) {
+        for (String domain : List.of("identity", "household", "budget", "vehicle", "shopping", "reminder")) {
             properties.put("datasources." + domain + ".url", POSTGRES.getJdbcUrl());
             properties.put("datasources." + domain + ".username", POSTGRES.getUsername());
             properties.put("datasources." + domain + ".password", POSTGRES.getPassword());
