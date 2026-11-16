@@ -1,0 +1,23 @@
+package io.github.doriangrelu.lifemanager.household.application.port.out;
+
+import io.github.doriangrelu.lifemanager.household.domain.aggregate.Household;
+import io.github.doriangrelu.lifemanager.household.domain.valueobject.HouseholdId;
+import io.github.doriangrelu.lifemanager.household.domain.valueobject.MemberId;
+
+import java.util.List;
+import java.util.Optional;
+
+/** Stockage des foyers et de leurs membres. */
+public interface HouseholdRepository {
+
+    Optional<Household> findById(HouseholdId id);
+
+    /** Foyers dont l'utilisateur est membre, du plus ancien au plus récent. */
+    List<Household> findAllByMember(MemberId member);
+
+    /** Nombre de foyers dont l'utilisateur est membre. */
+    int countByMember(MemberId member);
+
+    /** Crée le foyer ou enregistre ses nouveaux membres. */
+    void save(Household household);
+}

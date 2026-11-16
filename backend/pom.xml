@@ -26,6 +26,7 @@
     <exec.mainClass>io.github.doriangrelu.lifemanager.Application</exec.mainClass>
 
     <archunit.version>1.5.1</archunit.version>
+    <bucket4j.version>8.22.0</bucket4j.version>
     <checkstyle.version>14.4.0</checkstyle.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
   </properties>
@@ -76,6 +77,11 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.bucket4j</groupId>
+      <artifactId>bucket4j_jdk17-core</artifactId>
+      <version>${bucket4j.version}</version>
     </dependency>
 
     <!-- Persistance -->

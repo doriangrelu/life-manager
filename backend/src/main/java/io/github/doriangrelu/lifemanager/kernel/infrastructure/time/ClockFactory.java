@@ -4,6 +4,7 @@ import io.micronaut.context.annotation.Factory;
 import jakarta.inject.Singleton;
 
 import java.time.Clock;
+import java.time.Duration;
 
 /**
  * Fournit l'horloge utilisée par les use cases : on injecte {@link Clock}
@@ -14,6 +15,7 @@ class ClockFactory {
 
     @Singleton
     Clock clock() {
-        return Clock.systemUTC();
+        // Précision à la microseconde, comme PostgreSQL : une date relue en base est identique à celle écrite.
+        return Clock.tick(Clock.systemUTC(), Duration.ofNanos(1_000));
     }
 }

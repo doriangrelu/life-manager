@@ -36,15 +36,15 @@
 
 - [x] 6.1 [household/domain] Value objects `HouseholdId`, `HouseholdName`, `MemberId`, entité `Membership`, agrégat `Household` + tests unitaires
 - [x] 6.2 [household/domain] Value objects `InvitationId`, `InvitationCode`, `InvitationStatus`, agrégat `Invitation` + tests unitaires (expiration, usage unique, révocation)
-- [ ] 6.3 [household/infrastructure/out] Datasource et Flyway du schéma `household`, tables, repositories, mappers, adaptateurs
-- [ ] 6.4 [household/application] Services `HouseholdAccess` et `MembershipQuota` + tests
-- [ ] 6.5 [household] `CreateHousehold`, `ListMyHouseholds` et leurs routes + tests
-- [ ] 6.6 [household] `GetHousehold` (membres avec noms de l'annuaire, code actif) et sa route + tests, dont non-membre → 404
-- [ ] 6.7 [household] `IssueInvitation` (révocation de la précédente, code `SecureRandom`) et sa route + tests
-- [ ] 6.8 [household] `JoinHousehold` (transaction unique, erreurs 400/409) et sa route + tests
-- [ ] 6.9 [household/infrastructure/in/web] Limitation Bucket4j sur `/join` + test
-- [ ] 6.10 [household/infrastructure/in/event] Listener des événements de contrat `identity` → `UpdateMemberProfile` (annuaire) + test
-- [ ] 6.11 [household] Test de cloisonnement : un membre du seul foyer A ne voit rien du foyer B
+- [x] 6.3 [household/infrastructure/out] Datasource et Flyway du schéma `household`, tables, repositories, mappers, adaptateurs
+- [x] 6.4 [household/application] Services `HouseholdAccess` et `MembershipQuota` + tests
+- [x] 6.5 [household] `CreateHousehold`, `ListMyHouseholds` et leurs routes + tests
+- [x] 6.6 [household] `GetHousehold` (membres avec noms de l'annuaire, code actif) et sa route + tests, dont non-membre → 404
+- [x] 6.7 [household] `IssueInvitation` (révocation de la précédente, code `SecureRandom`) et sa route + tests
+- [x] 6.8 [household] `JoinHousehold` (transaction unique, erreurs 400/409) et sa route + tests
+- [x] 6.9 [household/infrastructure/in/web] Limitation Bucket4j sur `/join` + test
+- [x] 6.10 [household/infrastructure/in/event] Listener des événements de contrat `identity` → `UpdateMemberProfile` (annuaire) + test
+- [x] 6.11 [household] Test de cloisonnement : un membre du seul foyer A ne voit rien du foyer B
 
 ## 7. PWA minimale
 
