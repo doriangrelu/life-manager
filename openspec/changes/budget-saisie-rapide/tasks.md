@@ -10,14 +10,14 @@
 
 ## 3. Membres du foyer côté budget
 
-- [ ] 3.1 [budget/application + infrastructure] Port et table `household_member`, use case `RegisterHouseholdMember`, écouteur des événements du foyer, service `BudgetAccess` ; vérifié par un test d'intégration : un membre qui rejoint un foyer y a accès, un étranger reçoit 404
+- [x] 3.1 [budget/application + infrastructure] Port et table `household_member`, use case `RegisterHouseholdMember`, écouteur des événements du foyer, service `BudgetAccess` ; vérifié par un test d'intégration : un membre qui rejoint un foyer y a accès, un étranger reçoit 404
 
 ## 4. Catégories
 
-- [ ] 4.1 [budget/domain] Agrégat `Category` (création, renommage, archivage, réactivation) ; vérifié par des tests unitaires
-- [ ] 4.2 [budget/infrastructure/out] Repository, mapper et adaptateur des catégories, index unique sur le nom ; vérifié par le test d'intégration de 4.4
-- [ ] 4.3 [budget/application] `CreateDefaultCategories` déclenché par `HouseholdCreatedV1`, `ListCategories`, `AddCategory` ; vérifié par un test d'intégration (8 catégories par défaut, doublon « courses » → 409, nom vide → 400)
-- [ ] 4.4 [budget] `RenameCategory`, `ArchiveCategory`, `ReactivateCategory` et routes `/expense-categories` ; vérifié par un test d'intégration couvrant chaque route et le 404 non-membre
+- [x] 4.1 [budget/domain] Agrégat `Category` (création, renommage, archivage, réactivation) ; vérifié par des tests unitaires
+- [x] 4.2 [budget/infrastructure/out] Repository, mapper et adaptateur des catégories, index unique sur le nom ; vérifié par le test d'intégration de 4.4
+- [x] 4.3 [budget/application] `CreateDefaultCategories` déclenché par `HouseholdCreatedV1`, `ListCategories`, `AddCategory` ; vérifié par un test d'intégration (8 catégories par défaut, doublon « courses » → 409, nom vide → 400)
+- [x] 4.4 [budget] `RenameCategory`, `ArchiveCategory`, `ReactivateCategory` et routes `/expense-categories` ; vérifié par un test d'intégration couvrant chaque route et le 404 non-membre
 
 ## 5. Dépenses
 
