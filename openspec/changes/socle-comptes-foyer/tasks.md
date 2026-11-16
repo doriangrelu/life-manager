@@ -27,10 +27,10 @@
 ## 5. Domaine identity
 
 - [x] 5.1 [identity/domain] Value objects `UserId`, `EmailAddress`, `DisplayName` et agrégat `UserAccount` avec ses événements + tests unitaires
-- [ ] 5.2 [identity/infrastructure/out] Datasource et Flyway du schéma `identity`, table `user_account`, repository, mapper, adaptateur du port out
-- [ ] 5.3 [identity/application] Use case `SyncUserAccount` + listener de `UserAuthenticated` (infrastructure/in/event) + tests
-- [ ] 5.4 [identity/infrastructure/out/event] Traduction en `UserRegisteredV1` / `UserProfileChangedV1` (contract) et publication + test
-- [ ] 5.5 [identity] Use case `GetCurrentUser` et `GET /api/whoami` + tests (sans jeton → 401, jeton inactif → 401, profil créé au premier appel)
+- [x] 5.2 [identity/infrastructure/out] Datasource et Flyway du schéma `identity`, table `user_account`, repository, mapper, adaptateur du port out
+- [x] 5.3 [identity/application] Use case `SyncUserAccount` + listener de `UserAuthenticated` (infrastructure/in/event) + tests
+- [x] 5.4 [identity/infrastructure/out/event] Traduction en `UserRegisteredV1` / `UserProfileChangedV1` (contract) et publication + test
+- [x] 5.5 [identity] Use case `GetCurrentUser` et `GET /api/whoami` + tests (sans jeton → 401, jeton inactif → 401, profil créé au premier appel)
 
 ## 6. Domaine household
 

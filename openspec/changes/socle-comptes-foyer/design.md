@@ -72,7 +72,7 @@ Séparer `Invitation` de `Household` garde `Household` petit : les deux n'ont pa
 ### 5. Base de données
 
 Une base PostgreSQL `lifemanager`, deux schémas, **une datasource et une configuration Flyway par domaine**, aucune clé étrangère entre schémas.
-- `identity.user_account(id PK = sub, email, display_name, created_at, updated_at)`
+- `identity.user_account(id PK = sub, email, display_name, registered_at)`
 - `household.household(id, name, created_at)`
 - `household.membership(household_id FK, member_id, joined_at, PK (household_id, member_id))`
 - `household.invitation(id, household_id FK, code UNIQUE, status, expires_at, accepted_by, created_at)`
