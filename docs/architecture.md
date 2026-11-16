@@ -122,7 +122,7 @@ Vérifiées automatiquement par des tests **ArchUnit**.
 
 | Besoin | Librairie |
 |---|---|
-| Framework, DI, HTTP, sécurité | Micronaut 4 |
+| Framework, DI, HTTP, sécurité | Micronaut 5 |
 | Persistance | Micronaut Data JDBC + Flyway |
 | Mapping objets | MapStruct |
 | Cache | Caffeine (`micronaut-cache-caffeine`) |

@@ -112,7 +112,7 @@ Vite + TypeScript + Svelte, `oidc-client-ts`, `vite-plugin-pwa`. Le jeton est ga
 
 ### 10. Structure du dépôt
 
-`backend/` (Maven wrapper, Java 25, Micronaut 4, build natif `./mvnw package -Dpackaging=native-image`), `frontend/`, `infra/keycloak/realm-life-manager.json`, `infra/postgres/init/` (schémas et un compte PostgreSQL par domaine), `docker-compose.yml`, `.devcontainer/` (outillage de dev complet : GraalVM 25, Bun, Docker).
+`backend/` (Maven wrapper, Java 25, Micronaut 5.2, build natif `./mvnw package -Dpackaging=native-image -Dmicronaut.aot.enabled=true` — l'AOT Micronaut est nécessaire en natif), `frontend/`, `infra/keycloak/realm-life-manager.json`, `infra/postgres/init/` (schémas et un compte PostgreSQL par domaine), `docker-compose.yml`, `.devcontainer/` (outillage de dev complet : GraalVM 25, Bun, Docker).
 
 ## Risks / Trade-offs
 
@@ -122,7 +122,7 @@ Vite + TypeScript + Svelte, `oidc-client-ts`, `vite-plugin-pwa`. Le jeton est ga
 - **Deux datasources** → deux pools de connexions ; tailles réduites (2 à 5).
 - **Empreinte de Keycloak** (~500 Mo de RAM) → à surveiller sur le VPS.
 - **Natif et réflexion** (sérialisation, MapStruct, client HTTP) → build natif en CI dès ce change.
-- **Java 25 + Micronaut 4 + GraalVM** : compatibilité à confirmer à la tâche 2.1 ; repli sur Java 21 si besoin, après accord.
+- **Build natif gourmand** (~7 Go de RAM au pic) → à lancer en CI ou sur le poste, pas sur le VPS.
 
 ## Migration Plan
 

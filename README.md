@@ -27,7 +27,7 @@ Pour surcharger les mots de passe de dev : copier `.env.example` en `.env`.
 | Service | URL | Accès de dev |
 |---|---|---|
 | Keycloak (admin) | http://localhost:8180 | `admin` / `admin` |
-| Realm de l'application | http://localhost:8180/realms/life-manager | inscription libre |
+| Realm de l'application | http://localhost:8180/realms/life-manager | comptes créés par l'admin (pas d'inscription libre) |
 | PostgreSQL | `localhost:5432`, base `lifemanager` | un compte par domaine : `identity_app`, `household_app` |
 
 Le realm est défini dans [infra/keycloak/realm-life-manager.json](infra/keycloak/realm-life-manager.json) et importé au démarrage de Keycloak s'il n'existe pas encore. Pour repartir de zéro : `docker compose down -v`.

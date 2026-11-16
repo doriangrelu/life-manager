@@ -1,16 +1,16 @@
 ## 1. Infrastructure de développement
 
 - [x] 1.1 [infra] `docker-compose.yml` : PostgreSQL (base `lifemanager` avec schémas `identity` et `household`, base `keycloak`) et Keycloak en mode dev
-- [x] 1.2 [infra] Realm `life-manager` : client public `life-manager-pwa` (PKCE, lightweight access token), client confidentiel `life-manager-api` (introspection), auto-inscription, mappers `email`/`name` ajoutés à l'introspection
+- [x] 1.2 [infra] Realm `life-manager` : client public `life-manager-pwa` (PKCE, lightweight access token), client confidentiel `life-manager-api` (introspection), comptes créés par l'admin (pas d'auto-inscription), mappers `email`/`name` ajoutés à l'introspection
 - [x] 1.3 [infra] Export du realm dans `infra/keycloak/realm-life-manager.json`, importé au démarrage ; lancement documenté dans le `README.md`
 - [x] 1.4 [infra] Devcontainer (GraalVM 25 avec `native-image`, Bun, accès Docker pour Testcontainers, stack lancée sur l'hôte)
 
 ## 2. Squelette backend et qualité
 
-- [ ] 2.1 [backend] Générer `backend/` (Maven wrapper, Java 25 — repli Java 21 après accord si incompatible, Micronaut 4) avec security, http-client, data-jdbc, flyway, postgres, serde, management, cache-caffeine, MapStruct
-- [ ] 2.2 [backend] Checkstyle (longueur méthode/classe, complexité ≤ 10) branché sur `./mvnw verify`
-- [ ] 2.3 [backend] Tests ArchUnit des règles de dépendance de `docs/architecture.md` (domain pur, contrôleurs → ports in, domaines isolés sauf `contract`)
-- [ ] 2.4 [backend] Vérifier que `./mvnw package -Dpackaging=native-image` produit un binaire qui démarre et répond sur `/health`
+- [x] 2.1 [backend] Générer `backend/` (Maven wrapper, Java 25, Micronaut 5.2) avec security, http-client, data-jdbc, flyway, postgres, serde, management, cache-caffeine, MapStruct
+- [x] 2.2 [backend] Checkstyle (longueur méthode/classe, complexité ≤ 10) branché sur `./mvnw verify`
+- [x] 2.3 [backend] Tests ArchUnit des règles de dépendance de `docs/architecture.md` (domain pur, contrôleurs → ports in, domaines isolés sauf `contract`)
+- [x] 2.4 [backend] Vérifier que `./mvnw package -Dpackaging=native-image -Dmicronaut.aot.enabled=true` produit un binaire qui démarre et répond sur `/health`
 
 ## 3. Kernel
 

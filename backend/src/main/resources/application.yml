@@ -1,0 +1,42 @@
+micronaut:
+  application:
+    name: life-manager
+  server:
+    port: ${SERVER_PORT:8080}
+
+# Une datasource par domaine métier : même base, schéma et compte différents.
+# Découper un domaine en service = changer son URL.
+datasources:
+  identity:
+    url: ${IDENTITY_DB_URL:`jdbc:postgresql://localhost:5432/lifemanager`}
+    username: ${IDENTITY_DB_USER:identity_app}
+    password: ${IDENTITY_DB_PASSWORD:identity}
+    schema: identity
+    driver-class-name: org.postgresql.Driver
+    dialect: POSTGRES
+    maximum-pool-size: 5
+  household:
+    url: ${HOUSEHOLD_DB_URL:`jdbc:postgresql://localhost:5432/lifemanager`}
+    username: ${HOUSEHOLD_DB_USER:household_app}
+    password: ${HOUSEHOLD_DB_PASSWORD:household}
+    schema: household
+    driver-class-name: org.postgresql.Driver
+    dialect: POSTGRES
+    maximum-pool-size: 5
+
+# Une configuration Flyway (et donc un historique de migrations) par domaine.
+flyway:
+  datasources:
+    identity:
+      enabled: true
+      locations: classpath:db/migration/identity
+      default-schema: identity
+    household:
+      enabled: true
+      locations: classpath:db/migration/household
+      default-schema: household
+
+endpoints:
+  health:
+    enabled: true
+    sensitive: false

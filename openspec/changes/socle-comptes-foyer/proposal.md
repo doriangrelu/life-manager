@@ -28,7 +28,7 @@ _Aucune (projet vierge)._
 
 ## Impact
 
-- Nouveau code : `backend/` (Micronaut, Java 21, Maven), `frontend/` (PWA), `docker-compose.yml`, export du realm Keycloak.
+- Nouveau code : `backend/` (Micronaut 5, Java 25, Maven), `frontend/` (PWA), `docker-compose.yml`, export du realm Keycloak.
 - Nouvelle infrastructure : PostgreSQL et Keycloak.
 - Tous les changes suivants s'appuieront sur l'utilisateur courant et sur un foyer explicitement ciblé.
 
