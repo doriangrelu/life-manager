@@ -51,6 +51,15 @@ datasources:
     dialect: POSTGRES
     maximum-pool-size: 5
 
+  vehicle:
+    url: ${VEHICLE_DB_URL:`jdbc:postgresql://localhost:5432/lifemanager`}
+    username: ${VEHICLE_DB_USER:vehicle_app}
+    password: ${VEHICLE_DB_PASSWORD:vehicle}
+    schema: vehicle
+    driver-class-name: org.postgresql.Driver
+    dialect: POSTGRES
+    maximum-pool-size: 5
+
 # Une configuration Flyway (et donc un historique de migrations) par domaine.
 flyway:
   datasources:
@@ -66,6 +75,10 @@ flyway:
       enabled: true
       locations: classpath:db/migration/budget
       default-schema: budget
+    vehicle:
+      enabled: true
+      locations: classpath:db/migration/vehicle
+      default-schema: vehicle
 
 # Fuseau des utilisateurs : sert à savoir quel jour on est (ex. refuser une dépense datée de demain).
 life-manager:

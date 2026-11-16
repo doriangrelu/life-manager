@@ -2,3 +2,4 @@
 CREATE SCHEMA identity;
 CREATE SCHEMA household;
 CREATE SCHEMA budget;
+CREATE SCHEMA vehicle;
