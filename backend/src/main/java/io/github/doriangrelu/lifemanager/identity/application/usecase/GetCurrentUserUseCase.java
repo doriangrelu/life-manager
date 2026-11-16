@@ -1,8 +1,8 @@
 package io.github.doriangrelu.lifemanager.identity.application.usecase;
 
 import io.github.doriangrelu.lifemanager.identity.application.port.in.GetCurrentUser;
-import io.github.doriangrelu.lifemanager.identity.application.port.in.GetCurrentUserQuery;
-import io.github.doriangrelu.lifemanager.identity.application.port.in.UserProfile;
+import io.github.doriangrelu.lifemanager.identity.application.port.in.query.GetCurrentUserQuery;
+import io.github.doriangrelu.lifemanager.identity.application.port.in.result.UserProfile;
 import io.github.doriangrelu.lifemanager.identity.application.port.out.UserAccountRepository;
 import io.github.doriangrelu.lifemanager.identity.domain.exception.UserAccountNotFoundException;
 import io.github.doriangrelu.lifemanager.identity.domain.valueobject.UserId;

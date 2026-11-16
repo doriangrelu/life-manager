@@ -1,7 +1,7 @@
 package io.github.doriangrelu.lifemanager.identity.infrastructure.in.web.controller;
 
 import io.github.doriangrelu.lifemanager.identity.application.port.in.GetCurrentUser;
-import io.github.doriangrelu.lifemanager.identity.application.port.in.GetCurrentUserQuery;
+import io.github.doriangrelu.lifemanager.identity.application.port.in.query.GetCurrentUserQuery;
 import io.github.doriangrelu.lifemanager.identity.infrastructure.in.web.dto.UserProfileResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;

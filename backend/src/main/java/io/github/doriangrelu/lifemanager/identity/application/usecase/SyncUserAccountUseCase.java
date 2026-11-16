@@ -1,7 +1,7 @@
 package io.github.doriangrelu.lifemanager.identity.application.usecase;
 
 import io.github.doriangrelu.lifemanager.identity.application.port.in.SyncUserAccount;
-import io.github.doriangrelu.lifemanager.identity.application.port.in.SyncUserAccountCommand;
+import io.github.doriangrelu.lifemanager.identity.application.port.in.command.SyncUserAccountCommand;
 import io.github.doriangrelu.lifemanager.identity.application.port.out.UserAccountRepository;
 import io.github.doriangrelu.lifemanager.identity.domain.aggregate.UserAccount;
 import io.github.doriangrelu.lifemanager.identity.domain.valueobject.DisplayName;

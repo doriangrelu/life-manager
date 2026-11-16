@@ -1,7 +1,7 @@
 package io.github.doriangrelu.lifemanager.identity.infrastructure.in.event;
 
 import io.github.doriangrelu.lifemanager.identity.application.port.in.SyncUserAccount;
-import io.github.doriangrelu.lifemanager.identity.application.port.in.SyncUserAccountCommand;
+import io.github.doriangrelu.lifemanager.identity.application.port.in.command.SyncUserAccountCommand;
 import io.github.doriangrelu.lifemanager.platform.infrastructure.security.event.UserAuthenticated;
 import io.micronaut.runtime.event.annotation.EventListener;
 import jakarta.inject.Singleton;

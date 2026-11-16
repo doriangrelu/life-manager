@@ -34,8 +34,8 @@
 
 ## 6. Domaine household
 
-- [ ] 6.1 [household/domain] Value objects `HouseholdId`, `HouseholdName`, `MemberId`, entité `Membership`, agrégat `Household` + tests unitaires
-- [ ] 6.2 [household/domain] Value objects `InvitationId`, `InvitationCode`, `InvitationStatus`, agrégat `Invitation` + tests unitaires (expiration, usage unique, révocation)
+- [x] 6.1 [household/domain] Value objects `HouseholdId`, `HouseholdName`, `MemberId`, entité `Membership`, agrégat `Household` + tests unitaires
+- [x] 6.2 [household/domain] Value objects `InvitationId`, `InvitationCode`, `InvitationStatus`, agrégat `Invitation` + tests unitaires (expiration, usage unique, révocation)
 - [ ] 6.3 [household/infrastructure/out] Datasource et Flyway du schéma `household`, tables, repositories, mappers, adaptateurs
 - [ ] 6.4 [household/application] Services `HouseholdAccess` et `MembershipQuota` + tests
 - [ ] 6.5 [household] `CreateHousehold`, `ListMyHouseholds` et leurs routes + tests

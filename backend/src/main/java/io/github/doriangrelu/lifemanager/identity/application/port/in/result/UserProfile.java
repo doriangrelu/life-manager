@@ -1,4 +1,4 @@
-package io.github.doriangrelu.lifemanager.identity.application.port.in;
+package io.github.doriangrelu.lifemanager.identity.application.port.in.result;
 
 import java.util.UUID;
 

@@ -47,7 +47,10 @@ io.github.doriangrelu.lifemanager
     │   ├── event                   # événements métier internes
     │   └── exception
     ├── application
-    │   ├── port/in                 # interface de chaque use case + ses command/result
+    │   ├── port/in                 # interface de chaque use case
+    │   │   ├── command             # entrées des use cases qui modifient
+    │   │   ├── query               # entrées des use cases qui lisent
+    │   │   └── result              # sorties des use cases
     │   ├── port/out                # ce dont l'application a besoin (repositories…)
     │   ├── usecase                 # implémentations des ports in
     │   └── service                 # code commun à plusieurs use cases
@@ -79,7 +82,7 @@ Vérifiées automatiquement par des tests **ArchUnit**.
 
 - **Un use case = une seule action** (`CreateHousehold`, `JoinHousehold`…). Interface dans `port/in`, implémentation `…UseCase` dans `usecase`.
 - Un use case peut être `@Transactional`. Il ne modifie qu'**un seul domaine**.
-- Entrées/sorties : des `record` (`…Command`, `…Result`) déclarés dans `port/in`.
+- Entrées/sorties : des `record` à types simples (`…Command`, `…Query`, résultats) rangés dans `port/in/command`, `port/in/query` et `port/in/result`.
 - Dès que deux use cases partagent de la logique, elle part dans un **service applicatif** (`application/service`). Les règles qui ne concernent qu'un agrégat restent dans l'agrégat.
 
 ## Agrégats

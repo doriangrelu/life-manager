@@ -1,6 +1,6 @@
 package io.github.doriangrelu.lifemanager.identity.infrastructure.in.web.dto;
 
-import io.github.doriangrelu.lifemanager.identity.application.port.in.UserProfile;
+import io.github.doriangrelu.lifemanager.identity.application.port.in.result.UserProfile;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.util.UUID;
