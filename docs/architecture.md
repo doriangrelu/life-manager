@@ -59,7 +59,7 @@ io.github.doriangrelu.lifemanager
         └── out
             ├── persistence/entity      # tables (Micronaut Data)
             ├── persistence/repository  # repositories Micronaut Data
-            ├── persistence/mapper      # domaine <-> table (MapStruct)
+            ├── persistence/mapper      # domaine <-> table (écrit à la main)
             ├── persistence/adapter     # implémentation des ports out
             └── event                   # domaine -> contrat, publication
 ```
@@ -116,6 +116,7 @@ Vérifiées automatiquement par des tests **ArchUnit**.
 
 - **Java 25** : `record` pour value objects, commandes, résultats et événements ; `sealed` pour les hiérarchies fermées ; pattern matching ; `Optional` en retour uniquement.
 - Pas de Lombok (les records suffisent).
+- Mapping agrégat ↔ table écrit à la main (une petite classe `…Mapper` par agrégat) : explicite, et les agrégats gardent des accesseurs modernes (`email()`) que MapStruct ne sait pas lire.
 - **Méthodes courtes** (~20 lignes max), **classes courtes** (~200 lignes max), **complexité cyclomatique ≤ 10** : contrôlé par Checkstyle dans le build Maven.
 - Noms en **anglais**, explicites, sans abréviation.
 - **Commentaires en français**, courts et utiles : une Javadoc d'une ou deux lignes sur chaque classe publique pour dire à quoi elle sert, et un commentaire seulement là où le *pourquoi* n'est pas évident. On ne paraphrase pas le code.
@@ -126,7 +127,6 @@ Vérifiées automatiquement par des tests **ArchUnit**.
 |---|---|
 | Framework, DI, HTTP, sécurité | Micronaut 5 |
 | Persistance | Micronaut Data JDBC + Flyway |
-| Mapping objets | MapStruct |
 | Cache | Caffeine (`micronaut-cache-caffeine`) |
 | Limitation de débit | Bucket4j |
 | Tests | JUnit 5, AssertJ, Testcontainers |

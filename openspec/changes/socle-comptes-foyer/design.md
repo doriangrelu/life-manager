@@ -77,7 +77,7 @@ Une base PostgreSQL `lifemanager`, deux schémas, **une datasource et une config
 - `household.membership(household_id FK, member_id, joined_at, PK (household_id, member_id))`
 - `household.invitation(id, household_id FK, code UNIQUE, status, expires_at, accepted_by, created_at)`
 - `household.member_profile(member_id PK, display_name, updated_at)`
-Persistance avec Micronaut Data JDBC (moins de réflexion que JPA, adapté au natif) ; entités de table séparées des objets métier, mapping MapStruct.
+Persistance avec Micronaut Data JDBC (moins de réflexion que JPA, adapté au natif) ; entités de table séparées des objets métier, mappers écrits à la main.
 
 ### 6. Authentification (`platform.infrastructure.security`)
 
@@ -121,7 +121,7 @@ Vite + TypeScript + Svelte, `oidc-client-ts`, `vite-plugin-pwa`. Le jeton est ga
 - **Événements perdus sans outbox** (arrêt entre commit et publication) → un nom de membre peut rester périmé jusqu'à la prochaine modification du profil ; risque accepté à cette échelle, outbox à prévoir avec le broker.
 - **Deux datasources** → deux pools de connexions ; tailles réduites (2 à 5).
 - **Empreinte de Keycloak** (~500 Mo de RAM) → à surveiller sur le VPS.
-- **Natif et réflexion** (sérialisation, MapStruct, client HTTP) → build natif en CI dès ce change.
+- **Natif et réflexion** (sérialisation, client HTTP) → build natif en CI dès ce change.
 - **Build natif gourmand** (~7 Go de RAM au pic) → à lancer en CI ou sur le poste, pas sur le VPS.
 
 ## Migration Plan

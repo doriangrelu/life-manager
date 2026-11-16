@@ -25,7 +25,6 @@
     <micronaut.aot.packageName>io.github.doriangrelu.lifemanager.aot.generated</micronaut.aot.packageName>
     <exec.mainClass>io.github.doriangrelu.lifemanager.Application</exec.mainClass>
 
-    <mapstruct.version>1.6.3</mapstruct.version>
     <archunit.version>1.5.1</archunit.version>
     <checkstyle.version>14.4.0</checkstyle.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
@@ -101,13 +100,6 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
-    </dependency>
-
-    <!-- Mapping domaine <-> tables -->
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <version>${mapstruct.version}</version>
     </dependency>
 
     <!-- Configuration YAML et logs -->
@@ -187,11 +179,6 @@
         <configuration>
           <annotationProcessorPaths combine.self="override">
             <path>
-              <groupId>org.mapstruct</groupId>
-              <artifactId>mapstruct-processor</artifactId>
-              <version>${mapstruct.version}</version>
-            </path>
-            <path>
               <groupId>io.micronaut</groupId>
               <artifactId>micronaut-inject-java</artifactId>
               <version>${micronaut.core.version}</version>
@@ -254,8 +241,6 @@
           <compilerArgs>
             <arg>-Amicronaut.processing.group=io.github.doriangrelu.lifemanager</arg>
             <arg>-Amicronaut.processing.module=backend</arg>
-            <!-- Les mappers MapStruct deviennent des beans Micronaut (jakarta.inject). -->
-            <arg>-Amapstruct.defaultComponentModel=jakarta</arg>
           </compilerArgs>
         </configuration>
       </plugin>

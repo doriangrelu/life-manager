@@ -7,7 +7,7 @@
 
 ## 2. Squelette backend et qualité
 
-- [x] 2.1 [backend] Générer `backend/` (Maven wrapper, Java 25, Micronaut 5.2) avec security, http-client, data-jdbc, flyway, postgres, serde, management, cache-caffeine, MapStruct
+- [x] 2.1 [backend] Générer `backend/` (Maven wrapper, Java 25, Micronaut 5.2) avec security, http-client, data-jdbc, flyway, postgres, serde, management, cache-caffeine
 - [x] 2.2 [backend] Checkstyle (longueur méthode/classe, complexité ≤ 10) branché sur `./mvnw verify`
 - [x] 2.3 [backend] Tests ArchUnit des règles de dépendance de `docs/architecture.md` (domain pur, contrôleurs → ports in, domaines isolés sauf `contract`)
 - [x] 2.4 [backend] Vérifier que `./mvnw package -Dpackaging=native-image -Dmicronaut.aot.enabled=true` produit un binaire qui démarre et répond sur `/health`
@@ -26,7 +26,7 @@
 
 ## 5. Domaine identity
 
-- [ ] 5.1 [identity/domain] Value objects `UserId`, `EmailAddress`, `DisplayName` et agrégat `UserAccount` avec ses événements + tests unitaires
+- [x] 5.1 [identity/domain] Value objects `UserId`, `EmailAddress`, `DisplayName` et agrégat `UserAccount` avec ses événements + tests unitaires
 - [ ] 5.2 [identity/infrastructure/out] Datasource et Flyway du schéma `identity`, table `user_account`, repository, mapper, adaptateur du port out
 - [ ] 5.3 [identity/application] Use case `SyncUserAccount` + listener de `UserAuthenticated` (infrastructure/in/event) + tests
 - [ ] 5.4 [identity/infrastructure/out/event] Traduction en `UserRegisteredV1` / `UserProfileChangedV1` (contract) et publication + test
