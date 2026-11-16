@@ -19,7 +19,8 @@ Un domaine = un package de premier niveau, avec son propre schéma de base.
 | Foyer | `household` | Foyers, membres, invitations |
 | Budget | `budget` | Dépenses, catégories, vue mensuelle |
 | Véhicule | `vehicle` | Fiches véhicules, échéances (CT, révision), carnet d'entretien |
-| _à venir_ | `shopping`, `reminder` | Un par domaine du MVP |
+| Courses | `shopping` | Liste de courses partagée par foyer |
+| _à venir_ | `reminder` | Rappels et notifications |
 
 ## Arborescence des packages
 
