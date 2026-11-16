@@ -7,8 +7,11 @@ import java.util.UUID;
 /**
  * Détail d'un foyer pour l'un de ses membres.
  *
- * @param activeInvitation code d'invitation encore utilisable, s'il y en a un
+ * @param activeInvitation code d'invitation encore utilisable, {@code null} s'il n'y en a pas
  */
-public record HouseholdDetails(UUID id, String name, List<MemberDetails> members,
-                               Optional<InvitationDetails> activeInvitation) {
+public record HouseholdDetails(UUID id, String name, List<MemberDetails> members, InvitationDetails activeInvitation) {
+
+    public Optional<InvitationDetails> optionalActiveInvitation() {
+        return Optional.ofNullable(activeInvitation);
+    }
 }

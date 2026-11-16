@@ -18,6 +18,6 @@ public record HouseholdDetailsResponse(UUID id, String name, List<MemberResponse
     public static HouseholdDetailsResponse from(HouseholdDetails details) {
         return new HouseholdDetailsResponse(details.id(), details.name(),
                 details.members().stream().map(MemberResponse::from).toList(),
-                details.activeInvitation().map(InvitationResponse::from).orElse(null));
+                details.optionalActiveInvitation().map(InvitationResponse::from).orElse(null));
     }
 }

@@ -5,6 +5,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,14 +21,15 @@ public abstract class IntegrationTestSupport implements TestPropertyProvider {
 
     @Override
     public Map<String, String> getProperties() {
-        return Map.of(
-                "datasources.identity.url", POSTGRES.getJdbcUrl(),
-                "datasources.identity.username", POSTGRES.getUsername(),
-                "datasources.identity.password", POSTGRES.getPassword(),
-                "datasources.household.url", POSTGRES.getJdbcUrl(),
-                "datasources.household.username", POSTGRES.getUsername(),
-                "datasources.household.password", POSTGRES.getPassword(),
-                "micronaut.http.services.keycloak.url", KEYCLOAK.url());
+        var properties = new HashMap<String, String>();
+        // Toutes les datasources de domaine pointent sur le même PostgreSQL de test.
+        for (String domain : List.of("identity", "household", "budget")) {
+            properties.put("datasources." + domain + ".url", POSTGRES.getJdbcUrl());
+            properties.put("datasources." + domain + ".username", POSTGRES.getUsername());
+            properties.put("datasources." + domain + ".password", POSTGRES.getPassword());
+        }
+        properties.put("micronaut.http.services.keycloak.url", KEYCLOAK.url());
+        return properties;
     }
 
     private static PostgreSQLContainer startPostgres() {

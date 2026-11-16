@@ -44,7 +44,7 @@ class GetHouseholdUseCase implements GetHousehold {
     public HouseholdDetails get(GetHouseholdQuery query) {
         var household = access.loadForMember(new HouseholdId(query.householdId()), MemberId.of(query.requesterId()));
         return new HouseholdDetails(household.id().value(), household.name().value(),
-                namedMembers(household), activeInvitation(household));
+                namedMembers(household), activeInvitation(household).orElse(null));
     }
 
     private List<MemberDetails> namedMembers(Household household) {

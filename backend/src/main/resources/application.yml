@@ -38,6 +38,14 @@ datasources:
     driver-class-name: org.postgresql.Driver
     dialect: POSTGRES
     maximum-pool-size: 5
+  budget:
+    url: ${BUDGET_DB_URL:`jdbc:postgresql://localhost:5432/lifemanager`}
+    username: ${BUDGET_DB_USER:budget_app}
+    password: ${BUDGET_DB_PASSWORD:budget}
+    schema: budget
+    driver-class-name: org.postgresql.Driver
+    dialect: POSTGRES
+    maximum-pool-size: 5
 
 # Une configuration Flyway (et donc un historique de migrations) par domaine.
 flyway:
@@ -50,6 +58,14 @@ flyway:
       enabled: true
       locations: classpath:db/migration/household
       default-schema: household
+    budget:
+      enabled: true
+      locations: classpath:db/migration/budget
+      default-schema: budget
+
+# Fuseau des utilisateurs : sert à savoir quel jour on est (ex. refuser une dépense datée de demain).
+life-manager:
+  time-zone: Europe/Paris
 
 endpoints:
   health:

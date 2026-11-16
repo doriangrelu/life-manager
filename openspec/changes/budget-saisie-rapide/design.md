@@ -27,8 +27,8 @@ Nouveau package de premier niveau `budget`, nouvelle datasource `budget` (compte
 - L'unicité du nom dans un foyer porte sur plusieurs catégories : vérifiée par le use case et garantie par un index unique `(household_id, lower(name))`.
 
 **`Expense`** — invariants : montant strictement positif et plafonné, date pas dans le futur, libellé court.
-- Value objects : `ExpenseId`, `Money` (centimes en `long`, euros uniquement), `ExpenseDate` (`LocalDate`), `ExpenseLabel` (facultatif, 140 caractères), `MemberId`, `Beneficiary` (interface scellée : `Shared` ou `Member(MemberId)`).
-- Méthodes : `record`, `correct`, et suppression par le repository après `markDeleted()` (pour produire l'événement).
+- Value objects : `ExpenseId`, `Money` (centimes en `long`, euros uniquement), `ExpenseLabel` (facultatif, 140 caractères), `MemberId`, `Beneficiary` (interface scellée : `Shared` ou `Member(MemberId)`), et `ExpenseDetails` qui regroupe tout ce qui se saisit ou se corrige (montant borné, catégorie, jour, payeur, bénéficiaire, libellé).
+- Méthodes : `record`, `correct` (qui refusent un jour dans le futur, selon le fuseau `life-manager.time-zone`), et suppression par le repository après `markDeleted()` (pour produire l'événement).
 - Événements de domaine : `ExpenseRecorded`, `ExpenseCorrected`, `ExpenseDeleted` (sans consommateur pour l'instant, prêts pour les futurs rappels ou équilibres).
 
 Deux agrégats séparés : une dépense ne protège aucune règle de la catégorie et inversement. Les règles qui les relient (catégorie active et du même foyer) sont vérifiées par un service applicatif.
@@ -56,7 +56,7 @@ Membres : `RegisterHouseholdMember` (appelé par l'écouteur).
 
 ### 6. Base de données (schéma `budget`)
 
-- `household_member(household_id, member_id, PK (household_id, member_id))`
+- `household_member(id, household_id, member_id, UNIQUE (household_id, member_id))` — insertion idempotente (`ON CONFLICT DO NOTHING`) pour supporter un événement reçu deux fois
 - `category(id, household_id, name, archived)` + index unique `(household_id, lower(name))`
 - `expense(id, household_id, category_id FK, amount_cents CHECK > 0, spent_on DATE, paid_by, beneficiary NULL = commun, label, created_by, created_at)` + index `(household_id, spent_on)`
 

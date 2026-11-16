@@ -4,9 +4,9 @@
 
 ## 2. Socle du domaine budget
 
-- [ ] 2.1 [infra] Schéma `budget` et compte `budget_app` dans `infra/postgres/init`, schéma ajouté à `db/test-init.sql` ; vérifié en recréant la base de dev (`docker compose down -v && docker compose up -d`) puis `\dn`
-- [ ] 2.2 [budget/infrastructure/out] Datasource et Flyway `budget`, migration `V1` (household_member, category, expense) ; ajout de `budget` à la liste des domaines d'ArchUnit ; vérifié par `./mvnw verify`
-- [ ] 2.3 [budget/domain] Value objects `HouseholdId`, `MemberId`, `CategoryId`, `CategoryName`, `ExpenseId`, `Money`, `ExpenseDate`, `ExpenseLabel`, `Beneficiary` ; vérifié par des tests unitaires des cas limites (0 €, 1 000 000 €, 41 caractères, date de demain)
+- [x] 2.1 [infra] Schéma `budget` et compte `budget_app` dans `infra/postgres/init`, schéma ajouté à `db/test-init.sql` ; vérifié en recréant la base de dev (`docker compose down -v && docker compose up -d`) puis `\dn`
+- [x] 2.2 [budget/infrastructure/out] Datasource et Flyway `budget`, migration `V1` (household_member, category, expense) ; ajout de `budget` à la liste des domaines d'ArchUnit ; vérifié par `./mvnw verify`
+- [x] 2.3 [budget/domain] Value objects `HouseholdId`, `MemberId`, `CategoryId`, `CategoryName`, `ExpenseId`, `Money`, `ExpenseDate`, `ExpenseLabel`, `Beneficiary` ; vérifié par des tests unitaires des cas limites (0 €, 1 000 000 €, 41 caractères, date de demain)
 
 ## 3. Membres du foyer côté budget
 

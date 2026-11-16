@@ -9,17 +9,20 @@ CREATE DATABASE keycloak OWNER keycloak;
 
 CREATE ROLE identity_app LOGIN PASSWORD '${IDENTITY_DB_PASSWORD}';
 CREATE ROLE household_app LOGIN PASSWORD '${HOUSEHOLD_DB_PASSWORD}';
+CREATE ROLE budget_app LOGIN PASSWORD '${BUDGET_DB_PASSWORD}';
 CREATE DATABASE lifemanager;
 SQL
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname lifemanager <<SQL
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-GRANT CONNECT ON DATABASE lifemanager TO identity_app, household_app;
+GRANT CONNECT ON DATABASE lifemanager TO identity_app, household_app, budget_app;
 
 CREATE SCHEMA identity AUTHORIZATION identity_app;
 CREATE SCHEMA household AUTHORIZATION household_app;
+CREATE SCHEMA budget AUTHORIZATION budget_app;
 
 -- Chaque compte travaille par défaut dans son propre schéma.
 ALTER ROLE identity_app SET search_path = identity;
 ALTER ROLE household_app SET search_path = household;
+ALTER ROLE budget_app SET search_path = budget;
 SQL
