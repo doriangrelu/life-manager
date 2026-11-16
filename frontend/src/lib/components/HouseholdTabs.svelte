@@ -2,6 +2,7 @@
   import type { UserProfile } from '../api/types'
   import BudgetView from './budget/BudgetView.svelte'
   import HouseholdView from './HouseholdView.svelte'
+  import RemindersBanner from './RemindersBanner.svelte'
   import ShoppingView from './shopping/ShoppingView.svelte'
   import VehiclesView from './vehicle/VehiclesView.svelte'
 
@@ -18,6 +19,8 @@
 
   let tab = $state<Tab>('budget')
 </script>
+
+<RemindersBanner {householdId} refreshKey={tab} />
 
 <nav class="tabs" aria-label="Sections du foyer" style:--count={tabs.length}>
   {#each tabs as item (item.id)}

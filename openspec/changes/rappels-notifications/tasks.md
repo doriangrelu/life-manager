@@ -16,7 +16,7 @@
 
 ## 4. PWA
 
-- [ ] 4.1 [frontend] Client d'API, libellés et mémo « déjà notifié aujourd'hui » avec tests Vitest ; vérifié par `bun run check` et `bun run test`
+- [x] 4.1 [frontend] Client d'API, libellés et mémo « déjà notifié aujourd'hui » avec tests Vitest ; vérifié par `bun run check` et `bun run test`
 - [ ] 4.2 [frontend] Bandeau de rappels au-dessus des onglets et activation des notifications système ; vérifié dans le navigateur
 
 ## 5. Intégration

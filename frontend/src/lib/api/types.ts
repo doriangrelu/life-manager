@@ -92,6 +92,17 @@ export interface MaintenanceEntry extends MaintenanceInput {
   id: string
 }
 
+// ---- Rappels : daysLeft négatif = en retard.
+
+export interface Reminder {
+  deadlineId: string
+  kind: 'TECHNICAL_INSPECTION' | 'SERVICE'
+  subject: string
+  dueOn: string
+  status: 'OVERDUE' | 'DUE_SOON'
+  daysLeft: number
+}
+
 // ---- Courses
 
 export interface ShoppingItem {
