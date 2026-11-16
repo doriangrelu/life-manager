@@ -1,6 +1,6 @@
 ## 1. Événements de contrat du foyer
 
-- [ ] 1.1 [household/contract + infrastructure/out/event] `HouseholdCreatedV1` et `MemberJoinedV1` publiés après commit par un relais ; vérifié par un test d'intégration qui crée un foyer, fait rejoindre un membre et reçoit les deux événements
+- [x] 1.1 [household/contract + infrastructure/out/event] `HouseholdCreatedV1` et `MemberJoinedV1` publiés après commit par un relais ; vérifié par un test d'intégration qui crée un foyer, fait rejoindre un membre et reçoit les deux événements
 
 ## 2. Socle du domaine budget
 

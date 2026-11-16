@@ -17,7 +17,8 @@ Un domaine = un package de premier niveau, avec son propre schéma de base.
 |---|---|---|
 | Identité | `identity` | Profil utilisateur local, rattaché au compte Keycloak |
 | Foyer | `household` | Foyers, membres, invitations |
-| _à venir_ | `budget`, `vehicle`, `shopping`, `reminder` | Un par domaine du MVP |
+| Budget | `budget` | Dépenses, catégories, vue mensuelle |
+| _à venir_ | `vehicle`, `shopping`, `reminder` | Un par domaine du MVP |
 
 ## Arborescence des packages
 
@@ -99,6 +100,12 @@ Vérifiées automatiquement par des tests **ArchUnit**.
 - Les agrégats vérifient leurs invariants dans leurs méthodes et lèvent une exception métier dédiée.
 - Les DTO HTTP sont validés en entrée avec **Jakarta Bean Validation** (première barrière, messages clairs) ; le domaine reste la vraie garantie.
 - Le domaine n'utilise pas Bean Validation : vérifications explicites en Java.
+
+## Montants
+
+- **Toujours en centimes d'euro, dans un entier (`long`)**, comme dans les systèmes bancaires.
+- Les couches `domain`, `application` et la persistance **ne manipulent jamais de nombre à virgule** : ni `float`, ni `double`, ni `BigDecimal`. En base : colonne `BIGINT` `…_cents`.
+- L'API échange aussi des centimes (`amountCents`). Seule la PWA convertit entre la saisie ou l'affichage (« 12,50 € ») et les centimes.
 
 ## Événements
 

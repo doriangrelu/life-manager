@@ -16,6 +16,7 @@ Référence complète : [`docs/architecture.md`](docs/architecture.md). À respe
 - Agrégats petits, porteurs d'invariants ; objets métier impossibles à construire invalides.
 - Un use case = une action ; code commun dans un service applicatif.
 - Java moderne, petites classes et méthodes, complexité faible, librairies connues plutôt que du code maison.
+- Montants en centimes d'euro (`long`) côté backend : jamais de nombre à virgule dans le métier ni en base.
 
 ## Méthode de travail
 

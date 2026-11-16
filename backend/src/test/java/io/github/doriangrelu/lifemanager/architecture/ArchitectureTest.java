@@ -7,12 +7,14 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
 
 /**
  * Vérifie automatiquement les règles de dépendance de docs/architecture.md.
@@ -22,7 +24,7 @@ class ArchitectureTest {
     private static final String ROOT = "io.github.doriangrelu.lifemanager";
 
     /** Domaines métiers : à compléter à chaque nouveau domaine. */
-    private static final List<String> DOMAINS = List.of("identity", "household");
+    private static final List<String> DOMAINS = List.of("identity", "household", "budget");
 
     private static final JavaClasses CLASSES = new ClassFileImporter()
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
@@ -85,6 +87,18 @@ class ArchitectureTest {
                     .allowEmptyShould(true)
                     .check(CLASSES);
         }
+    }
+
+    @Test
+    void business_and_persistence_never_use_decimal_numbers() {
+        noFields().that().areDeclaredInClassesThat().resideInAnyPackage(
+                        ROOT + "..domain..", ROOT + "..application..", ROOT + "..infrastructure.out.persistence..")
+                .should().haveRawType(double.class).orShould().haveRawType(Double.class)
+                .orShould().haveRawType(float.class).orShould().haveRawType(Float.class)
+                .orShould().haveRawType(BigDecimal.class)
+                .because("les montants sont des centimes entiers (voir docs/architecture.md)")
+                .allowEmptyShould(true)
+                .check(CLASSES);
     }
 
     private static String[] domainPackages(List<String> domains) {
