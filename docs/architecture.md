@@ -20,7 +20,7 @@ Un domaine = un package de premier niveau, avec son propre schéma de base.
 | Budget | `budget` | Dépenses, catégories, vue mensuelle |
 | Véhicule | `vehicle` | Fiches véhicules, échéances (CT, révision), carnet d'entretien |
 | Courses | `shopping` | Liste de courses partagée par foyer |
-| _à venir_ | `reminder` | Rappels et notifications |
+| Rappels | `reminder` | Copie des échéances (véhicules) et rappels à afficher ou notifier |
 
 ## Arborescence des packages
 

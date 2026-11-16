@@ -63,6 +63,8 @@
     </ul>
     {#if permission === 'default'}
       <button class="link" onclick={enable}>Activer les notifications sur cet appareil</button>
+    {:else if permission === 'denied'}
+      <p class="muted">Notifications bloquées par le navigateur : les rappels restent affichés ici.</p>
     {/if}
   </aside>
 {/if}

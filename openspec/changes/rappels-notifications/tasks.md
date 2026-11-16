@@ -4,7 +4,7 @@
 
 ## 2. Socle du domaine reminder
 
-- [ ] 2.1 [infra] Schéma `reminder` et compte `reminder_app` dans `infra/postgres/init`, `docker-compose.yml`, `.env.example` et `db/test-init.sql` ; vérifié en recréant la base de dev
+- [x] 2.1 [infra] Schéma `reminder` et compte `reminder_app` dans `infra/postgres/init`, `docker-compose.yml`, `.env.example` et `db/test-init.sql` ; vérifié en recréant la base de dev
 - [x] 2.2 [reminder/infrastructure/out] Datasource et Flyway `reminder`, migration `V1` (household_member, deadline) ; `reminder` ajouté aux domaines d'ArchUnit et des tests d'intégration ; vérifié par `./mvnw verify`
 - [x] 2.3 [reminder/domain] Value objects et agrégat `Deadline` avec la règle de rappel (30 jours) ; vérifié par des tests unitaires (veille, jour même, J+30, J+31)
 
@@ -17,8 +17,8 @@
 ## 4. PWA
 
 - [x] 4.1 [frontend] Client d'API, libellés et mémo « déjà notifié aujourd'hui » avec tests Vitest ; vérifié par `bun run check` et `bun run test`
-- [ ] 4.2 [frontend] Bandeau de rappels au-dessus des onglets et activation des notifications système ; vérifié dans le navigateur
+- [x] 4.2 [frontend] Bandeau de rappels au-dessus des onglets et activation des notifications système ; vérifié dans le navigateur
 
 ## 5. Intégration
 
-- [ ] 5.1 [doc] `docs/architecture.md` (domaine reminder) à jour ; parcours vérifié de bout en bout
+- [x] 5.1 [doc] `docs/architecture.md` (domaine reminder) à jour ; parcours vérifié de bout en bout
