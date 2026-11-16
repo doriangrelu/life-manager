@@ -1,0 +1,26 @@
+{
+  "name": "life-manager",
+  "build": { "dockerfile": "Dockerfile" },
+  // Réseau de l'hôte : PostgreSQL, Keycloak et les conteneurs Testcontainers sont joignables sur localhost.
+  "runArgs": ["--network=host"],
+  // PostgreSQL et Keycloak tournent sur l'hôte, lancés avant le conteneur.
+  "initializeCommand": "docker compose up -d",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "remoteUser": "vscode",
+  "mounts": [
+    "source=life-manager-m2,target=/home/vscode/.m2,type=volume"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "shengchen.vscode-checkstyle",
+        "svelte.svelte-vscode",
+        "oven.bun-vscode",
+        "redhat.vscode-yaml"
+      ]
+    }
+  }
+}

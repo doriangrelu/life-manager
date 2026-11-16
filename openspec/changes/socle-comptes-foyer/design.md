@@ -112,7 +112,7 @@ Vite + TypeScript + Svelte, `oidc-client-ts`, `vite-plugin-pwa`. Le jeton est ga
 
 ### 10. Structure du dépôt
 
-`backend/` (Maven wrapper, Java 25, Micronaut 4, build natif `./mvnw package -Dpackaging=native-image`), `frontend/`, `infra/keycloak/realm-life-manager.json`, `docker-compose.yml`.
+`backend/` (Maven wrapper, Java 25, Micronaut 4, build natif `./mvnw package -Dpackaging=native-image`), `frontend/`, `infra/keycloak/realm-life-manager.json`, `infra/postgres/init/` (schémas et un compte PostgreSQL par domaine), `docker-compose.yml`, `.devcontainer/` (outillage de dev complet : GraalVM 25, Bun, Docker).
 
 ## Risks / Trade-offs
 

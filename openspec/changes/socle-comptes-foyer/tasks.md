@@ -1,8 +1,9 @@
 ## 1. Infrastructure de développement
 
-- [ ] 1.1 [infra] `docker-compose.yml` : PostgreSQL (base `lifemanager` avec schémas `identity` et `household`, base `keycloak`) et Keycloak en mode dev
-- [ ] 1.2 [infra] Realm `life-manager` : client public `life-manager-pwa` (PKCE, lightweight access token), client confidentiel `life-manager-api` (introspection), auto-inscription, mappers `email`/`name` ajoutés à l'introspection
-- [ ] 1.3 [infra] Export du realm dans `infra/keycloak/realm-life-manager.json`, importé au démarrage ; lancement documenté dans le `README.md`
+- [x] 1.1 [infra] `docker-compose.yml` : PostgreSQL (base `lifemanager` avec schémas `identity` et `household`, base `keycloak`) et Keycloak en mode dev
+- [x] 1.2 [infra] Realm `life-manager` : client public `life-manager-pwa` (PKCE, lightweight access token), client confidentiel `life-manager-api` (introspection), auto-inscription, mappers `email`/`name` ajoutés à l'introspection
+- [x] 1.3 [infra] Export du realm dans `infra/keycloak/realm-life-manager.json`, importé au démarrage ; lancement documenté dans le `README.md`
+- [x] 1.4 [infra] Devcontainer (GraalVM 25 avec `native-image`, Bun, accès Docker pour Testcontainers, stack lancée sur l'hôte)
 
 ## 2. Squelette backend et qualité
 
