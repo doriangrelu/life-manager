@@ -53,8 +53,8 @@
 - [x] 7.3 [frontend] Chargement de `whoami` puis des foyers, sélecteur de foyer mémorisé sur l'appareil
 - [x] 7.4 [frontend] Écran « Créer ou rejoindre un foyer »
 - [x] 7.5 [frontend] Écran du foyer (membres, génération et copie du code)
-- [ ] 7.6 [frontend] Vérification manuelle à deux comptes et deux foyers, desktop et mobile
+- [x] 7.6 [frontend] Vérification manuelle à deux comptes et deux foyers, desktop et mobile
 
 ## 8. Intégration continue
 
-- [ ] 8.1 [ci] GitHub Actions : `./mvnw verify` (tests, Checkstyle, ArchUnit), build natif, build de la PWA
+- [x] 8.1 [ci] GitHub Actions : `./mvnw verify` (tests, Checkstyle, ArchUnit), build natif, build de la PWA

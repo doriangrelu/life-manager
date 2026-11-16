@@ -22,6 +22,20 @@ Application open source et auto-hébergée pour gérer le quotidien d'un foyer :
 
 Pour surcharger les mots de passe de dev : copier `.env.example` en `.env`.
 
+### Lancer l'application
+
+```bash
+./infra/keycloak/create-dev-users.sh   # une fois : comptes alice@example.org et bob@example.org (mot de passe dev-password)
+cd backend && ./mvnw mn:run             # API sur http://localhost:8080
+cd frontend && bun install && bun run dev   # PWA sur http://localhost:5173
+```
+
+| Commande | Rôle |
+|---|---|
+| `./mvnw verify` (backend) | tests, Checkstyle, règles d'architecture ArchUnit |
+| `./mvnw package -Dpackaging=native-image -Dmicronaut.aot.enabled=true` | binaire natif GraalVM |
+| `bun run check` / `bun run build` (frontend) | vérification des types / build de la PWA |
+
 ### Services
 
 | Service | URL | Accès de dev |
