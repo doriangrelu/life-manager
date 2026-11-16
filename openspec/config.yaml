@@ -1,0 +1,31 @@
+schema: spec-driven
+
+context: |
+  Language: fr
+  All artifacts must be written in fr.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Projet : Life Manager, app personnelle open source pour gérer le foyer (2 utilisateurs partagés).
+  Vision produit et périmètre MVP : docs/vision.md (source de vérité produit).
+  MVP : budget (saisie rapide), véhicules (carnet, CT, rappels), liste de courses partagée, socle comptes/foyer.
+  Contraintes : mobile + desktop, backend Java compilé en natif (GraalVM), auto-hébergé sur VPS OVH.
+  Projet perso : rester concis, éviter la sur-spécification.
+
+rules:
+  proposal:
+    - Keep proposals under 400 words
+    - Always state what is out of scope
+  tasks:
+    - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
