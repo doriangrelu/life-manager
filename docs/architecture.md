@@ -28,8 +28,10 @@ io.github.doriangrelu.lifemanager
 ├── kernel                          # briques DDD partagées, aucun lien vers un domaine
 │   ├── domain
 │   │   ├── aggregate               # AggregateRoot
+│   │   ├── entity                  # Entity (égalité par identifiant)
 │   │   ├── event                   # DomainEvent
-│   │   └── exception               # DomainException, InvalidValueException
+│   │   ├── exception               # InvalidValueException, NotFoundException, ConflictException
+│   │   └── validation              # Require : contrôles de forme des value objects
 │   ├── application/port/out        # DomainEventPublisher
 │   └── infrastructure/event        # publication sur le bus Micronaut
 ├── platform                        # technique transverse, sans métier

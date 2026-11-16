@@ -14,8 +14,8 @@
 
 ## 3. Kernel
 
-- [ ] 3.1 [kernel/domain] `AggregateRoot`, `DomainEvent`, `DomainException`, `InvalidValueException` + tests unitaires
-- [ ] 3.2 [kernel/application + infrastructure] Port `DomainEventPublisher` et adaptateur sur le bus Micronaut + test
+- [x] 3.1 [kernel/domain] `AggregateRoot`, `DomainEvent`, `DomainException`, `InvalidValueException` + tests unitaires
+- [x] 3.2 [kernel/application + infrastructure] Port `DomainEventPublisher` et adaptateur sur le bus Micronaut + test
 
 ## 4. Plateforme : sécurité et erreurs
 
