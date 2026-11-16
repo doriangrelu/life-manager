@@ -65,6 +65,33 @@ export interface MonthlyBudget {
   expenses: Expense[]
 }
 
+// ---- Véhicules : dates au format « 2027-03-01 », coût en centimes d'euro, null = non renseigné.
+
+export interface VehicleInput {
+  name: string
+  licensePlate: string | null
+  technicalInspectionDue: string | null
+  serviceDue: string | null
+}
+
+export interface Vehicle extends VehicleInput {
+  id: string
+}
+
+export type MaintenanceKind = 'SERVICE' | 'OIL_CHANGE' | 'TECHNICAL_INSPECTION' | 'TIRES' | 'REPAIR' | 'OTHER'
+
+export interface MaintenanceInput {
+  performedOn: string
+  kind: MaintenanceKind
+  mileageKm: number | null
+  costCents: number | null
+  note: string | null
+}
+
+export interface MaintenanceEntry extends MaintenanceInput {
+  id: string
+}
+
 export interface HouseholdDetails {
   id: string
   name: string

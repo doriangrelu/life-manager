@@ -22,7 +22,7 @@
 
 ## 5. PWA
 
-- [ ] 5.1 [frontend] Client d'API véhicules, types, fonctions d'échéance (passée / proche) avec tests Vitest ; vérifié par `bun run check` et `bun run test`
+- [x] 5.1 [frontend] Client d'API véhicules, types, fonctions d'échéance (passée / proche) avec tests Vitest ; vérifié par `bun run check` et `bun run test`
 - [ ] 5.2 [frontend] Onglet « Véhicules » : liste, ajout, échéances mises en évidence ; vérifié dans le navigateur
 - [ ] 5.3 [frontend] Fiche véhicule : modification, suppression, carnet (ajout, suppression) ; vérifié dans le navigateur en affichage mobile
 
