@@ -92,6 +92,15 @@ export interface MaintenanceEntry extends MaintenanceInput {
   id: string
 }
 
+// ---- Courses
+
+export interface ShoppingItem {
+  id: string
+  label: string
+  checked: boolean
+  addedAt: string
+}
+
 export interface HouseholdDetails {
   id: string
   name: string

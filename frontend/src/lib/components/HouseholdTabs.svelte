@@ -2,14 +2,16 @@
   import type { UserProfile } from '../api/types'
   import BudgetView from './budget/BudgetView.svelte'
   import HouseholdView from './HouseholdView.svelte'
+  import ShoppingView from './shopping/ShoppingView.svelte'
   import VehiclesView from './vehicle/VehiclesView.svelte'
 
-  // Le foyer sélectionné, en onglets : budget (par défaut), véhicules et fiche du foyer (membres, invitation).
+  // Le foyer sélectionné, en onglets : budget (par défaut), courses, véhicules et fiche du foyer.
   let { householdId, profile }: { householdId: string; profile: UserProfile } = $props()
 
-  type Tab = 'budget' | 'vehicles' | 'household'
+  type Tab = 'budget' | 'shopping' | 'vehicles' | 'household'
   const tabs: { id: Tab; label: string }[] = [
     { id: 'budget', label: 'Budget' },
+    { id: 'shopping', label: 'Courses' },
     { id: 'vehicles', label: 'Véhicules' },
     { id: 'household', label: 'Foyer' },
   ]
@@ -27,6 +29,8 @@
 
 {#if tab === 'budget'}
   <BudgetView {householdId} {profile} />
+{:else if tab === 'shopping'}
+  <ShoppingView {householdId} />
 {:else if tab === 'vehicles'}
   <VehiclesView {householdId} />
 {:else}

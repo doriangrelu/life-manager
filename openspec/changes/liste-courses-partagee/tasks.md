@@ -15,7 +15,7 @@
 
 ## 4. PWA
 
-- [ ] 4.1 [frontend] Client d'API courses, types, tri local avec tests Vitest ; vérifié par `bun run check` et `bun run test`
+- [x] 4.1 [frontend] Client d'API courses, types, tri local avec tests Vitest ; vérifié par `bun run check` et `bun run test`
 - [ ] 4.2 [frontend] Onglet « Courses » : ajout, cochage optimiste, suppression, vidage des cochés ; vérifié dans le navigateur en affichage mobile
 - [ ] 4.3 [frontend] Rafraîchissement toutes les 5 s quand l'écran est visible et au retour de visibilité ; vérifié avec deux comptes
 
