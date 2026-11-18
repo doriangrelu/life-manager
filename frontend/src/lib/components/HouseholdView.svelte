@@ -3,6 +3,7 @@
   import { onMount } from 'svelte'
   import { getHousehold, issueInvitation } from '../api/householdApi'
   import type { HouseholdDetails } from '../api/types'
+  import { formatDay } from '../dates'
   import { displayName } from '../text'
   import Skeleton from '../ui/Skeleton.svelte'
   import InvitationCard from './InvitationCard.svelte'
@@ -27,7 +28,6 @@
     }
   }
 
-  const joinedOn = (date: string) => new Date(date).toLocaleDateString('fr-FR')
 </script>
 
 {#if error}
@@ -45,7 +45,7 @@
           <span class="avatar" aria-hidden="true">{member.displayName.charAt(0).toUpperCase()}</span>
           <span class="who">
             <strong>{member.displayName}</strong>
-            <span class="muted">membre depuis le {joinedOn(member.joinedAt)}</span>
+            <span class="muted">membre depuis le {formatDay(member.joinedAt)}</span>
           </span>
         </li>
       {/each}

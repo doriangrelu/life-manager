@@ -85,8 +85,5 @@ export function deadlineText(due: string | null, today: string): string {
   return days === 0 ? "aujourd'hui" : `dans ${days} jour${plural}`
 }
 
-/** « 2027-03-01 » → « 01/03/2027 ». */
-export function formatDay(day: string): string {
-  const [year, month, date] = day.split('-')
-  return `${date}/${month}/${year}`
-}
+// Format de date commun à toute l'application.
+export { formatDay } from './dates'

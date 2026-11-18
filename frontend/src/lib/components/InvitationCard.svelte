@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Copy, RefreshCw } from '@lucide/svelte'
   import type { Invitation } from '../api/types'
+  import { formatDay } from '../dates'
 
   // Code d'invitation actif (ou bouton pour en générer un) et copie dans le presse-papiers.
   let { invitation, onrenew }: { invitation: Invitation | null; onrenew: () => Promise<void> } = $props()
@@ -31,14 +32,13 @@
     }
   }
 
-  const expiresOn = (date: string) => new Date(date).toLocaleDateString('fr-FR')
 </script>
 
 <section class="card stack">
   <h2>Inviter quelqu'un</h2>
   {#if invitation}
     <p class="code">{invitation.code}</p>
-    <p class="muted">Valable jusqu'au {expiresOn(invitation.expiresAt)}, une seule fois.</p>
+    <p class="muted">Valable jusqu'au {formatDay(invitation.expiresAt)}, une seule fois.</p>
     <div class="actions">
       <button onclick={() => copy(invitation.code)}><Copy size={18} /> {copied ? 'Copié !' : 'Copier le code'}</button>
       <button class="soft" disabled={busy} aria-busy={busy} onclick={renew}><RefreshCw size={18} /> Nouveau code</button>

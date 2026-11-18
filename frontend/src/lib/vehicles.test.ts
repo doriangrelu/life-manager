@@ -55,7 +55,8 @@ describe('échéances', () => {
   })
 
   it('affiche les dates et les types en français', () => {
-    expect(formatDay('2027-03-01')).toBe('01/03/2027')
+    expect(formatDay('2027-03-01')).toBe('1 mars 2027')
+    expect(formatDay('2026-11-18')).toBe('18 nov. 2026')
     expect(kindLabel('TECHNICAL_INSPECTION')).toBe('Contrôle technique')
   })
 })

@@ -1,0 +1,10 @@
+[
+  {
+    "name": "com.github.benmanes.caffeine.cache.SSMSA",
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.github.benmanes.caffeine.cache.PSAMS",
+    "allDeclaredConstructors": true
+  }
+]

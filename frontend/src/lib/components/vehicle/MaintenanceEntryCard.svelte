@@ -31,7 +31,10 @@
 <article class="entry">
   <span class="bubble" aria-hidden="true"><Icon size={20} /></span>
   <div class="text">
-    <strong>{kindLabel(entry.kind)}</strong>
+    <span class="head">
+      <strong>{kindLabel(entry.kind)}</strong>
+      {#if entry.costCents !== null}<span class="amount">{formatCents(entry.costCents)}</span>{/if}
+    </span>
     <span class="muted">{details}</span>
     {#if entry.note}<span class="note">{entry.note}</span>{/if}
     <button class="files" onclick={onattachments}>
@@ -39,7 +42,6 @@
       {entry.attachmentCount > 0 ? attachmentCountLabel(entry.attachmentCount) : 'Joindre un fichier'}
     </button>
   </div>
-  {#if entry.costCents !== null}<span class="amount">{formatCents(entry.costCents)}</span>{/if}
   <button class="link icon" aria-label="Supprimer l'opération {kindLabel(entry.kind)}" onclick={ondelete}>
     <Trash2 size={18} />
   </button>
@@ -72,6 +74,12 @@
     min-width: 0;
     font-size: 0.9rem;
   }
+  .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
   .text strong {
     font-size: 1rem;
   }
@@ -92,9 +100,7 @@
     box-shadow: none;
     font-size: 0.85rem;
     font-weight: 700;
-  }
-  .amount {
-    padding-top: 2px;
+    white-space: nowrap;
   }
   .link {
     color: var(--color-text-muted);
