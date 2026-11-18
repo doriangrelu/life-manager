@@ -36,7 +36,7 @@ Noms de conteneurs préfixés (`life-manager-api`, `life-manager-web`) pour évi
 
 ### 2. Routage par un fragment Caddy
 
-`infra/caddy/life-manager.caddy`, copié par `deploy.sh` dans `~/infra/conf.d/`, puis `caddy reload` dans le conteneur du socle (aucun redémarrage). Un seul sous-domaine du domaine personnel de Dorian (`<sous-domaine>.dorian-grelu.fr`, acheté le 2026-11-18 chez OVH) : `/api/*` vers `life-manager-api`, le reste vers `life-manager-web`. En-têtes : HSTS, `X-Content-Type-Options`, `Referrer-Policy`, CSP limitée au domaine de l'application et à `https://iabilis.fr` pour la connexion (`connect-src`), avec `blob:` autorisé pour l'affichage des pièces jointes. Caddy obtient le certificat automatiquement dès que le DNS pointe vers le VPS.
+`infra/caddy/life-manager.caddy`, copié par `deploy.sh` dans `~/infra/conf.d/`, puis `caddy reload` dans le conteneur du socle (aucun redémarrage). Un seul sous-domaine du domaine personnel de Dorian : `maison.dorian-grelu.fr` (domaine acheté le 2026-11-18 chez OVH) : `/api/*` vers `life-manager-api`, le reste vers `life-manager-web`. En-têtes : HSTS, `X-Content-Type-Options`, `Referrer-Policy`, CSP limitée au domaine de l'application et à `https://iabilis.fr` pour la connexion (`connect-src`), avec `blob:` autorisé pour l'affichage des pièces jointes. Caddy obtient le certificat automatiquement dès que le DNS pointe vers le VPS.
 
 ### 3. Realm dans le Keycloak existant
 
@@ -87,18 +87,17 @@ La base `lifemanager` (et le realm, via la base `keycloak`) est déjà incluse d
 
 ## Migration Plan
 
-1. Dans la zone DNS de `dorian-grelu.fr`, créer l'enregistrement du sous-domaine vers le VPS (A `152.228.237.190`, AAAA facultatif). 2. Publier un premier tag `v0.1.0` (images). 3. `install.sh`, `create-database.sh`, `create-realm.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Ajouter `life-manager-files` à `backup.sh`, vérifier une sauvegarde puis une restauration.
+1. Dans la zone DNS de `dorian-grelu.fr`, créer l'enregistrement `maison` vers le VPS (A `152.228.237.190`, AAAA facultatif). 2. Publier un premier tag `v0.1.0` (images). 3. `install.sh`, `create-database.sh`, `create-realm.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Ajouter `life-manager-files` à `backup.sh`, vérifier une sauvegarde puis une restauration.
 
 Retour arrière : `docker compose down` dans `~/life-manager`, retirer le fragment Caddy et recharger ; la base et le realm peuvent rester ou être supprimés sans effet sur les autres applications.
 
 ## Open Questions
 
-- Nom du sous-domaine de `dorian-grelu.fr` (`maison.`, `budget.`, `life.`…).
 - Destination des sauvegardes hors du serveur (recommandation 1) : OVH Object Storage Gravelines, autre S3, ou machine personnelle via SFTP ?
 
 ## Décisions prises sans Dorian
 
-1. **Se brancher sur le socle plutôt qu'une pile dédiée** — validé par Dorian le 2026-11-18.
+1. **Se brancher sur le socle plutôt qu'une pile dédiée** — validé par Dorian le 2026-11-18, ainsi que le sous-domaine `maison.dorian-grelu.fr`.
 2. **Docker Compose** — déjà la norme du VPS.
 3. **PWA servie par un petit conteneur `web`** — alternative : monter `dist/` dans le Caddy du socle. Raison : ne pas modifier le compose du socle, déployer la PWA avec son tag. Revenir en arrière : copier `dist/` dans un volume monté par Caddy et utiliser `file_server`.
 4. **Images publiques sur GHCR par la CI sur tag** — alternatives : build sur le VPS, images privées. Raison : le build natif est trop gourmand pour le VPS ; le dépôt est open source. Revenir en arrière : images privées + `docker login` sur le VPS.

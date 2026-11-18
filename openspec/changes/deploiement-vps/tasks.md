@@ -11,7 +11,7 @@
 
 - [ ] 2.1 [infra] `docker-compose.prod.yml` (api, web) sur le réseau externe `socle`, sans port publié, limites de ressources, volume des pièces jointes, contrôles de santé ; vérifié localement avec un réseau `socle` de test
 - [ ] 2.2 [infra/caddy] Fragment `life-manager.caddy` : PWA, relais `/api`, en-têtes de sécurité (CSP avec `iabilis.fr` et `blob:`)
-- [ ] 2.3 [infra/keycloak] Realm de production (URL du sous-domaine, inscription fermée, secret client lu dans l'environnement)
+- [ ] 2.3 [infra/keycloak] Realm de production (redirections vers `https://maison.dorian-grelu.fr`, inscription fermée, secret client lu dans l'environnement)
 
 ## 3. Installation et mise à jour
 
