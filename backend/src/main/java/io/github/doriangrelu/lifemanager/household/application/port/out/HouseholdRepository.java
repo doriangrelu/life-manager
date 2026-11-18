@@ -15,6 +15,9 @@ public interface HouseholdRepository {
     /** Foyers dont l'utilisateur est membre, du plus ancien au plus récent. */
     List<Household> findAllByMember(MemberId member);
 
+    /** Tous les foyers, avec leurs membres. */
+    List<Household> findAll();
+
     /** Nombre de foyers dont l'utilisateur est membre. */
     int countByMember(MemberId member);
 

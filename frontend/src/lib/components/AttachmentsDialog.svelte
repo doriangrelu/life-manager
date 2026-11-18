@@ -1,24 +1,23 @@
 <script lang="ts">
   import { FileText, Image, Paperclip, X } from '@lucide/svelte'
-  import { attachmentContent, listAttachments, removeAttachment, uploadAttachment } from '../../api/vehicleApi'
-  import type { Attachment, MaintenanceEntry } from '../../api/types'
-  import { ACCEPTED_TYPES, formatSize, rejectionOf, remainingSlots } from '../../attachments'
-  import { formatDay, kindLabel } from '../../vehicles'
-  import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
-  import Modal from '../../ui/Modal.svelte'
+  import type { Attachment } from '../api/types'
+  import { ACCEPTED_TYPES, formatSize, rejectionOf, remainingSlots, type AttachmentApi } from '../attachments'
+  import ConfirmDialog from '../ui/ConfirmDialog.svelte'
+  import Modal from '../ui/Modal.svelte'
 
-  // Pièces jointes d'une opération du carnet : factures et photos, ajoutées, ouvertes ou supprimées.
+  // Pièces jointes (factures, photos) d'une opération du carnet ou d'une échéance de charge :
+  // ajoutées, ouvertes ou supprimées. « files » fait les appels à l'API du bon domaine.
   let {
     open = $bindable(false),
-    householdId,
-    vehicleId,
-    entry,
+    title = 'Pièces jointes',
+    subtitle,
+    files,
     onchanged,
   }: {
     open: boolean
-    householdId: string
-    vehicleId: string
-    entry: MaintenanceEntry
+    title?: string
+    subtitle: string
+    files: AttachmentApi
     onchanged: () => void
   } = $props()
 
@@ -49,7 +48,7 @@
   async function load() {
     error = null
     try {
-      attachments = await listAttachments(householdId, vehicleId, entry.id)
+      attachments = await files.list()
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     }
@@ -76,7 +75,7 @@
     const update = (changes: Partial<Upload>) =>
       (uploads = uploads.map((u) => (u.key === upload.key ? { ...u, ...changes } : u)))
     try {
-      const added = await uploadAttachment(householdId, vehicleId, entry.id, file, (progress) => update({ progress }))
+      const added = await files.upload(file, (progress) => update({ progress }))
       attachments = [...attachments, added]
       uploads = uploads.filter((u) => u.key !== upload.key)
     } catch (e) {
@@ -88,7 +87,7 @@
   async function show(attachment: Attachment) {
     const tab = window.open('', '_blank')
     try {
-      const blob = await attachmentContent(householdId, vehicleId, entry.id, attachment.id)
+      const blob = await files.content(attachment.id)
       const url = URL.createObjectURL(blob)
       if (tab) {
         tab.location.href = url
@@ -114,7 +113,7 @@
       return
     }
     try {
-      await removeAttachment(householdId, vehicleId, entry.id, attachment.id)
+      await files.remove(attachment.id)
       attachments = attachments.filter((a) => a.id !== attachment.id)
       onchanged()
     } catch (e) {
@@ -123,8 +122,8 @@
   }
 </script>
 
-<Modal bind:open title="Pièces jointes">
-  <p class="muted">{kindLabel(entry.kind)} du {formatDay(entry.performedOn)}</p>
+<Modal bind:open {title}>
+  <p class="muted">{subtitle}</p>
 
   {#if error}
     <p class="error" role="alert">{error}</p>

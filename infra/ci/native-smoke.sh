@@ -119,6 +119,27 @@ curl -sf -H "Authorization: Bearer $ALICE" -o "$WORK/retour.pdf" \
 cmp -s "$WORK/facture.pdf" "$WORK/retour.pdf" || fail "étape $STEP : fichier téléchargé différent"
 echo "ok $STEP : téléchargement identique"
 
+echo "== Charges : fixe payée seule, variable confirmée, facture"
+charge() { # nom montant FIXED|VARIABLE
+  echo "{\"name\":\"$1\",\"amountCents\":$2,\"amountKind\":\"$3\",\"frequency\":\"MONTHLY\",\"firstDueOn\":\"$TODAY\",\"budgetCategoryId\":\"$CATEGORY\",\"payerId\":\"$ALICE_ID\",\"beneficiaryId\":null}"
+}
+eventually 10 call "$ALICE" POST "/households/$HOUSEHOLD/charges" 201 "$(charge Internet 3999 FIXED)"
+eventually 10 call "$ALICE" POST "/households/$HOUSEHOLD/charges" 201 "$(charge Electricite 8500 VARIABLE)"
+CHARGE=$(body "['id']")
+# Échéance du jour d'une charge variable : elle attend le montant de la facture.
+[ "$(body "['next']['status']")" = "TO_CONFIRM" ] || fail "échéance variable non à confirmer : $(head -c 400 "$WORK/body")"
+OCCURRENCE=$(body "['next']['id']")
+call "$ALICE" GET "/households/$HOUSEHOLD/charges/$CHARGE/occurrences" 200
+call "$ALICE" POST "/households/$HOUSEHOLD/charges/$CHARGE/occurrences/$OCCURRENCE/confirm" 200 '{"amountCents":9240}'
+# 12,34 € saisis + 39,99 € (fixe) + 92,40 € (variable confirmée).
+eventually 10 call "$ALICE" GET "/households/$HOUSEHOLD/budget/$MONTH" 200
+[ "$(body "['totalCents']")" = "14473" ] || fail "dépenses des charges absentes du budget : $(head -c 400 "$WORK/body")"
+STEP=$((STEP + 1))
+code=$(curl -s -o "$WORK/body" -w '%{http_code}' -H "Authorization: Bearer $ALICE" -F "file=@$WORK/facture.pdf;type=application/pdf" \
+  "$API/api/households/$HOUSEHOLD/charges/$CHARGE/occurrences/$OCCURRENCE/invoices")
+[ "$code" = 201 ] || fail "étape $STEP : envoi de la facture → $code : $(head -c 300 "$WORK/body")"
+echo "ok $STEP : facture d'échéance → 201"
+
 echo "== Rappels"
 eventually 10 call "$ALICE" GET "/households/$HOUSEHOLD/reminders" 200
 

@@ -1,15 +1,18 @@
 // Rappels : textes affichés et choix des notifications à montrer (une fois par jour et par rappel, par appareil).
 
 import type { Reminder } from './api/types'
+import { displayName } from './text'
 
 const KIND_LABELS: Record<Reminder['kind'], string> = {
   TECHNICAL_INSPECTION: 'Contrôle technique',
   SERVICE: 'Révision',
+  CHARGE: 'Échéance',
+  CHARGE_TO_CONFIRM: 'Montant à confirmer',
 }
 
-/** « Révision — Clio » */
+/** « Révision — Clio », « Échéance — Internet ». */
 export function reminderTitle(reminder: Reminder): string {
-  return `${KIND_LABELS[reminder.kind]} — ${reminder.subject}`
+  return `${KIND_LABELS[reminder.kind]} — ${displayName(reminder.subject)}`
 }
 
 /** « en retard de 46 jours », « aujourd'hui », « dans 15 jours ». */

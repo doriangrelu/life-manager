@@ -9,6 +9,8 @@ describe('adresse de l\'écran', () => {
     expect(parseRoute('#/vehicules')).toEqual({ section: 'vehicles' })
     expect(parseRoute('#/vehicules/abc-123')).toEqual({ section: 'vehicles', vehicleId: 'abc-123' })
     expect(parseRoute('#/foyer')).toEqual({ section: 'household' })
+    expect(parseRoute('#/charges')).toEqual({ section: 'charges' })
+    expect(parseRoute('#/charges/c-1')).toEqual({ section: 'charges', chargeId: 'c-1' })
   })
 
   it('ramène une adresse absente ou inconnue au budget', () => {
@@ -30,6 +32,7 @@ describe('adresse de l\'écran', () => {
       { section: 'shopping' },
       { section: 'vehicles', vehicleId: 'abc-123' },
       { section: 'household' },
+      { section: 'charges', chargeId: 'c-1' },
     ] as const
     for (const route of routes) {
       expect(parseRoute(formatRoute(route))).toEqual(route)

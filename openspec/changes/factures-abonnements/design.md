@@ -56,9 +56,9 @@ Nouvel onglet **« Charges »** (icône reçu) entre Budget et Courses : total m
 
 ## Migration Plan
 
-Nouveau schéma `bills` et compte `bills_app` : à ajouter à `create-database.sh` et, en production, créés une fois sur le VPS avant le déploiement (procédure dans `docs/deploiement.md`). Colonne `source_occurrence_id` dans `budget.expense` (migration additive). Retour arrière : version précédente, le schéma `bills` reste inutilisé.
+Nouveau schéma `bills` et compte `bills_app` : à ajouter à `create-database.sh` et, en production, créés une fois sur le VPS avant le déploiement (procédure dans `docs/deploiement.md`). Côté budget, la colonne `source_occurrence_id` prévue a été remplacée par une table de liens `budget.charge_expense` (clé = échéance) : la dépense saisie à la main reste inchangée et le rejeu d'un événement est écarté par la clé (migration additive). Script `infra/deploy/add-domain-schema.sh bills` pour la base de production existante. Les foyers créés avant le domaine sont appris par `MembershipKnownV1`, rappelé au démarrage. Retour arrière : version précédente, le schéma `bills` reste inutilisé.
 
-## Open Questions (à trancher par Dorian)
+## Open Questions — tranchées par Dorian le 2026-11-18 : « oui » aux cinq propositions
 
 1. **Confirmation** : dépense créée seule pour un montant fixe, « à confirmer » pour un montant variable — ou tout à confirmer ?
 2. **Rappel** : 7 jours avant l'échéance, ça te va ?

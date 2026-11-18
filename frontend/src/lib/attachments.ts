@@ -1,4 +1,6 @@
-// Pièces jointes du carnet : mêmes limites que le serveur, vérifiées avant l'envoi pour éviter une attente inutile.
+// Pièces jointes (carnet, factures) : mêmes limites que le serveur, vérifiées avant l'envoi pour éviter une attente inutile.
+
+import type { Attachment } from './api/types'
 
 /** Types acceptés par le serveur (vérifiés côté serveur d'après le contenu). */
 export const ACCEPTED_TYPES = 'application/pdf,image/jpeg,image/png,image/webp'
@@ -35,4 +37,12 @@ export function remainingSlots(count: number): number {
 /** « 1 pièce jointe », « 3 pièces jointes ». */
 export function attachmentCountLabel(count: number): string {
   return count === 1 ? '1 pièce jointe' : `${count} pièces jointes`
+}
+
+/** Appels à l'API des fichiers joints d'un objet (opération du carnet, échéance de charge). */
+export interface AttachmentApi {
+  list(): Promise<Attachment[]>
+  upload(file: File, onprogress: (ratio: number) => void): Promise<Attachment>
+  content(attachmentId: string): Promise<Blob>
+  remove(attachmentId: string): Promise<void>
 }

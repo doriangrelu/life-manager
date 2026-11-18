@@ -20,7 +20,10 @@ Un domaine = un package de premier niveau, avec son propre schéma de base.
 | Budget | `budget` | Dépenses, catégories, vue mensuelle |
 | Véhicule | `vehicle` | Fiches véhicules, échéances (CT, révision), carnet d'entretien |
 | Courses | `shopping` | Liste de courses partagée par foyer |
-| Rappels | `reminder` | Copie des échéances (véhicules) et rappels à afficher ou notifier |
+| Rappels | `reminder` | Copie des échéances (véhicules, charges) et rappels à afficher ou notifier |
+| Charges | `bills` | Charges récurrentes (abonnements, factures), échéances, factures jointes |
+
+Un domaine apparu après la création d'un foyer apprend ses membres par `MembershipKnownV1`, rappelé pour chaque membre au démarrage (le traitement doit accepter les doublons).
 
 ## Arborescence des packages
 

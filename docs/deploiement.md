@@ -30,7 +30,7 @@ Prérequis : socle en service, réseau Docker `socle`, enregistrement DNS `maiso
    infra/deploy/deploy.sh v0.1.0
    ```
    - `install.sh` : dossier des pièces jointes `~/volumes/life-manager-files`, secrets dans `~/life-manager/.env.prod` (droits 600).
-   - `create-database.sh` : base `lifemanager` et ses six comptes dans le PostgreSQL du socle. Les autres bases ne sont pas touchées.
+   - `create-database.sh` : base `lifemanager` et ses sept comptes (un par domaine) dans le PostgreSQL du socle. Les autres bases ne sont pas touchées.
 4. **Comptes du foyer** : console Keycloak → realm `life-manager` → *Users* → créer chaque membre et lui donner un mot de passe (12 caractères minimum). L'inscription libre est fermée.
 5. **Sauvegarde** : ajouter `life-manager-files` à la liste des dossiers de `~/infra/backup.sh` (ligne `sudo tar -cf … images-data logs-data caddy-data caddy-config`), puis vérifier l'archive suivante. Fait le 2026-11-18 sur le VPS actuel (copie de l'original : `~/infra/backup.sh.avant-life-manager`).
 
@@ -45,6 +45,14 @@ cd ~/life-manager && infra/deploy/deploy.sh v0.2.0
 ```
 
 Le script place le dépôt sur le tag, tire les images, redémarre l'API et la PWA, attend que l'API réponde `UP`, puis installe le routage et recharge Caddy (sans coupure pour les autres sites). Les migrations de base s'appliquent au démarrage de l'API.
+
+**Version qui apporte un nouveau domaine** (ex. v0.3.0 et `bills`) : créer d'abord son compte et son schéma, puis déployer. Le script génère le mot de passe manquant dans `.env.prod` et ne touche à rien d'autre ; il peut être relancé sans risque.
+
+```bash
+cd ~/life-manager && git fetch --tags && git checkout v0.3.0
+infra/deploy/add-domain-schema.sh bills
+infra/deploy/deploy.sh v0.3.0
+```
 
 **Retour arrière** : relancer avec le tag précédent, affiché à la fin de chaque déploiement. Les migrations sont additives ; avant une version qui supprimerait des données, faire une sauvegarde à la main (`~/infra/backup.sh`).
 

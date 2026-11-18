@@ -5,19 +5,23 @@
   import { ChevronLeft, Pencil, Trash2 } from '@lucide/svelte'
   import { onMount } from 'svelte'
   import {
+    attachmentContent,
     deleteMaintenance,
+    listAttachments,
     listMaintenance,
     listVehicles,
     recordMaintenance,
+    removeAttachment,
     removeVehicle,
     updateVehicle,
+    uploadAttachment,
   } from '../../api/vehicleApi'
   import type { MaintenanceEntry, MaintenanceInput, Vehicle, VehicleInput } from '../../api/types'
   import { formatDay, kindLabel } from '../../vehicles'
   import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
   import Modal from '../../ui/Modal.svelte'
   import Skeleton from '../../ui/Skeleton.svelte'
-  import AttachmentsDialog from './AttachmentsDialog.svelte'
+  import AttachmentsDialog from '../AttachmentsDialog.svelte'
   import DeadlineBadge from './DeadlineBadge.svelte'
   import MaintenanceEntryCard from './MaintenanceEntryCard.svelte'
   import MaintenanceForm from './MaintenanceForm.svelte'
@@ -179,11 +183,16 @@
 />
 
 {#if attachmentsOf}
+  {@const entryId = attachmentsOf.id}
   <AttachmentsDialog
     bind:open={attachmentsOpen}
-    {householdId}
-    vehicleId={vehicle.id}
-    entry={attachmentsOf}
+    subtitle="{kindLabel(attachmentsOf.kind)} du {formatDay(attachmentsOf.performedOn)}"
+    files={{
+      list: () => listAttachments(householdId, vehicle.id, entryId),
+      upload: (file, onprogress) => uploadAttachment(householdId, vehicle.id, entryId, file, onprogress),
+      content: (id) => attachmentContent(householdId, vehicle.id, entryId, id),
+      remove: (id) => removeAttachment(householdId, vehicle.id, entryId, id),
+    }}
     onchanged={reloadEntries}
   />
 {/if}

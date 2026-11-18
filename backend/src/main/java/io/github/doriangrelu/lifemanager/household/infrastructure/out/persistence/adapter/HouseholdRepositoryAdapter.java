@@ -36,6 +36,11 @@ class HouseholdRepositoryAdapter implements HouseholdRepository {
     }
 
     @Override
+    public List<Household> findAll() {
+        return households.findAll().stream().map(this::withMembers).toList();
+    }
+
+    @Override
     public int countByMember(MemberId member) {
         return Math.toIntExact(memberships.countByMemberId(member.value()));
     }

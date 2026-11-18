@@ -113,7 +113,7 @@ export interface Attachment {
 
 export interface Reminder {
   deadlineId: string
-  kind: 'TECHNICAL_INSPECTION' | 'SERVICE'
+  kind: 'TECHNICAL_INSPECTION' | 'SERVICE' | 'CHARGE' | 'CHARGE_TO_CONFIRM'
   subject: string
   dueOn: string
   status: 'OVERDUE' | 'DUE_SOON'
@@ -150,4 +150,41 @@ export interface HouseholdDetails {
   name: string
   members: Member[]
   activeInvitation: Invitation | null
+}
+
+// ---- Charges récurrentes (abonnements, factures)
+
+export type AmountKind = 'FIXED' | 'VARIABLE'
+export type Frequency = 'MONTHLY' | 'BIMONTHLY' | 'QUARTERLY' | 'YEARLY'
+export type OccurrenceStatus = 'UPCOMING' | 'TO_CONFIRM' | 'PAID' | 'SKIPPED'
+
+/** Saisie d'une charge ; montant en centimes, bénéficiaire null = tout le foyer. */
+export interface ChargeInput {
+  name: string
+  amountCents: number
+  amountKind: AmountKind
+  frequency: Frequency
+  firstDueOn: string
+  budgetCategoryId: string
+  payerId: string
+  beneficiaryId: string | null
+}
+
+/** Une échéance d'une charge. */
+export interface Occurrence {
+  id: string
+  chargeId: string
+  dueOn: string
+  expectedCents: number
+  status: OccurrenceStatus
+  paidCents: number | null
+  paidOn: string | null
+  invoiceCount: number
+}
+
+/** Une charge avec sa prochaine échéance ouverte (null s'il n'y en a pas). */
+export interface Charge extends ChargeInput {
+  id: string
+  active: boolean
+  next: Occurrence | null
 }

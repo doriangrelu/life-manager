@@ -27,14 +27,15 @@ Le **MVP de la vision est livré et en production** (v0.1.1 sur https://maison.d
 - En plus, d'après les retours de Dorian : noms normalisés, chargements, animations, survol, mise à jour automatique de la PWA.
 - Reste : test de restauration complète sur une machine vierge (voir dette technique).
 
-### Lot 1 — Factures et abonnements (V2, valeur quotidienne forte)
+### Lot 1 — Factures et abonnements ✅ (livré le 2026-11-18, v0.3.0, en recette)
 
 Électricité, internet, assurances, téléphone… : ce qui revient chaque mois.
 
-- Charges récurrentes (montant, fréquence, jour, catégorie) qui **créent toutes seules la dépense** du mois dans le budget.
-- Échéances visibles et **rappel** avant prélèvement ou date limite.
-- Facture en pièce jointe (réutilise le stockage des pièces jointes du carnet).
-- Nouveau domaine `bills` (ou extension du budget : à trancher dans le design).
+- ✅ Onglet « Charges » : charges récurrentes (montant fixe ou variable, fréquence, catégorie, payé par / pour).
+- ✅ Montant fixe : la dépense arrive seule dans le budget le jour de l'échéance. Montant variable : échéance « à confirmer » avec le montant de la facture.
+- ✅ Rappel 7 jours avant l'échéance ; rappel tant qu'un montant reste à confirmer.
+- ✅ Factures jointes à chaque échéance (socle des pièces jointes partagé avec le carnet).
+- ✅ Nouveau domaine `bills`.
 
 ### Lot 2 — Rappels libres (V2)
 

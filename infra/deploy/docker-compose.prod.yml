@@ -30,6 +30,8 @@ services:
       SHOPPING_DB_PASSWORD: ${SHOPPING_DB_PASSWORD:?}
       REMINDER_DB_URL: *url
       REMINDER_DB_PASSWORD: ${REMINDER_DB_PASSWORD:?}
+      BILLS_DB_URL: *url
+      BILLS_DB_PASSWORD: ${BILLS_DB_PASSWORD:?}
     volumes:
       # Pièces jointes : dossier de l'hôte, inclus dans la sauvegarde du socle.
       - ${FILES_DIR:-/home/ubuntu/volumes/life-manager-files}:/data/files

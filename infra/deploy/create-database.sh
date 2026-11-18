@@ -35,6 +35,7 @@ CREATE ROLE budget_app LOGIN PASSWORD '${BUDGET_DB_PASSWORD}';
 CREATE ROLE vehicle_app LOGIN PASSWORD '${VEHICLE_DB_PASSWORD}';
 CREATE ROLE shopping_app LOGIN PASSWORD '${SHOPPING_DB_PASSWORD}';
 CREATE ROLE reminder_app LOGIN PASSWORD '${REMINDER_DB_PASSWORD}';
+CREATE ROLE bills_app LOGIN PASSWORD '${BILLS_DB_PASSWORD}';
 CREATE DATABASE lifemanager;
 REVOKE ALL ON DATABASE lifemanager FROM PUBLIC;
 SQL
@@ -42,7 +43,7 @@ SQL
 echo "==> Un schéma par domaine"
 psql_admin -d lifemanager <<SQL
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-GRANT CONNECT ON DATABASE lifemanager TO identity_app, household_app, budget_app, vehicle_app, shopping_app, reminder_app;
+GRANT CONNECT ON DATABASE lifemanager TO identity_app, household_app, budget_app, vehicle_app, shopping_app, reminder_app, bills_app;
 
 CREATE SCHEMA identity AUTHORIZATION identity_app;
 CREATE SCHEMA household AUTHORIZATION household_app;
@@ -50,6 +51,7 @@ CREATE SCHEMA budget AUTHORIZATION budget_app;
 CREATE SCHEMA vehicle AUTHORIZATION vehicle_app;
 CREATE SCHEMA shopping AUTHORIZATION shopping_app;
 CREATE SCHEMA reminder AUTHORIZATION reminder_app;
+CREATE SCHEMA bills AUTHORIZATION bills_app;
 
 -- Chaque compte travaille par défaut dans son propre schéma.
 ALTER ROLE identity_app SET search_path = identity;
@@ -58,6 +60,7 @@ ALTER ROLE budget_app SET search_path = budget;
 ALTER ROLE vehicle_app SET search_path = vehicle;
 ALTER ROLE shopping_app SET search_path = shopping;
 ALTER ROLE reminder_app SET search_path = reminder;
+ALTER ROLE bills_app SET search_path = bills;
 SQL
 
 echo "==> Base lifemanager créée."

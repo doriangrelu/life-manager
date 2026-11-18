@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Car, ListChecks, Users, Wallet } from '@lucide/svelte'
+  import { Car, ListChecks, ReceiptText, Users, Wallet } from '@lucide/svelte'
   import type { Section } from '../route'
 
   // Navigation principale : barre d'onglets en bas sur mobile, menu latéral à partir de 900 px.
@@ -7,6 +7,7 @@
 
   const sections = [
     { id: 'budget', label: 'Budget', icon: Wallet },
+    { id: 'charges', label: 'Charges', icon: ReceiptText },
     { id: 'shopping', label: 'Courses', icon: ListChecks },
     { id: 'vehicles', label: 'Véhicules', icon: Car },
     { id: 'household', label: 'Foyer', icon: Users },
@@ -40,7 +41,7 @@
     bottom: 0;
     z-index: 10;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     height: calc(var(--nav-height) + env(safe-area-inset-bottom));
     padding: 6px 8px env(safe-area-inset-bottom);
     background: var(--color-surface);
@@ -64,7 +65,7 @@
   .icon {
     display: grid;
     place-items: center;
-    width: 56px;
+    width: 52px;
     height: 30px;
     border-radius: 15px;
     transition:

@@ -4,6 +4,7 @@ import io.github.doriangrelu.lifemanager.bills.application.port.in.RegisterHouse
 import io.github.doriangrelu.lifemanager.bills.application.port.in.command.RegisterHouseholdMemberCommand;
 import io.github.doriangrelu.lifemanager.household.contract.event.HouseholdCreatedV1;
 import io.github.doriangrelu.lifemanager.household.contract.event.MemberJoinedV1;
+import io.github.doriangrelu.lifemanager.household.contract.event.MembershipKnownV1;
 import io.micronaut.runtime.event.annotation.EventListener;
 import jakarta.inject.Singleton;
 
@@ -24,6 +25,12 @@ class HouseholdEventsListener {
 
     @EventListener
     void on(MemberJoinedV1 event) {
+        registerHouseholdMember.register(new RegisterHouseholdMemberCommand(event.householdId(), event.memberId()));
+    }
+
+    /** Rappel au démarrage : l'ajout est sans effet si le membre est déjà connu. */
+    @EventListener
+    void on(MembershipKnownV1 event) {
         registerHouseholdMember.register(new RegisterHouseholdMemberCommand(event.householdId(), event.memberId()));
     }
 }

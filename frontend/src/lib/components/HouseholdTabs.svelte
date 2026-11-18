@@ -4,6 +4,7 @@
   import { navigate, route } from '../route'
   import MainNav from '../ui/MainNav.svelte'
   import BudgetView from './budget/BudgetView.svelte'
+  import ChargesView from './charges/ChargesView.svelte'
   import HouseholdView from './HouseholdView.svelte'
   import RemindersBanner from './RemindersBanner.svelte'
   import ShoppingView from './shopping/ShoppingView.svelte'
@@ -27,6 +28,8 @@
   <div class="stack" in:rise>
     {#if section === 'budget'}
       <BudgetView {householdId} {profile} />
+    {:else if section === 'charges'}
+      <ChargesView {householdId} {profile} />
     {:else if section === 'shopping'}
       <ShoppingView {householdId} />
     {:else if section === 'vehicles'}

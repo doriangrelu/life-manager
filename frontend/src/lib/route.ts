@@ -1,20 +1,22 @@
 // Écran affiché, écrit dans l'adresse après « # » : F5 et Précédent / Suivant le retrouvent.
-// Exemples : #/budget, #/budget/2026-10, #/courses, #/vehicules/<id>, #/foyer.
+// Exemples : #/budget, #/budget/2026-10, #/charges/<id>, #/courses, #/vehicules/<id>, #/foyer.
 
 import { writable, type Readable } from 'svelte/store'
 
-export type Section = 'budget' | 'shopping' | 'vehicles' | 'household'
+export type Section = 'budget' | 'charges' | 'shopping' | 'vehicles' | 'household'
 
-/** Écran : la section, et pour Budget le mois consulté, pour Véhicules le véhicule ouvert. */
+/** Écran : la section, et pour Budget le mois consulté, pour Charges et Véhicules la fiche ouverte. */
 export interface Route {
   section: Section
   month?: string
   vehicleId?: string
+  chargeId?: string
 }
 
 // Nom de chaque section dans l'adresse.
 const SLUGS: Record<Section, string> = {
   budget: 'budget',
+  charges: 'charges',
   shopping: 'courses',
   vehicles: 'vehicules',
   household: 'foyer',
@@ -39,13 +41,22 @@ export function parseRoute(hash: string): Route {
   if (section === 'vehicles') {
     return { section, vehicleId: decodeURIComponent(param) }
   }
+  if (section === 'charges') {
+    return { section, chargeId: decodeURIComponent(param) }
+  }
   // Paramètre inattendu (mois invalide…) : la section seule.
   return { section }
 }
 
 /** Écrit un écran sous forme d'adresse, ex. « #/budget/2026-10 ». */
 export function formatRoute(route: Route): string {
-  const param = route.section === 'budget' ? route.month : route.section === 'vehicles' ? route.vehicleId : undefined
+  // Paramètre propre à chaque section : mois du budget, fiche ouverte des charges ou des véhicules.
+  const params: Partial<Record<Section, string | undefined>> = {
+    budget: route.month,
+    charges: route.chargeId,
+    vehicles: route.vehicleId,
+  }
+  const param = params[route.section]
   const suffix = param ? `/${encodeURIComponent(param)}` : ''
   return `#/${SLUGS[route.section]}${suffix}`
 }
