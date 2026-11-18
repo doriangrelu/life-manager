@@ -34,6 +34,8 @@ Workflow déclenché sur tag `v*` : build natif du backend (image distroless ou 
 
 Conteneur `backup` (image officielle restic + client PostgreSQL) déclenché chaque nuit : `pg_dump` de `lifemanager` et `keycloak`, envoi chiffré vers un dépôt restic externe (OVH Object Storage compatible S3), puis `restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune`. Restauration documentée et testée une fois sur une machine vierge.
 
+**Fichiers envoyés** (ajouté avec le change `pieces-jointes-entretien`) : le backend range les pièces jointes sous `STORAGE_ROOT` (par exemple `/data/files`), monté sur un volume Docker nommé `files`. Ce volume est sauvegardé par le même conteneur `backup`, dans le même dépôt restic, juste après le `pg_dump` (base et fichiers restaurés ensemble restent cohérents à quelques secondes près ; au pire un fichier orphelin). Surveiller l'espace disque du volume (10 Mo par fichier, 10 fichiers par opération).
+
 ### 6. Mise à jour
 
 `infra/deploy/deploy.sh <tag>` : met à jour la variable de tag dans `.env`, `docker compose pull`, `docker compose up -d`, attend `GET /health = UP`. Retour arrière = relancer avec le tag précédent (les migrations Flyway sont additives ; une migration destructive demandera une sauvegarde préalable explicite).

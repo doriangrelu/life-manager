@@ -1,0 +1,8 @@
+{
+  "comment": "Build natif : Apache Tika lit sa table des types de fichiers comme ressource, à embarquer dans l'exécutable.",
+  "resources": [
+    {
+      "glob": "org/apache/tika/mime/tika-mimetypes.xml"
+    }
+  ]
+}

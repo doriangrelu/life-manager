@@ -124,6 +124,14 @@ Vérifiées automatiquement par des tests **ArchUnit**.
 - **Aucune clé étrangère ni jointure entre schémas.** Une donnée d'un autre domaine est copiée localement à partir de ses événements si on en a besoin.
 - Identifiants : UUID. L'identifiant d'un utilisateur, partagé par tous les domaines, est le `sub` Keycloak.
 
+## Fichiers envoyés
+
+- Le contenu des fichiers (pièces jointes du carnet…) n'est **pas en base** : seulement leurs métadonnées. Le contenu est sur le disque du serveur, sous `life-manager.storage.root` (variable `STORAGE_ROOT`), **un sous-dossier par domaine** (`vehicle/`…) : découper un domaine = déplacer son dossier.
+- Chaque domaine accède à ses fichiers par un **port out** (ex. `AttachmentStorage`) ; l'adaptateur disque range un fichier sous une clé UUID choisie par le serveur, sans extension ni nom d'origine.
+- Le vrai type d'un fichier est vérifié d'après son contenu (Apache Tika, `tika-core`), jamais d'après son nom ou le `Content-Type` du client.
+- Cohérence fichier / base : le fichier est écrit **avant** la transaction et supprimé si elle échoue ; à la suppression, la ligne part dans la transaction et le fichier **après le commit** (événement de domaine). Un échec laisse au pire un fichier orphelin, jamais une ligne sans fichier.
+- Dev : `backend/data/files` (ignoré par Git). Tests : dossier temporaire. Production : volume Docker inclus dans les sauvegardes.
+
 ## Java et style de code
 
 - **Java 25** : `record` pour value objects, commandes, résultats et événements ; `sealed` pour les hiérarchies fermées ; pattern matching ; `Optional` en retour uniquement.
