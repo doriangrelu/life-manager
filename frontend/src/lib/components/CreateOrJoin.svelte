@@ -8,39 +8,40 @@
 
   let name = $state('')
   let code = $state('')
-  let busy = $state(false)
+  // Formulaire en cours d'envoi : seul son bouton affiche l'attente.
+  let busy = $state<'create' | 'join' | null>(null)
   let error = $state<string | null>(null)
 
-  async function submit(event: SubmitEvent, action: () => Promise<HouseholdSummary>) {
+  async function submit(event: SubmitEvent, form: 'create' | 'join', action: () => Promise<HouseholdSummary>) {
     event.preventDefault()
-    busy = true
+    busy = form
     error = null
     try {
       onadded(await action())
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
-      busy = false
+      busy = null
     }
   }
 </script>
 
-<form class="card stack" onsubmit={(e) => submit(e, () => createHousehold(name))}>
+<form class="card stack" onsubmit={(e) => submit(e, 'create', () => createHousehold(name))}>
   <h2 class="title"><House size={20} /> Créer un foyer</h2>
   <label>
     Nom du foyer
-    <input bind:value={name} maxlength="100" required placeholder="Maison" />
+    <input bind:value={name} maxlength="100" required placeholder="Ex. : Maison" />
   </label>
-  <button disabled={busy || !name.trim()} aria-busy={busy}>Créer</button>
+  <button disabled={busy !== null || !name.trim()} aria-busy={busy === 'create'}>Créer</button>
 </form>
 
-<form class="card stack" onsubmit={(e) => submit(e, () => joinHousehold(code))}>
+<form class="card stack" onsubmit={(e) => submit(e, 'join', () => joinHousehold(code.trim().toUpperCase()))}>
   <h2 class="title"><Ticket size={20} /> Rejoindre un foyer</h2>
   <label>
     Code d'invitation
-    <input bind:value={code} required placeholder="ABCD2345" autocapitalize="characters" autocomplete="off" />
+    <input class="code" bind:value={code} required maxlength="8" placeholder="8 caractères" autocapitalize="characters" autocomplete="off" spellcheck="false" />
   </label>
-  <button class="soft" disabled={busy || !code.trim()} aria-busy={busy}>Rejoindre</button>
+  <button class="soft" disabled={busy !== null || !code.trim()} aria-busy={busy === 'join'}>Rejoindre</button>
 </form>
 
 {#if error}
@@ -48,6 +49,13 @@
 {/if}
 
 <style>
+  /* Code saisi comme il est affiché sur la carte d'invitation. */
+  .code:not(:placeholder-shown) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
   .title {
     display: flex;
     align-items: center;

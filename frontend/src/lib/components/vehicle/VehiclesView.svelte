@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { flip } from 'svelte/animate'
+  import { fade } from 'svelte/transition'
+  import { listMove, ms, rise } from '../../motion'
   import { Car, ChevronRight } from '@lucide/svelte'
   import { onMount } from 'svelte'
   import { listVehicles, registerVehicle } from '../../api/vehicleApi'
@@ -74,13 +77,16 @@
 </script>
 
 {#if openedIndex >= 0}
+  <div class="stack" in:rise>
   <VehicleDetail
     {householdId}
     bind:vehicle={vehicles[openedIndex]}
     onremoved={() => close(true)}
     onclose={() => close()}
   />
+  </div>
 {:else}
+  <div class="stack" in:rise>
   <h1>Véhicules</h1>
   {#if error}
     <p class="error" role="alert">{error}</p>
@@ -94,7 +100,7 @@
 
   <ul class="vehicles">
     {#each vehicles as vehicle (vehicle.id)}
-      <li>
+      <li animate:flip={listMove} in:rise out:fade={{ duration: ms(150) }}>
         <button class="vehicle" onclick={() => open(vehicle.id)}>
           <span class="bubble" aria-hidden="true"><Car size={22} /></span>
           <span class="text">
@@ -113,6 +119,7 @@
     {/each}
   </ul>
 
+  </div>
   <Fab label="Ajouter un véhicule" onclick={() => (adding = true)} />
 {/if}
 

@@ -19,7 +19,7 @@
     try {
       await onsave({
         name: name.trim(),
-        licensePlate: licensePlate.trim() || null,
+        licensePlate: licensePlate.trim().toUpperCase() || null,
         technicalInspectionDue: technicalInspectionDue || null,
         serviceDue: serviceDue || null,
       })
@@ -33,11 +33,11 @@
   <div class="form-row">
     <label>
       Nom
-      <input bind:value={name} maxlength="40" placeholder="Clio" required />
+      <input bind:value={name} maxlength="40" placeholder="Ex. : Clio" required data-autofocus />
     </label>
     <label>
       Immatriculation
-      <input bind:value={licensePlate} maxlength="12" placeholder="Facultatif" autocapitalize="characters" />
+      <input class="plate" bind:value={licensePlate} maxlength="12" placeholder="Facultatif" autocapitalize="characters" />
     </label>
   </div>
   <div class="form-row">
@@ -52,3 +52,11 @@
   </div>
   <button class="large" disabled={busy || !name.trim()} aria-busy={busy}>Enregistrer</button>
 </form>
+
+<style>
+  /* Plaque toujours affichée en majuscules pendant la saisie. */
+  .plate:not(:placeholder-shown) {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+</style>

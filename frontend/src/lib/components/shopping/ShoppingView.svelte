@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { slide } from 'svelte/transition'
+  import { ms, rise } from '../../motion'
   import { History, Plus, Settings2, X } from '@lucide/svelte'
   import { onMount } from 'svelte'
   import {
@@ -133,7 +135,7 @@
 </script>
 
 {#snippet row(item: ShoppingItem, listId: string)}
-  <li class:checked={item.checked}>
+  <li class:checked={item.checked} in:rise out:slide={{ duration: ms(180) }}>
     <label>
       <input type="checkbox" checked={item.checked} onchange={() => toggle(item, listId)} />
       <span>{displayName(item.label)}</span>

@@ -136,6 +136,13 @@ textarea {
   min-width: 0;
 }
 
+/* Exemples et indications : plus clairs qu'une vraie valeur. */
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.65;
+  font-weight: 500;
+}
+
 input:focus-visible,
 select:focus-visible,
 button:focus-visible,

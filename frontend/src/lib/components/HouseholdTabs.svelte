@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { UserProfile } from '../api/types'
+  import { rise } from '../motion'
   import { navigate, route } from '../route'
   import MainNav from '../ui/MainNav.svelte'
   import BudgetView from './budget/BudgetView.svelte'
@@ -21,14 +22,19 @@
 
 <RemindersBanner {householdId} refreshKey={section} />
 
-{#if section === 'budget'}
-  <BudgetView {householdId} {profile} />
-{:else if section === 'shopping'}
-  <ShoppingView {householdId} />
-{:else if section === 'vehicles'}
-  <VehiclesView {householdId} />
-{:else}
-  <HouseholdView {householdId} {onaddhousehold} />
-{/if}
+<!-- Changement de section : le nouvel écran apparaît en fondu (l'ancien disparaît aussitôt). -->
+{#key section}
+  <div class="stack" in:rise>
+    {#if section === 'budget'}
+      <BudgetView {householdId} {profile} />
+    {:else if section === 'shopping'}
+      <ShoppingView {householdId} />
+    {:else if section === 'vehicles'}
+      <VehiclesView {householdId} />
+    {:else}
+      <HouseholdView {householdId} {onaddhousehold} />
+    {/if}
+  </div>
+{/key}
 
 <MainNav active={section} onselect={(next) => navigate({ section: next })} />

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { rise } from '../../motion'
   import { ChevronLeft, ChevronRight } from '@lucide/svelte'
   import { onMount } from 'svelte'
   import { deleteExpense, listCategories, monthlyBudget } from '../../api/budgetApi'
@@ -130,7 +131,7 @@
 {/if}
 
 {#if budget}
-  <div class="stack" class:reloading={loadingMonth} aria-busy={loadingMonth}>
+  <div class="stack" class:reloading={loadingMonth} aria-busy={loadingMonth} in:rise>
     <MonthHero {budget} {memberName} />
     {#if budget.expenses.length > 0}
       <CategoryBreakdown {budget} {memberName} onmanage={() => (managingCategories = true)} />

@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { flip } from 'svelte/animate'
+  import { fade } from 'svelte/transition'
+  import { listMove, ms, rise } from '../../motion'
   import { displayName } from '../../text'
   import type { Category, Expense } from '../../api/types'
   import { categoryStyle } from '../../categoryStyle'
@@ -29,7 +32,7 @@
       {#each expenses as expense (expense.id)}
         {@const name = categoryName(expense.categoryId)}
         {@const style = categoryStyle(name)}
-        <li>
+        <li animate:flip={listMove} in:rise out:fade={{ duration: ms(150) }}>
           <button class="expense" onclick={() => onopen(expense)}>
             <span class="bubble" style:background={style.soft} aria-hidden="true">
               <style.icon size={20} color={style.strong} />

@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { flip } from 'svelte/animate'
+  import { slide } from 'svelte/transition'
+  import { listMove, ms } from '../../motion'
   import { X } from '@lucide/svelte'
   import { forgetHistoryEntry, listPurchaseHistory, restockFromHistory } from '../../api/shoppingApi'
   import type { PurchaseHistoryEntry, ShoppingList } from '../../api/types'
@@ -96,7 +99,7 @@
     </div>
     <ul class="entries" aria-label="Articles déjà achetés">
       {#each entries as entry (entry.id)}
-        <li class:selected={selected.includes(entry.id)}>
+        <li class:selected={selected.includes(entry.id)} animate:flip={listMove} out:slide={{ duration: ms(180) }}>
           <label>
             <input type="checkbox" checked={selected.includes(entry.id)} onchange={() => toggle(entry.id)} />
             <span class="text">

@@ -84,6 +84,35 @@
   .modal::backdrop {
     background: var(--color-backdrop);
   }
+  /* Ouverture : le panneau monte du bas (mobile), le fond s'assombrit en fondu. */
+  .modal[open] {
+    animation: sheet-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .modal[open]::backdrop {
+    animation: backdrop-in 0.2s ease-out;
+  }
+  @keyframes sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+    }
+  }
+  @keyframes backdrop-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .modal[open],
+    .modal[open]::backdrop {
+      animation: none;
+    }
+  }
   .panel {
     display: flex;
     flex-direction: column;
@@ -133,6 +162,10 @@
       margin: auto;
       width: min(520px, 92vw);
       border-radius: var(--radius-xl);
+    }
+    /* Grand écran : fenêtre centrée qui apparaît en fondu, avec un léger grossissement. */
+    .modal[open] {
+      animation: pop-in 0.2s ease-out;
     }
     .handle {
       display: none;

@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { flip } from 'svelte/animate'
+  import { fade } from 'svelte/transition'
+  import { listMove, ms, rise } from '../../motion'
   import { ChevronLeft, Pencil, Trash2 } from '@lucide/svelte'
   import { onMount } from 'svelte'
   import {
@@ -144,7 +147,7 @@
   {:else}
     <ul class="entries">
       {#each entries as entry (entry.id)}
-        <li>
+        <li animate:flip={listMove} in:rise out:fade={{ duration: ms(150) }}>
           <MaintenanceEntryCard
             {entry}
             ondelete={() => askDeleteEntry(entry)}
