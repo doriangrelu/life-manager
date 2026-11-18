@@ -44,7 +44,7 @@ class BudgetCategoriesIntegrationTest extends IntegrationTestSupport {
         var household = households.create(owner, "Maison").id();
 
         assertThat(list(owner, household)).extracting(CategoryResponse::name).containsExactly(
-                "Abonnements", "Autre", "Courses", "Logement", "Loisirs", "Restaurants", "Santé", "Transport");
+                "Abonnements", "Courses", "Logement", "Loisirs", "Restaurants", "Santé", "Transport", "Autre");
     }
 
     @Test

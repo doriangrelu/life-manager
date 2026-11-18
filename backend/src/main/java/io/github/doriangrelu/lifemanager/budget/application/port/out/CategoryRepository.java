@@ -20,6 +20,16 @@ public interface CategoryRepository {
     /** Vrai si une autre catégorie du foyer que {@code ignored} porte déjà ce nom (sans tenir compte des majuscules). */
     boolean isNameTaken(HouseholdId householdId, CategoryName name, CategoryId ignored);
 
+    /** Catégorie du foyer portant ce nom, sans tenir compte des majuscules. */
+    Optional<Category> findByName(HouseholdId householdId, CategoryName name);
+
+    /**
+     * Crée une nouvelle catégorie si son nom est encore libre dans le foyer.
+     *
+     * @return {@code false} si une autre catégorie a pris ce nom entre-temps (rien n'est créé)
+     */
+    boolean addIfNameFree(Category category);
+
     /** Crée la catégorie ou enregistre ses modifications. */
     void save(Category category);
 }

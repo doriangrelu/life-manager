@@ -43,6 +43,17 @@ class CategoryRepositoryAdapter implements CategoryRepository {
     }
 
     @Override
+    public Optional<Category> findByName(HouseholdId householdId, CategoryName name) {
+        return table.findByName(householdId.value(), name.value()).map(CategoryMapper::toDomain);
+    }
+
+    @Override
+    public boolean addIfNameFree(Category category) {
+        var entity = CategoryMapper.toEntity(category);
+        return table.insertIfNameFree(entity.id(), entity.householdId(), entity.name(), entity.archived()) == 1;
+    }
+
+    @Override
     public void save(Category category) {
         var entity = CategoryMapper.toEntity(category);
         if (table.existsById(entity.id())) {

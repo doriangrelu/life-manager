@@ -94,6 +94,6 @@ class MonthlyBudgetIntegrationTest extends IntegrationTestSupport {
     private ExpenseResponse record(String category, long cents, LocalDate day, UUID paidBy, UUID beneficiary) {
         var categoryId = budget.category(alice.token(), household, category);
         return budget.record(alice.token(), household,
-                new ExpenseRequest(cents, categoryId, day, paidBy, beneficiary, null));
+                new ExpenseRequest(cents, categoryId, null, day, paidBy, beneficiary, null));
     }
 }

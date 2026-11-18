@@ -29,6 +29,8 @@ public abstract class IntegrationTestSupport implements TestPropertyProvider {
             properties.put("datasources." + domain + ".password", POSTGRES.getPassword());
         }
         properties.put("micronaut.http.services.keycloak.url", KEYCLOAK.url());
+        // Port libre au hasard : les tests passent même si l'application tourne déjà sur 8080.
+        properties.put("micronaut.server.port", "-1");
         return properties;
     }
 
