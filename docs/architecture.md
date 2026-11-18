@@ -116,9 +116,11 @@ Vérifiées automatiquement par des tests **ArchUnit**.
 
 - **Événement de domaine** (`domain/event`) : interne, peut contenir des value objects.
 - **Événement de contrat** (`contract/event`) : public, `record` à types simples (UUID, String, Instant), stable, sérialisable en JSON. C'est ce qui passera par un broker demain.
-- Publication : le use case appelle `DomainEventPublisher` ; l'adaptateur `infrastructure/out/event` du domaine traduit les événements de domaine en événements de contrat et les publie sur le **bus d'événements Micronaut**.
-- Les autres domaines écoutent les événements de contrat **après commit** (`@TransactionalEventListener`).
-- Limite connue : sans *outbox*, un événement peut être perdu si l'application s'arrête entre le commit et la publication. À traiter au passage à un broker.
+- Publication : le use case appelle `DomainEventPublisher` ; le relais `infrastructure/out/event` du domaine traduit les événements de domaine en événements de contrat et les écrit dans la **boîte d'envoi** du domaine (`Outbox`, table `outbox` de son schéma), **avant le commit**, dans la même transaction (`@TransactionalEventListener(BEFORE_COMMIT)`).
+- Distribution : dès le commit, le facteur (`kernel.infrastructure.outbox`) publie les événements sur le **bus d'événements Micronaut**, dans l'ordre ; ce qui reste (arrêt brutal, destinataire en erreur) est relancé au démarrage et toutes les 5 s. Après 10 échecs, un événement est mis de côté et journalisé en erreur.
+- Un domaine producteur déclare sa table (migration `outbox`), son dépôt qui hérite de `OutboxJdbcRepository` et une fabrique `Outbox` nommée comme lui.
+- Les autres domaines écoutent les événements de contrat (`@EventListener` dans `infrastructure/in/event`). Un événement peut arriver **deux fois** : chaque destinataire doit produire le même résultat (ajout « si absent », remplacement en bloc, clé unique…).
+- Le passage à un broker externe ne changera que le facteur.
 
 ## Base de données
 

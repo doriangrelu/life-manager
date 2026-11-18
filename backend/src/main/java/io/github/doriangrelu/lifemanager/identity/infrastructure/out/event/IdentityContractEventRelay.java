@@ -4,35 +4,36 @@ import io.github.doriangrelu.lifemanager.identity.contract.event.UserProfileChan
 import io.github.doriangrelu.lifemanager.identity.contract.event.UserRegisteredV1;
 import io.github.doriangrelu.lifemanager.identity.domain.event.UserProfileChanged;
 import io.github.doriangrelu.lifemanager.identity.domain.event.UserRegistered;
-import io.micronaut.context.event.ApplicationEventPublisher;
+import io.github.doriangrelu.lifemanager.kernel.infrastructure.outbox.Outbox;
 import io.micronaut.transaction.annotation.TransactionalEventListener;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
 /**
- * Traduit les événements internes d'identity en événements de contrat et les publie pour les autres domaines,
- * une fois la transaction validée : un domaine ne réagit jamais à un changement annulé.
- * C'est ce composant qui publiera vers un broker externe le jour où les domaines seront séparés.
+ * Traduit les événements internes d'identity en événements de contrat pour les autres domaines.
+ * Ils sont écrits dans la boîte d'envoi avec le changement (même transaction), puis distribués :
+ * un domaine ne réagit jamais à un changement annulé, et n'en manque aucun validé.
  */
 @Singleton
 class IdentityContractEventRelay {
 
-    private final ApplicationEventPublisher<Object> eventBus;
+    private final Outbox outbox;
 
-    IdentityContractEventRelay(ApplicationEventPublisher<Object> eventBus) {
-        this.eventBus = eventBus;
+    IdentityContractEventRelay(@Named("identity") Outbox outbox) {
+        this.outbox = outbox;
     }
 
-    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.AFTER_COMMIT,
+    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.BEFORE_COMMIT,
             transactionManager = "identity")
     void on(UserRegistered event) {
-        eventBus.publishEvent(new UserRegisteredV1(event.userId().value(), event.email().value(),
+        outbox.record(new UserRegisteredV1(event.userId().value(), event.email().value(),
                 event.displayName().value(), event.occurredAt()));
     }
 
-    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.AFTER_COMMIT,
+    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.BEFORE_COMMIT,
             transactionManager = "identity")
     void on(UserProfileChanged event) {
-        eventBus.publishEvent(new UserProfileChangedV1(event.userId().value(), event.email().value(),
+        outbox.record(new UserProfileChangedV1(event.userId().value(), event.email().value(),
                 event.displayName().value(), event.occurredAt()));
     }
 }

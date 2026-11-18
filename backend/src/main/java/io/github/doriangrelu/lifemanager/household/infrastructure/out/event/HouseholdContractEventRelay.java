@@ -4,34 +4,35 @@ import io.github.doriangrelu.lifemanager.household.contract.event.HouseholdCreat
 import io.github.doriangrelu.lifemanager.household.contract.event.MemberJoinedV1;
 import io.github.doriangrelu.lifemanager.household.domain.event.HouseholdCreated;
 import io.github.doriangrelu.lifemanager.household.domain.event.MemberJoined;
-import io.micronaut.context.event.ApplicationEventPublisher;
+import io.github.doriangrelu.lifemanager.kernel.infrastructure.outbox.Outbox;
 import io.micronaut.transaction.annotation.TransactionalEventListener;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
 /**
- * Traduit les événements internes du foyer en événements de contrat pour les autres domaines,
- * une fois la transaction validée. Point de branchement d'un futur broker externe.
+ * Traduit les événements internes du foyer en événements de contrat pour les autres domaines.
+ * Ils sont écrits dans la boîte d'envoi avec le changement (même transaction), puis distribués.
  */
 @Singleton
 class HouseholdContractEventRelay {
 
-    private final ApplicationEventPublisher<Object> eventBus;
+    private final Outbox outbox;
 
-    HouseholdContractEventRelay(ApplicationEventPublisher<Object> eventBus) {
-        this.eventBus = eventBus;
+    HouseholdContractEventRelay(@Named("household") Outbox outbox) {
+        this.outbox = outbox;
     }
 
-    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.AFTER_COMMIT,
+    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.BEFORE_COMMIT,
             transactionManager = "household")
     void on(HouseholdCreated event) {
-        eventBus.publishEvent(new HouseholdCreatedV1(event.householdId().value(), event.founder().value(),
+        outbox.record(new HouseholdCreatedV1(event.householdId().value(), event.founder().value(),
                 event.occurredAt()));
     }
 
-    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.AFTER_COMMIT,
+    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.BEFORE_COMMIT,
             transactionManager = "household")
     void on(MemberJoined event) {
-        eventBus.publishEvent(new MemberJoinedV1(event.householdId().value(), event.member().value(),
+        outbox.record(new MemberJoinedV1(event.householdId().value(), event.member().value(),
                 event.occurredAt()));
     }
 }

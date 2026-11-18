@@ -79,7 +79,7 @@ Aujourd'hui, une notification n'apparaît que si l'application est ouverte.
 
 | Sujet | Risque aujourd'hui | Quand |
 |---|---|---|
-| Événements entre domaines sans « outbox » | un arrêt brutal pendant une publication peut désynchroniser une copie locale (membres, échéances) | avant le lot 1, qui ajoute des événements |
+| ~~Événements entre domaines sans « outbox »~~ | ✅ soldé le 2026-11-18 (v0.3.1) : boîte d'envoi par domaine, distribution garantie | — |
 | HTTPS sortant depuis l'exécutable natif | échoue (`decrypt_error`) ; contourné par le réseau interne | dès qu'un appel externe sera nécessaire (Web Push, lot 5) |
 | Test de restauration complète | jamais fait sur une machine vierge | dès qu'un VPS de test est disponible |
 
