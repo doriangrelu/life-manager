@@ -5,7 +5,7 @@
 - [x] 1.1 [infra/backend] Dockerfile de l'image native du backend (utilisateur non root, image minimale) ; vérifié par un `docker run` local qui répond `UP` sur `/health` et accepte l'envoi d'un PDF en pièce jointe (détection de type sur l'exécutable natif)
 - [x] 1.2 [infra/frontend] Image de la PWA (fichiers statiques) avec `VITE_OIDC_AUTHORITY` passé au build ; vérifiée localement
 - [x] 1.3 [ci] Migrations Flyway vérifiées aussi sur PostgreSQL 16 (version du socle)
-- [ ] 1.4 [ci] Workflow sur tag `v*` : build et publication des deux images sur GHCR ; vérifié avec un tag de test
+- [x] 1.4 [ci] Workflow sur tag `v*` : build et publication des deux images sur GHCR ; vérifié avec `v0.1.0` (images publiques, tirées sans identifiant)
 
 ## 2. Pile Life Manager
 
