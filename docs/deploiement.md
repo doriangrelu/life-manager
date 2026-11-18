@@ -36,6 +36,8 @@ Les scripts refusent de s'exécuter une deuxième fois (secrets, base ou realm d
 
 ## Mettre à jour
 
+Pas à pas détaillé : [modop-deploiement.md](modop-deploiement.md).
+
 ```bash
 cd ~/life-manager && infra/deploy/deploy.sh v0.2.0
 ```
