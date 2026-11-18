@@ -5,6 +5,24 @@ import type { NotifiedMemo } from './reminders'
 const SELECTED_HOUSEHOLD_KEY = 'life-manager.selected-household'
 const NOTIFIED_KEY = 'life-manager.notified-reminders'
 const SHOPPING_LIST_KEY = 'life-manager.shopping-list.'
+const KEEP_ADDING_KEY = 'life-manager.expense.keep-adding'
+
+/** Après une dépense, garder la fenêtre ouverte pour en saisir une autre (choix mémorisé sur l'appareil). */
+export function rememberedKeepAdding(): boolean {
+  try {
+    return localStorage.getItem(KEEP_ADDING_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+export function rememberKeepAdding(keep: boolean): void {
+  try {
+    localStorage.setItem(KEEP_ADDING_KEY, String(keep))
+  } catch {
+    // Sans stockage, la case repartira simplement décochée.
+  }
+}
 
 /** Rappels déjà notifiés aujourd'hui sur cet appareil. */
 export function notifiedMemo(): NotifiedMemo | null {

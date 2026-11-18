@@ -7,6 +7,7 @@
   import { isOther } from '../../categories'
   import { centsToInput, formatCents, parseAmountToCents } from '../../money'
   import { today } from '../../month'
+  import { rememberedKeepAdding, rememberKeepAdding } from '../../preferences'
   import AmountInput from '../../ui/AmountInput.svelte'
   import Chip from '../../ui/Chip.svelte'
   import Segmented from '../../ui/Segmented.svelte'
@@ -47,6 +48,8 @@
   let error = $state<string | null>(null)
   let confirmation = $state<string | null>(null)
   let amountField: HTMLInputElement | undefined = $state()
+  // Nouvelle dépense : enchaîner sur une autre (fenêtre gardée) ou refermer après l'enregistrement.
+  let keepAdding = $state(rememberedKeepAdding())
 
   // Catégories proposées : les actives, plus la catégorie actuelle si elle a été archivée depuis.
   const choices = $derived(categories.filter((c) => !c.archived || c.id === initial.expense?.categoryId))
@@ -93,7 +96,11 @@
       } else {
         await recordExpense(householdId, input(amountCents))
         onsaved()
-        readyForNext(amountCents)
+        if (keepAdding) {
+          readyForNext(amountCents)
+        } else {
+          onclose()
+        }
       }
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
@@ -154,6 +161,13 @@
     <p class="confirmation" role="status">{confirmation}</p>
   {/if}
 
+  {#if !initial.expense}
+    <label class="keep">
+      <input type="checkbox" bind:checked={keepAdding} onchange={() => rememberKeepAdding(keepAdding)} />
+      Saisir une autre dépense ensuite
+    </label>
+  {/if}
+
   <button class="large" disabled={busy} aria-busy={busy}>{initial.expense ? 'Enregistrer' : 'Ajouter la dépense'}</button>
   {#if initial.expense}
     <button type="button" class="danger" onclick={() => initial.expense && ondelete(initial.expense)}>
@@ -186,6 +200,21 @@
   }
   .precision input {
     border: 2px solid var(--color-primary);
+  }
+  /* Case « saisir une autre » : toute la ligne est cliquable. */
+  .keep {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 0 4px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .keep input {
+    accent-color: var(--color-primary);
   }
   .confirmation {
     margin: 0;
