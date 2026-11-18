@@ -36,11 +36,11 @@ Noms de conteneurs préfixés (`life-manager-api`, `life-manager-web`) pour évi
 
 ### 2. Routage par un fragment Caddy
 
-`infra/caddy/life-manager.caddy`, copié par `deploy.sh` dans `~/infra/conf.d/`, puis `caddy reload` dans le conteneur du socle (aucun redémarrage). Un seul sous-domaine (`<sous-domaine>.iabilis.fr`) : `/api/*` vers `life-manager-api`, le reste vers `life-manager-web`. En-têtes : HSTS, `X-Content-Type-Options`, `Referrer-Policy`, CSP limitée au domaine de l'application et à `https://iabilis.fr` pour la connexion (`connect-src`), avec `blob:` autorisé pour l'affichage des pièces jointes. Caddy obtient le certificat automatiquement dès que le DNS pointe vers le VPS.
+`infra/caddy/life-manager.caddy`, copié par `deploy.sh` dans `~/infra/conf.d/`, puis `caddy reload` dans le conteneur du socle (aucun redémarrage). Un seul sous-domaine du domaine personnel de Dorian (`<sous-domaine>.dorian-grelu.fr`, acheté le 2026-11-18 chez OVH) : `/api/*` vers `life-manager-api`, le reste vers `life-manager-web`. En-têtes : HSTS, `X-Content-Type-Options`, `Referrer-Policy`, CSP limitée au domaine de l'application et à `https://iabilis.fr` pour la connexion (`connect-src`), avec `blob:` autorisé pour l'affichage des pièces jointes. Caddy obtient le certificat automatiquement dès que le DNS pointe vers le VPS.
 
 ### 3. Realm dans le Keycloak existant
 
-Pas de nouveau Keycloak. `infra/keycloak/realm-life-manager.prod.json` reprend le realm de dev : URL de redirection du sous-domaine, inscription fermée, secret du client `life-manager-api` remplacé à l'import par celui du `.env`. Import une fois par `infra/deploy/create-realm.sh`, qui passe par `kcadm.sh` dans le conteneur Keycloak (aucun redémarrage). Émetteur des jetons : `https://iabilis.fr/realms/life-manager`. Le backend appelle l'introspection par l'URL publique (`KEYCLOAK_URL=https://iabilis.fr`), qui reste valable quel que soit le chemin réseau. Les deux comptes du foyer sont créés à la main dans la console.
+Pas de nouveau Keycloak. `infra/keycloak/realm-life-manager.prod.json` reprend le realm de dev : URL de redirection du sous-domaine, inscription fermée, secret du client `life-manager-api` remplacé à l'import par celui du `.env`. Import une fois par `infra/deploy/create-realm.sh`, qui passe par `kcadm.sh` dans le conteneur Keycloak (aucun redémarrage). Émetteur des jetons : `https://iabilis.fr/realms/life-manager`. L'application et Keycloak sont sur deux domaines différents : sans effet sur la connexion, qui passe par des redirections et un rafraîchissement par jeton, sans cookie tiers ni iframe. Le backend appelle l'introspection par l'URL publique (`KEYCLOAK_URL=https://iabilis.fr`), qui reste valable quel que soit le chemin réseau. Les deux comptes du foyer sont créés à la main dans la console.
 
 Keycloak est en `latest` avec mise à jour automatique : le backend n'utilise que l'introspection standard (RFC 7662), peu exposée aux changements de version.
 
@@ -87,13 +87,13 @@ La base `lifemanager` (et le realm, via la base `keycloak`) est déjà incluse d
 
 ## Migration Plan
 
-1. Créer l'enregistrement DNS du sous-domaine vers le VPS (A `152.228.237.190`, AAAA facultatif). 2. Publier un premier tag `v0.1.0` (images). 3. `install.sh`, `create-database.sh`, `create-realm.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Ajouter `life-manager-files` à `backup.sh`, vérifier une sauvegarde puis une restauration.
+1. Dans la zone DNS de `dorian-grelu.fr`, créer l'enregistrement du sous-domaine vers le VPS (A `152.228.237.190`, AAAA facultatif). 2. Publier un premier tag `v0.1.0` (images). 3. `install.sh`, `create-database.sh`, `create-realm.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Ajouter `life-manager-files` à `backup.sh`, vérifier une sauvegarde puis une restauration.
 
 Retour arrière : `docker compose down` dans `~/life-manager`, retirer le fragment Caddy et recharger ; la base et le realm peuvent rester ou être supprimés sans effet sur les autres applications.
 
 ## Open Questions
 
-- Nom du sous-domaine (`budget.iabilis.fr`, `maison.iabilis.fr`…).
+- Nom du sous-domaine de `dorian-grelu.fr` (`maison.`, `budget.`, `life.`…).
 - Destination des sauvegardes hors du serveur (recommandation 1) : OVH Object Storage Gravelines, autre S3, ou machine personnelle via SFTP ?
 
 ## Décisions prises sans Dorian
