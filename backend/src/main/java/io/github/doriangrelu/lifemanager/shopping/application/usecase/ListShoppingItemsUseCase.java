@@ -4,19 +4,20 @@ import io.github.doriangrelu.lifemanager.shopping.application.port.in.ListShoppi
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.query.ListShoppingItemsQuery;
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.result.ShoppingItemView;
 import io.github.doriangrelu.lifemanager.shopping.application.port.out.ShoppingItemRepository;
-import io.github.doriangrelu.lifemanager.shopping.application.service.ShoppingAccess;
+import io.github.doriangrelu.lifemanager.shopping.application.service.ShoppingListAccess;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 
 import java.util.List;
-/** Donne la liste de courses du foyer à l'un de ses membres. */
+
+/** Donne les articles d'une sous-liste du foyer à l'un de ses membres. */
 @Singleton
 class ListShoppingItemsUseCase implements ListShoppingItems {
 
-    private final ShoppingAccess access;
+    private final ShoppingListAccess access;
     private final ShoppingItemRepository items;
 
-    ListShoppingItemsUseCase(ShoppingAccess access, ShoppingItemRepository items) {
+    ListShoppingItemsUseCase(ShoppingListAccess access, ShoppingItemRepository items) {
         this.access = access;
         this.items = items;
     }
@@ -24,7 +25,7 @@ class ListShoppingItemsUseCase implements ListShoppingItems {
     @Override
     @Transactional(transactionManager = "shopping", readOnly = true)
     public List<ShoppingItemView> list(ListShoppingItemsQuery query) {
-        var household = access.householdOfMember(query.householdId(), query.requesterId());
-        return items.findAllByHousehold(household).stream().map(ShoppingItemView::from).toList();
+        var list = access.listForMember(query.householdId(), query.listId(), query.requesterId());
+        return items.findAllByList(list.id()).stream().map(ShoppingItemView::from).toList();
     }
 }

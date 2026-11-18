@@ -17,10 +17,19 @@ public interface ShoppingItemJdbcRepository extends CrudRepository<ShoppingItemE
 
     /** Non cochés du plus ancien au plus récent, puis cochés du dernier coché au premier. */
     @Query("""
-            SELECT * FROM shopping_item WHERE household_id = :householdId
+            SELECT * FROM shopping_item WHERE list_id = :listId
             ORDER BY checked_at IS NOT NULL, checked_at DESC, added_at, id""")
-    List<ShoppingItemEntity> findAllByHousehold(UUID householdId);
+    List<ShoppingItemEntity> findAllByList(UUID listId);
 
-    @Query("DELETE FROM shopping_item WHERE household_id = :householdId AND checked_at IS NOT NULL")
-    void deleteChecked(UUID householdId);
+    @Query("SELECT * FROM shopping_item WHERE list_id = :listId AND checked_at IS NOT NULL")
+    List<ShoppingItemEntity> findCheckedByList(UUID listId);
+
+    /** Sous-liste de chaque article non coché du foyer (une ligne par article). */
+    @Query("""
+            SELECT item.list_id FROM shopping_item item JOIN shopping_list list ON list.id = item.list_id
+            WHERE list.household_id = :householdId AND item.checked_at IS NULL""")
+    List<UUID> findUncheckedListIds(UUID householdId);
+
+    @Query("DELETE FROM shopping_item WHERE list_id = :listId AND checked_at IS NOT NULL")
+    void deleteChecked(UUID listId);
 }

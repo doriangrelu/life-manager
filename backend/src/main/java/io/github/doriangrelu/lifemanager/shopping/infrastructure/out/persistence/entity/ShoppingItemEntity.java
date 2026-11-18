@@ -13,6 +13,6 @@ import java.util.UUID;
  * @param checkedAt moment du cochage, ou {@code null} si l'article n'est pas coché
  */
 @MappedEntity("shopping_item")
-public record ShoppingItemEntity(@Id UUID id, UUID householdId, String label, @Nullable Instant checkedAt,
+public record ShoppingItemEntity(@Id UUID id, UUID listId, String label, @Nullable Instant checkedAt,
                                  UUID addedBy, Instant addedAt) {
 }

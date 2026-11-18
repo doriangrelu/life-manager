@@ -34,6 +34,11 @@ public abstract class IntegrationTestSupport implements TestPropertyProvider {
         return properties;
     }
 
+    /** Le PostgreSQL de test, pour les tests qui y accèdent sans passer par l'application (migrations). */
+    protected static PostgreSQLContainer postgres() {
+        return POSTGRES;
+    }
+
     private static PostgreSQLContainer startPostgres() {
         var container = new PostgreSQLContainer("postgres:18-alpine")
                 .withDatabaseName("lifemanager")

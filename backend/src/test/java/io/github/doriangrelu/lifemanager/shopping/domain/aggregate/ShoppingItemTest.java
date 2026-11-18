@@ -1,10 +1,10 @@
 package io.github.doriangrelu.lifemanager.shopping.domain.aggregate;
 
 import io.github.doriangrelu.lifemanager.kernel.domain.exception.InvalidValueException;
-import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.ItemLabel;
 import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.MemberId;
 import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.ShoppingItemId;
+import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.ShoppingListId;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -54,7 +54,7 @@ class ShoppingItemTest {
     }
 
     private static ShoppingItem milk() {
-        return ShoppingItem.add(ShoppingItemId.newId(), new HouseholdId(UUID.randomUUID()), new ItemLabel("Lait"),
+        return ShoppingItem.add(ShoppingItemId.newId(), ShoppingListId.newId(), new ItemLabel("Lait"),
                 new MemberId(UUID.randomUUID()), CLOCK);
     }
 }

@@ -1,10 +1,10 @@
 ## 1. Sous-listes
 
-- [ ] 1.1 [shopping/domain] Value objects `ShoppingListId`, `ListName` et agrégat `ShoppingList` (création, renommage, sous-listes par défaut) ; vérifié par des tests unitaires
-- [ ] 1.2 [shopping/infrastructure/out] Migration `V2` (tables `shopping_list`, `purchase_history`, colonne `shopping_item.list_id`, reprise des données vers « Courses ») ; vérifié par un test d'intégration qui applique `V1`, insère un article, applique `V2` et retrouve l'article dans « Courses »
-- [ ] 1.3 [shopping/infrastructure/out] Repository, mapper et adaptateur des sous-listes ; `ShoppingItem` rattaché à une sous-liste ; vérifié par les tests de 1.5
-- [ ] 1.4 [shopping/application] `ShoppingListAccess`, `CreateDefaultShoppingLists` (écouteur `HouseholdCreatedV1`), `ListShoppingLists` avec compteurs, `AddShoppingList`, `RenameShoppingList`, `DeleteShoppingList` ; vérifié par des tests d'intégration (3 sous-listes par défaut, 409 sur doublon, suppression en cascade, 404 hors foyer)
-- [ ] 1.5 [shopping/infrastructure/in/web] Routes `/shopping-lists` et `/shopping-lists/{listId}/items…` ; anciennes routes retirées ; vérifié par la reprise des tests d'intégration existants des articles sur les nouvelles routes et un test « sous-listes séparées »
+- [x] 1.1 [shopping/domain] Value objects `ShoppingListId`, `ListName` et agrégat `ShoppingList` (création, renommage, sous-listes par défaut) ; vérifié par des tests unitaires
+- [x] 1.2 [shopping/infrastructure/out] Migration `V2` (tables `shopping_list`, `purchase_history`, colonne `shopping_item.list_id`, reprise des données vers « Courses ») ; vérifié par un test d'intégration qui applique `V1`, insère un article, applique `V2` et retrouve l'article dans « Courses »
+- [x] 1.3 [shopping/infrastructure/out] Repository, mapper et adaptateur des sous-listes ; `ShoppingItem` rattaché à une sous-liste ; vérifié par les tests de 1.5
+- [x] 1.4 [shopping/application] `ShoppingListAccess`, `CreateDefaultShoppingLists` (écouteur `HouseholdCreatedV1`), `ListShoppingLists` avec compteurs, `AddShoppingList`, `RenameShoppingList`, `DeleteShoppingList` ; vérifié par des tests d'intégration (3 sous-listes par défaut, 409 sur doublon, suppression en cascade, 404 hors foyer)
+- [x] 1.5 [shopping/infrastructure/in/web] Routes `/shopping-lists` et `/shopping-lists/{listId}/items…` ; anciennes routes retirées ; vérifié par la reprise des tests d'intégration existants des articles sur les nouvelles routes et un test « sous-listes séparées »
 
 ## 2. Historique des achats
 

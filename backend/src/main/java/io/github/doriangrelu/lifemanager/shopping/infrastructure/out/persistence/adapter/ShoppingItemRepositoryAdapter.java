@@ -4,12 +4,15 @@ import io.github.doriangrelu.lifemanager.shopping.application.port.out.ShoppingI
 import io.github.doriangrelu.lifemanager.shopping.domain.aggregate.ShoppingItem;
 import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.ShoppingItemId;
+import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.ShoppingListId;
 import io.github.doriangrelu.lifemanager.shopping.infrastructure.out.persistence.mapper.ShoppingItemMapper;
 import io.github.doriangrelu.lifemanager.shopping.infrastructure.out.persistence.repository.ShoppingItemJdbcRepository;
 import jakarta.inject.Singleton;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /** Implémente le stockage des articles de courses avec PostgreSQL (table shopping_item). */
 @Singleton
@@ -27,8 +30,20 @@ class ShoppingItemRepositoryAdapter implements ShoppingItemRepository {
     }
 
     @Override
-    public List<ShoppingItem> findAllByHousehold(HouseholdId householdId) {
-        return table.findAllByHousehold(householdId.value()).stream().map(ShoppingItemMapper::toDomain).toList();
+    public List<ShoppingItem> findAllByList(ShoppingListId listId) {
+        return table.findAllByList(listId.value()).stream().map(ShoppingItemMapper::toDomain).toList();
+    }
+
+    @Override
+    public List<ShoppingItem> findCheckedByList(ShoppingListId listId) {
+        return table.findCheckedByList(listId.value()).stream().map(ShoppingItemMapper::toDomain).toList();
+    }
+
+    @Override
+    public Map<ShoppingListId, Long> countUncheckedByList(HouseholdId householdId) {
+        // Un foyer a peu d'articles en attente : on compte en mémoire.
+        return table.findUncheckedListIds(householdId.value()).stream()
+                .collect(Collectors.groupingBy(ShoppingListId::new, Collectors.counting()));
     }
 
     @Override
@@ -47,7 +62,7 @@ class ShoppingItemRepositoryAdapter implements ShoppingItemRepository {
     }
 
     @Override
-    public void deleteChecked(HouseholdId householdId) {
-        table.deleteChecked(householdId.value());
+    public void deleteChecked(ShoppingListId listId) {
+        table.deleteChecked(listId.value());
     }
 }

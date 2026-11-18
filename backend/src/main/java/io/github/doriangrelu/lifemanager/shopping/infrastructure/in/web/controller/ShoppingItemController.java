@@ -2,12 +2,10 @@ package io.github.doriangrelu.lifemanager.shopping.infrastructure.in.web.control
 
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.AddShoppingItem;
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.CheckShoppingItem;
-import io.github.doriangrelu.lifemanager.shopping.application.port.in.ClearCheckedItems;
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.ListShoppingItems;
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.RemoveShoppingItem;
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.UncheckShoppingItem;
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.command.AddShoppingItemCommand;
-import io.github.doriangrelu.lifemanager.shopping.application.port.in.command.ClearCheckedItemsCommand;
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.command.ShoppingItemCommand;
 import io.github.doriangrelu.lifemanager.shopping.application.port.in.query.ListShoppingItemsQuery;
 import io.github.doriangrelu.lifemanager.shopping.infrastructure.in.web.dto.ShoppingItemRequest;
@@ -28,8 +26,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
-/** Liste de courses d'un foyer : consultation, ajout, cochage, suppression, vidage des articles cochés. */
-@Controller("/api/households/{householdId}/shopping-items")
+/** Articles d'une sous-liste de courses : consultation, ajout, cochage, suppression. */
+@Controller("/api/households/{householdId}/shopping-lists/{listId}/items")
 @Secured(SecurityRule.IS_AUTHENTICATED)
 @ExecuteOn(TaskExecutors.BLOCKING)
 class ShoppingItemController {
@@ -39,53 +37,45 @@ class ShoppingItemController {
     private final CheckShoppingItem checkItem;
     private final UncheckShoppingItem uncheckItem;
     private final RemoveShoppingItem removeItem;
-    private final ClearCheckedItems clearChecked;
 
     ShoppingItemController(ListShoppingItems listItems, AddShoppingItem addItem, CheckShoppingItem checkItem,
-                           UncheckShoppingItem uncheckItem, RemoveShoppingItem removeItem,
-                           ClearCheckedItems clearChecked) {
+                           UncheckShoppingItem uncheckItem, RemoveShoppingItem removeItem) {
         this.listItems = listItems;
         this.addItem = addItem;
         this.checkItem = checkItem;
         this.uncheckItem = uncheckItem;
         this.removeItem = removeItem;
-        this.clearChecked = clearChecked;
     }
 
     @Get
-    List<ShoppingItemResponse> list(Authentication user, UUID householdId) {
-        return listItems.list(new ListShoppingItemsQuery(user.getName(), householdId)).stream()
+    List<ShoppingItemResponse> list(Authentication user, UUID householdId, UUID listId) {
+        return listItems.list(new ListShoppingItemsQuery(user.getName(), householdId, listId)).stream()
                 .map(ShoppingItemResponse::from)
                 .toList();
     }
 
     @Post
-    HttpResponse<ShoppingItemResponse> add(Authentication user, UUID householdId,
+    HttpResponse<ShoppingItemResponse> add(Authentication user, UUID householdId, UUID listId,
                                            @Body @Valid ShoppingItemRequest request) {
-        var added = addItem.add(new AddShoppingItemCommand(user.getName(), householdId, request.label()));
-        return HttpResponse.created(ShoppingItemResponse.from(added));
+        var command = new AddShoppingItemCommand(user.getName(), householdId, listId, request.label());
+        return HttpResponse.created(ShoppingItemResponse.from(addItem.add(command)));
     }
 
     @Post("/{itemId}/check")
-    ShoppingItemResponse check(Authentication user, UUID householdId, UUID itemId) {
-        return ShoppingItemResponse.from(checkItem.check(new ShoppingItemCommand(user.getName(), householdId, itemId)));
+    ShoppingItemResponse check(Authentication user, UUID householdId, UUID listId, UUID itemId) {
+        var command = new ShoppingItemCommand(user.getName(), householdId, listId, itemId);
+        return ShoppingItemResponse.from(checkItem.check(command));
     }
 
     @Post("/{itemId}/uncheck")
-    ShoppingItemResponse uncheck(Authentication user, UUID householdId, UUID itemId) {
-        var command = new ShoppingItemCommand(user.getName(), householdId, itemId);
+    ShoppingItemResponse uncheck(Authentication user, UUID householdId, UUID listId, UUID itemId) {
+        var command = new ShoppingItemCommand(user.getName(), householdId, listId, itemId);
         return ShoppingItemResponse.from(uncheckItem.uncheck(command));
     }
 
     @Delete("/{itemId}")
-    HttpResponse<Void> remove(Authentication user, UUID householdId, UUID itemId) {
-        removeItem.remove(new ShoppingItemCommand(user.getName(), householdId, itemId));
-        return HttpResponse.noContent();
-    }
-
-    @Post("/clear-checked")
-    HttpResponse<Void> clearChecked(Authentication user, UUID householdId) {
-        clearChecked.clear(new ClearCheckedItemsCommand(user.getName(), householdId));
+    HttpResponse<Void> remove(Authentication user, UUID householdId, UUID listId, UUID itemId) {
+        removeItem.remove(new ShoppingItemCommand(user.getName(), householdId, listId, itemId));
         return HttpResponse.noContent();
     }
 }
