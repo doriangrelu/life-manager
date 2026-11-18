@@ -12,7 +12,9 @@ services:
     container_name: life-manager-api
     restart: unless-stopped
     environment:
-      KEYCLOAK_URL: https://iabilis.fr
+      # Keycloak du socle, joint directement par le réseau interne (pas de détour par Internet ni de TLS).
+      # Les jetons restent émis pour https://iabilis.fr : Keycloak a son adresse publique fixée (KC_HOSTNAME).
+      KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_API_CLIENT_SECRET: ${KEYCLOAK_API_CLIENT_SECRET:?}
       STORAGE_ROOT: /data/files
       # « db » : le PostgreSQL du socle, sur le réseau partagé.
