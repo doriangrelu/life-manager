@@ -1,0 +1,83 @@
+## ADDED Requirements
+
+### Requirement: Ajout de pièces jointes à une opération
+
+Le système SHALL permettre à un membre de joindre des fichiers à une opération du carnet d'un véhicule de son foyer : PDF, JPEG, PNG ou WebP, 10 Mo au plus par fichier, 10 fichiers au plus par opération. Le type SHALL être vérifié d'après le contenu du fichier, quelle que soit son extension.
+
+#### Scenario: Facture jointe
+
+- **WHEN** un membre joint `facture-revision.pdf` (300 Ko) à une révision
+- **THEN** le fichier est enregistré avec son nom d'origine, son type et sa taille, et figure parmi les pièces jointes de l'opération
+
+#### Scenario: Fichier trop lourd
+
+- **WHEN** un membre joint un fichier de plus de 10 Mo
+- **THEN** l'ajout est refusé avec une erreur `400 Bad Request` (ou `413 Payload Too Large`) et rien n'est enregistré
+
+#### Scenario: Type non accepté
+
+- **WHEN** un membre joint un exécutable renommé `facture.pdf`
+- **THEN** l'ajout est refusé avec une erreur `400 Bad Request`
+
+#### Scenario: Limite atteinte
+
+- **WHEN** un membre joint un onzième fichier à une opération
+- **THEN** l'ajout est refusé avec une erreur `409 Conflict`
+
+#### Scenario: Opération d'un autre foyer
+
+- **WHEN** un membre joint un fichier à une opération inconnue ou d'un autre foyer
+- **THEN** l'API répond `404 Not Found`
+
+### Requirement: Consultation des pièces jointes
+
+Le système SHALL indiquer, pour chaque opération du carnet, ses pièces jointes (nom, type, taille), et SHALL permettre à un membre du foyer de télécharger le contenu d'une pièce jointe. Le contenu n'est jamais accessible sans être authentifié comme membre du foyer.
+
+#### Scenario: Ouverture d'une facture
+
+- **WHEN** un membre télécharge une pièce jointe d'une opération de son foyer
+- **THEN** il reçoit le fichier d'origine avec son type et son nom
+
+#### Scenario: Accès refusé
+
+- **WHEN** un utilisateur qui n'est pas membre du foyer demande une pièce jointe
+- **THEN** l'API répond `404 Not Found`
+
+### Requirement: Suppression d'une pièce jointe
+
+Le système SHALL permettre à un membre de supprimer définitivement une pièce jointe d'une opération de son foyer.
+
+#### Scenario: Mauvais fichier
+
+- **WHEN** un membre supprime une pièce jointe
+- **THEN** elle n'apparaît plus dans l'opération et son contenu n'est plus téléchargeable
+
+### Requirement: Pièces jointes dans la PWA
+
+La PWA SHALL permettre, depuis une opération du carnet, de joindre un ou plusieurs fichiers à la fois (y compris une photo prise avec l'appareil sur mobile), de voir la liste des pièces jointes, d'en ouvrir une et d'en supprimer une après confirmation.
+
+#### Scenario: Photo du procès-verbal
+
+- **WHEN** un membre, sur mobile, joint une photo prise avec l'appareil à un contrôle technique
+- **THEN** la photo apparaît dans les pièces jointes de l'opération et peut être ouverte
+
+## MODIFIED Requirements
+
+### Requirement: Suppression d'une opération
+
+Le système SHALL permettre à un membre de supprimer définitivement une opération du carnet d'un véhicule de son foyer. Les pièces jointes de l'opération SHALL être supprimées avec elle, y compris lorsque c'est le véhicule entier qui est supprimé.
+
+#### Scenario: Erreur de saisie
+
+- **WHEN** un membre supprime une opération du carnet
+- **THEN** elle n'apparaît plus dans le carnet
+
+#### Scenario: Opération inconnue
+
+- **WHEN** un membre supprime une opération inconnue ou d'un autre véhicule
+- **THEN** l'API répond `404 Not Found`
+
+#### Scenario: Fichiers supprimés avec l'opération
+
+- **WHEN** un membre supprime une opération qui a deux pièces jointes, ou le véhicule qui la porte
+- **THEN** les deux pièces jointes ne sont plus téléchargeables et leurs fichiers ne sont plus conservés
