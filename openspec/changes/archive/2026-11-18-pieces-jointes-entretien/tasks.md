@@ -18,7 +18,7 @@
 
 ## 4. Intégration
 
-- [ ] 4.1 [ci + doc] Build natif vert avec `tika-core` ; `docs/architecture.md` (stockage de fichiers par domaine) ; note ajoutée au design de `deploiement-vps` (volume et sauvegarde des fichiers) ; vérifié par un run CI vert
+- [x] 4.1 [ci + doc] Build natif vert avec `tika-core` ; `docs/architecture.md` (stockage de fichiers par domaine) ; note ajoutée au design de `deploiement-vps` (volume et sauvegarde des fichiers) ; vérifié par un run CI vert
 
 ## Workflow follow-up
 
