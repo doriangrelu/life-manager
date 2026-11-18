@@ -82,6 +82,15 @@ datasources:
     dialect: POSTGRES
     maximum-pool-size: 5
 
+  bills:
+    url: ${BILLS_DB_URL:`jdbc:postgresql://localhost:5432/lifemanager`}
+    username: ${BILLS_DB_USER:bills_app}
+    password: ${BILLS_DB_PASSWORD:bills}
+    schema: bills
+    driver-class-name: org.postgresql.Driver
+    dialect: POSTGRES
+    maximum-pool-size: 5
+
 # Une configuration Flyway (et donc un historique de migrations) par domaine.
 flyway:
   datasources:
@@ -109,6 +118,10 @@ flyway:
       enabled: true
       locations: classpath:db/migration/reminder
       default-schema: reminder
+    bills:
+      enabled: true
+      locations: classpath:db/migration/bills
+      default-schema: bills
 
 # Fuseau des utilisateurs : sert à savoir quel jour on est (ex. refuser une dépense datée de demain).
 life-manager:

@@ -41,8 +41,24 @@ class DeadlineTest {
     @Test
     void a_deadline_needs_a_readable_subject_and_a_known_kind() {
         assertThatThrownBy(() -> new Subject(" ")).isInstanceOf(InvalidValueException.class);
-        assertThatThrownBy(() -> new Subject("a".repeat(41))).isInstanceOf(InvalidValueException.class);
+        assertThatThrownBy(() -> new Subject("a".repeat(61))).isInstanceOf(InvalidValueException.class);
         assertThatThrownBy(() -> DeadlineKind.of("INSURANCE")).isInstanceOf(InvalidValueException.class);
+    }
+
+    @Test
+    void a_charge_is_reminded_7_days_ahead_and_while_it_awaits_its_amount() {
+        var household = new HouseholdId(UUID.randomUUID());
+        var source = new SourceId(UUID.randomUUID());
+        var charge = Deadline.track(household, source,
+                new DeadlineDetails(DeadlineKind.CHARGE, new Subject("Internet"), TODAY.plusDays(7)));
+        var later = Deadline.track(household, source,
+                new DeadlineDetails(DeadlineKind.CHARGE, new Subject("Internet"), TODAY.plusDays(8)));
+        var toConfirm = Deadline.track(household, source,
+                new DeadlineDetails(DeadlineKind.CHARGE_TO_CONFIRM, new Subject("Électricité"), TODAY.minusDays(40)));
+
+        assertThat(charge.reminderOn(TODAY)).isPresent();
+        assertThat(later.reminderOn(TODAY)).isEmpty();
+        assertThat(toConfirm.reminderOn(TODAY)).isPresent();
     }
 
     private static Deadline dueOn(LocalDate day) {

@@ -15,12 +15,11 @@ import java.util.Optional;
 
 /**
  * Échéance suivie pour un foyer (ex. contrôle technique de la Clio), copiée depuis le domaine d'origine.
- * Porte la règle de rappel : une échéance passée ou dans les {@value #REMINDER_WINDOW_DAYS} jours donne un rappel.
+ * Porte la règle de rappel : une échéance passée, ou assez proche selon sa nature
+ * ({@link io.github.doriangrelu.lifemanager.reminder.domain.valueobject.DeadlineKind#reminderWindowDays()}),
+ * donne un rappel.
  */
 public final class Deadline extends AggregateRoot<DeadlineId> {
-
-    /** Nombre de jours avant l'échéance à partir duquel on la rappelle. */
-    public static final int REMINDER_WINDOW_DAYS = 30;
 
     private final HouseholdId householdId;
     private final SourceId sourceId;
@@ -50,7 +49,7 @@ public final class Deadline extends AggregateRoot<DeadlineId> {
         if (daysLeft < 0) {
             return Optional.of(new Reminder(ReminderStatus.OVERDUE, daysLeft));
         }
-        if (daysLeft <= REMINDER_WINDOW_DAYS) {
+        if (daysLeft <= details.kind().reminderWindowDays()) {
             return Optional.of(new Reminder(ReminderStatus.DUE_SOON, daysLeft));
         }
         return Optional.empty();
