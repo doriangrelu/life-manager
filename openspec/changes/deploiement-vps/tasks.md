@@ -18,11 +18,11 @@
 - [x] 3.1 [infra/deploy] `install.sh` : `~/life-manager`, dossier des pièces jointes, `.env.prod` en `600` avec secrets aléatoires (ou secret du realm importé à la main)
 - [x] 3.2 [infra/deploy] `create-database.sh` : base `lifemanager`, un schéma et un compte par domaine, sans toucher aux autres bases
 - [x] 3.3 [infra/deploy] `create-realm.sh` : import du realm par `kcadm.sh` dans le Keycloak existant (variante de l'import manuel)
-- [ ] 3.4 [infra/deploy] `deploy.sh <tag>` : pull, redémarrage, attente du contrôle de santé, copie du fragment et rechargement de Caddy — fait et vérifié en local ; retour arrière entre deux vrais tags à vérifier sur le VPS
+- [x] 3.4 [infra/deploy] `deploy.sh <tag>` : pull, redémarrage, attente du contrôle de santé, copie du fragment et rechargement de Caddy ; retour arrière vérifié sur le VPS (v0.2.5 → v0.2.4 → v0.2.5, 6 s chacun)
 
 ## 4. Sauvegardes
 
-- [ ] 4.1 [infra/backup] Ajout du dossier des pièces jointes à `~/infra/backup.sh` (avec accord de Dorian) ; archive vérifiée
+- [x] 4.1 [infra/backup] Ajout du dossier des pièces jointes à `~/infra/backup.sh` (avec accord de Dorian) ; archive vérifiée (base, realm et pièces jointes présents)
 - [ ] 4.2 [doc] Procédure de restauration de Life Manager depuis une archive du socle, testée sur une machine vierge
 
 ## 5. Documentation

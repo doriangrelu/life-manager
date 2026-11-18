@@ -12,6 +12,8 @@ Life Manager tourne sur le VPS OVH, branché sur le **socle partagé** déjà en
 
 Images publiées par la CI à chaque tag `v*` : `ghcr.io/doriangrelu/life-manager-api` et `ghcr.io/doriangrelu/life-manager-web`.
 
+À chaque commit sur `main`, la CI construit aussi l'image native et rejoue un parcours d'usage complet sur l'API compilée ([`infra/ci/native-smoke.sh`](../infra/ci/native-smoke.sh)) : les erreurs propres à l'exécutable natif sont arrêtées avant toute version. Avant de publier un tag, vérifier que le job « Exécutable natif » de `main` est vert.
+
 ## Première installation
 
 Prérequis : socle en service, réseau Docker `socle`, enregistrement DNS `maison.dorian-grelu.fr` (A `152.228.237.190`, AAAA `2001:41d0:404:200::dbb` facultatif).
@@ -30,7 +32,7 @@ Prérequis : socle en service, réseau Docker `socle`, enregistrement DNS `maiso
    - `install.sh` : dossier des pièces jointes `~/volumes/life-manager-files`, secrets dans `~/life-manager/.env.prod` (droits 600).
    - `create-database.sh` : base `lifemanager` et ses six comptes dans le PostgreSQL du socle. Les autres bases ne sont pas touchées.
 4. **Comptes du foyer** : console Keycloak → realm `life-manager` → *Users* → créer chaque membre et lui donner un mot de passe (12 caractères minimum). L'inscription libre est fermée.
-5. **Sauvegarde** : ajouter `life-manager-files` à la liste des dossiers de `~/infra/backup.sh` (ligne `sudo tar -cf … images-data logs-data caddy-data caddy-config`), puis vérifier l'archive suivante.
+5. **Sauvegarde** : ajouter `life-manager-files` à la liste des dossiers de `~/infra/backup.sh` (ligne `sudo tar -cf … images-data logs-data caddy-data caddy-config`), puis vérifier l'archive suivante. Fait le 2026-11-18 sur le VPS actuel (copie de l'original : `~/infra/backup.sh.avant-life-manager`).
 
 Les scripts refusent de s'exécuter une deuxième fois (secrets, base ou realm déjà présents) : rien n'est écrasé.
 

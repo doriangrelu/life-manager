@@ -17,15 +17,15 @@ Le **MVP de la vision est livré et en production** (v0.1.1 sur https://maison.d
 
 ## Ordre proposé
 
-### Lot 0 — Finitions de la mise en production (≈ ½ journée)
+### Lot 0 — Finitions de la mise en production ✅ (terminé le 2026-11-18, v0.2.0 à v0.2.5)
 
-À faire avant toute nouvelle fonctionnalité, pour partir sur une base propre.
-
-- Thème de connexion en production (copie + redémarrage de Keycloak, ≈ 1 min de coupure de connexion pour toutes les applications du serveur).
-- Réglages du realm de production (titre, français, verrouillage après échecs, longueur de mot de passe) si l'import partiel ne les a pas pris.
-- Pièces jointes ajoutées à la sauvegarde nocturne (`~/infra/backup.sh`).
-- Message clair dans la PWA quand Keycloak est injoignable (au lieu de « Failed to fetch »).
-- Retour arrière vérifié une fois entre deux vraies versions.
+- ✅ Thème de connexion en production.
+- ✅ Pièces jointes dans la sauvegarde nocturne, archive vérifiée.
+- ✅ Messages d'erreur clairs (serveur injoignable, panne serveur) et retour de connexion sans erreur.
+- ✅ Retour arrière vérifié entre deux vraies versions.
+- ✅ Parcours d'usage sur l'exécutable natif en CI.
+- En plus, d'après les retours de Dorian : noms normalisés, chargements, animations, survol, mise à jour automatique de la PWA.
+- Reste : test de restauration complète sur une machine vierge (voir dette technique).
 
 ### Lot 1 — Factures et abonnements (V2, valeur quotidienne forte)
 
@@ -80,7 +80,7 @@ Aujourd'hui, une notification n'apparaît que si l'application est ouverte.
 |---|---|---|
 | Événements entre domaines sans « outbox » | un arrêt brutal pendant une publication peut désynchroniser une copie locale (membres, échéances) | avant le lot 1, qui ajoute des événements |
 | HTTPS sortant depuis l'exécutable natif | échoue (`decrypt_error`) ; contourné par le réseau interne | dès qu'un appel externe sera nécessaire (Web Push, lot 5) |
-| Test de restauration complète | jamais fait sur une machine vierge | lot 0 ou dès qu'un VPS de test est disponible |
+| Test de restauration complète | jamais fait sur une machine vierge | dès qu'un VPS de test est disponible |
 
 ## Questions pour Dorian
 

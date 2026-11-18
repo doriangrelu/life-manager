@@ -16,8 +16,10 @@ fail() { echo "ERREUR : $*" >&2; exit 1; }
 # Seul le nom du compte administrateur est lu dans le .env du socle.
 ADMIN="$(grep -E '^POSTGRES_USER=' "$SOCLE_ENV" | cut -d= -f2-)"
 [ -n "$ADMIN" ] || fail "POSTGRES_USER introuvable dans $SOCLE_ENV."
+set -a
 # shellcheck source=/dev/null
-set -a; . "$ENV_FILE"; set +a
+. "$ENV_FILE"
+set +a
 
 psql_admin() { docker exec -i "$DB_CONTAINER" psql -v ON_ERROR_STOP=1 -U "$ADMIN" "$@"; }
 

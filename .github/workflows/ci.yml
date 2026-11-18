@@ -43,19 +43,38 @@ jobs:
       - run: bun run build
 
   native:
-    name: Build natif GraalVM
+    name: Exécutable natif (image + parcours d'usage)
     # Long et gourmand (~7 Go de RAM) : seulement sur main ou à la demande.
+    # Construit l'image de production puis rejoue un vrai parcours sur l'API native :
+    # attrape les erreurs propres à GraalVM (réflexion, ressources) que les tests JVM ne voient pas.
     if: github.ref == 'refs/heads/main'
     needs: backend
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - uses: actions/checkout@v5
-      - uses: graalvm/setup-graalvm@v1
+      - uses: docker/setup-buildx-action@v3
+      - name: Image native (même Dockerfile que la production)
+        uses: docker/build-push-action@v6
         with:
-          java-version: '25'
-          distribution: graalvm-community
-          cache: maven
-      - run: ./mvnw -B package -Dpackaging=native-image -Dmicronaut.aot.enabled=true -DskipTests
+          context: backend
+          load: true
+          tags: life-manager-api:ci
+          cache-from: type=gha,scope=life-manager-api
+          cache-to: type=gha,mode=max,scope=life-manager-api
+      - name: PostgreSQL et Keycloak de développement
+        run: |
+          docker compose up -d --wait postgres
+          docker compose up -d keycloak
+          for i in $(seq 1 60); do curl -sf http://localhost:8180/realms/life-manager >/dev/null && break; sleep 3; done
+          infra/keycloak/create-dev-users.sh
+      - name: API native
+        run: |
+          mkdir -p /tmp/files && chmod 777 /tmp/files
+          docker run -d --name api --network host -e SERVER_PORT=8081 -e KEYCLOAK_URL=http://localhost:8180 \
+            -v /tmp/files:/data/files life-manager-api:ci
+          for i in $(seq 1 30); do curl -sf http://localhost:8081/health && break; sleep 2; done
+      - name: Parcours d'usage
+        run: API=http://localhost:8081 infra/ci/native-smoke.sh
+      - name: Journaux de l'API (en cas d'échec)
+        if: failure()
+        run: docker logs api 2>&1 | tail -100
