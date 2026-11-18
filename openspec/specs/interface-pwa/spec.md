@@ -88,3 +88,50 @@ La PWA SHALL refléter dans l'adresse de la page l'écran affiché : la section,
 
 - **WHEN** l'adresse désigne un véhicule supprimé ou d'un autre foyer et que la page est chargée
 - **THEN** la liste des véhicules du foyer s'affiche
+
+### Requirement: Noms enregistrés normalisés, mis en forme à l'affichage
+
+Les articles de courses (liste et historique), noms de sous-liste, noms de catégorie, libellés de dépense et noms de foyer SHALL être enregistrés sans espaces autour, avec les espaces intérieurs réduits à un seul, et en minuscules. Les noms de véhicule, plaques, notes d'entretien, noms d'affichage, courriels et noms de fichier SHALL garder leur casse. La PWA SHALL afficher les noms normalisés avec une majuscule initiale. Les données déjà enregistrées SHALL être converties.
+
+#### Scenario: Saisie d'un article
+
+- **WHEN** un membre ajoute l'article «  LAIT   demi-écrémé »
+- **THEN** l'article est enregistré « lait demi-écrémé » et affiché « Lait demi-écrémé »
+
+#### Scenario: Doublon de casse
+
+- **WHEN** une catégorie « courses » existe et un membre crée la catégorie « Courses »
+- **THEN** la création est refusée comme doublon
+
+#### Scenario: Véhicule
+
+- **WHEN** un membre nomme un véhicule « Clio RS »
+- **THEN** il est enregistré et affiché « Clio RS »
+
+#### Scenario: Données existantes
+
+- **WHEN** la nouvelle version démarre sur une base contenant la catégorie « Loisirs »
+- **THEN** la catégorie est enregistrée « loisirs » et toujours affichée « Loisirs »
+
+### Requirement: Retours visuels de chargement et d'attente
+
+La PWA SHALL afficher des formes de chargement à la place d'un contenu en cours de premier chargement, et SHALL n'afficher un message de liste vide qu'une fois les données reçues. Un bouton dont l'action est en cours SHALL l'indiquer par une animation et rester inactif jusqu'à la fin. Les éléments cliquables SHALL réagir au survol de la souris.
+
+#### Scenario: Ouverture d'un onglet
+
+- **WHEN** un membre ouvre l'onglet Véhicules et que la liste n'est pas encore reçue
+- **THEN** des formes de chargement s'affichent, et non le message « Aucun véhicule »
+
+#### Scenario: Enregistrement en cours
+
+- **WHEN** un membre enregistre une dépense
+- **THEN** le bouton affiche une animation d'attente et ne peut pas être actionné une seconde fois
+
+### Requirement: Saisie du montant
+
+La fenêtre de saisie d'une dépense SHALL centrer le montant et sa devise, et SHALL placer le curseur dans le champ du montant à l'ouverture.
+
+#### Scenario: Nouvelle dépense
+
+- **WHEN** un membre ouvre la saisie d'une dépense
+- **THEN** il peut taper le montant immédiatement, affiché centré avec « € »

@@ -6,5 +6,5 @@
 
 ## 2. Production (avec l'accord de Dorian)
 
-- [ ] 2.1 [infra/vps] Copie du thème sur le VPS, redémarrage de Keycloak, choix du thème dans le realm
-- [ ] 2.2 [doc] `docs/deploiement.md` : mise à jour du thème
+- [x] 2.1 [infra/vps] Copie du thème sur le VPS, redémarrage de Keycloak, choix du thème dans le realm
+- [x] 2.2 [doc] `docs/deploiement.md` : mise à jour du thème

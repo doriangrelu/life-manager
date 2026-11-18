@@ -46,6 +46,19 @@ Le script place le dépôt sur le tag, tire les images, redémarre l'API et la P
 
 **Retour arrière** : relancer avec le tag précédent, affiché à la fin de chaque déploiement. Les migrations sont additives ; avant une version qui supprimerait des données, faire une sauvegarde à la main (`~/infra/backup.sh`).
 
+## Page de connexion (thème Keycloak)
+
+Le thème `life-manager` vit dans [`infra/keycloak/themes/life-manager`](../infra/keycloak/themes/life-manager) et, sur le VPS, dans `~/keycloak/themes/life-manager`. Pour le mettre à jour :
+
+```bash
+# Depuis le dépôt, sur le PC :
+tar -C infra/keycloak/themes -cf - life-manager | ssh ubuntu@152.228.237.190 'rm -rf ~/keycloak/themes/life-manager && tar -C ~/keycloak/themes -xf -'
+# Sur le VPS (≈ 1 minute de coupure de la connexion pour toutes les applications du serveur) :
+docker compose -f ~/keycloak/docker-compose.yml restart
+```
+
+Le thème est choisi dans la console : realm `life-manager` → *Realm settings* → *Themes* → *Login theme*.
+
 ## Sauvegarde et restauration
 
 Chaque nuit à 3 h, `~/infra/backup.sh` archive toutes les bases (`pg_dumpall`, comptes compris) et les dossiers de `~/volumes`. Les archives restent 14 jours dans `~/infra/backups`, et la sauvegarde automatique du VPS chez OVH en garde une copie hors du serveur.
