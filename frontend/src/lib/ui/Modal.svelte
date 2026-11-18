@@ -25,8 +25,10 @@
   $effect(() => {
     if (open && dialog && !dialog.open) {
       dialog.showModal()
-      // Champ principal du formulaire (marqué data-autofocus) prêt à la saisie, plutôt que le bouton Fermer.
-      dialog.querySelector<HTMLElement>('[data-autofocus]')?.focus()
+      // Champ principal du formulaire (marqué data-autofocus) prêt à la saisie ; sinon le panneau lui-même,
+      // pour ne pas ouvrir la fenêtre avec un cadre de focus sur le bouton Fermer.
+      const target = dialog.querySelector<HTMLElement>('[data-autofocus]') ?? dialog.querySelector<HTMLElement>('.panel')
+      target?.focus()
     } else if (!open && dialog?.open) {
       dialog.close()
     }
@@ -48,7 +50,7 @@
 
 <dialog bind:this={dialog} class="modal" aria-labelledby={titleId} onclose={closed} onclick={clickOutside}>
   {#if open}
-    <div class="panel">
+    <div class="panel" tabindex="-1">
       <div class="handle" aria-hidden="true"></div>
       <header>
         <h2 id={titleId}>{title}</h2>
@@ -88,6 +90,9 @@
     max-height: 92dvh;
     padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
     gap: 16px;
+  }
+  .panel:focus {
+    outline: none;
   }
   .handle {
     align-self: center;

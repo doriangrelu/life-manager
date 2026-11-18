@@ -7,7 +7,9 @@ export default defineConfig({
   plugins: [
     svelte(),
     VitePWA({
+      // Nouvelle version installée et activée sans attendre ; la page se recharge seule (voir lib/updates.ts).
       registerType: 'autoUpdate',
+      injectRegister: false,
       // Icônes (favicon, PWA, Apple) générées à partir d'un seul logo.
       pwaAssets: { image: 'public/logo.svg', preset: 'minimal-2023' },
       manifest: {
@@ -22,6 +24,10 @@ export default defineConfig({
       workbox: {
         // Les appels d'API ne passent jamais par le cache hors-ligne.
         navigateFallbackDenylist: [/^\/api\//],
+        // Les copies des anciennes versions sont supprimées dès qu'une nouvelle prend la main.
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
       },
     }),
   ],
