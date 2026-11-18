@@ -15,6 +15,7 @@
     "@tsconfig/svelte": "^5.0.8",
     "@types/node": "^24.19.2",
     "@vite-pwa/assets-generator": "^2.0.0",
+    "happy-dom": "^21.0.4",
     "svelte": "^5.57.3",
     "svelte-check": "^4.7.7",
     "typescript": "~6.0.3",

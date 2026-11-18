@@ -20,18 +20,40 @@ interface LoginState {
   hash?: string
 }
 
+// Une seule nouvelle tentative de connexion après un retour en échec : jamais de boucle de redirections.
+const RETRY_KEY = 'life-manager.login-retry'
+
 /**
- * Si l'on revient de la page de connexion Keycloak, termine la connexion, nettoie l'URL
- * et rouvre l'écran affiché avant le départ (Keycloak ne garde pas la partie « # » de l'adresse).
+ * Si l'on revient de la page de connexion Keycloak, termine la connexion et rouvre l'écran affiché
+ * avant le départ (Keycloak ne garde pas la partie « # » de l'adresse).
+ *
+ * L'adresse de retour (?code=…&state=…) est nettoyée AVANT l'échange du code : un rechargement
+ * (mise à jour de l'application, F5, Précédent) ne rejoue jamais un retour déjà consommé.
+ * Un retour périmé n'est pas une erreur : session valide → on continue, sinon nouvelle connexion.
  */
 export async function completeLoginIfReturning(): Promise<void> {
+  const returnUrl = window.location.href
   const params = new URLSearchParams(window.location.search)
   if (!params.has('code') || !params.has('state')) {
     return
   }
-  const user = await userManager.signinRedirectCallback()
   window.history.replaceState({}, '', '/')
-  navigate(parseRoute((user.state as LoginState | undefined)?.hash ?? ''), { replace: true })
+  try {
+    const user = await userManager.signinRedirectCallback(returnUrl)
+    sessionStorage.removeItem(RETRY_KEY)
+    navigate(parseRoute((user.state as LoginState | undefined)?.hash ?? ''), { replace: true })
+  } catch {
+    await userManager.clearStaleState()
+    if (await accessToken()) {
+      return
+    }
+    if (sessionStorage.getItem(RETRY_KEY)) {
+      sessionStorage.removeItem(RETRY_KEY)
+      throw new Error("La connexion n'a pas abouti. Fermez l'application puis rouvrez-la.")
+    }
+    // Aucune session : l'application relance une connexion (Keycloak reconnaît souvent l'utilisateur sans mot de passe).
+    sessionStorage.setItem(RETRY_KEY, '1')
+  }
 }
 
 /** Jeton d'accès valide, ou null si l'utilisateur doit se (re)connecter. */
