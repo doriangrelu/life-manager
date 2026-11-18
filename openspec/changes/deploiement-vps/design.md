@@ -1,72 +1,106 @@
 ## Context
 
-Aujourd'hui : un `docker-compose.yml` de développement (PostgreSQL 18, Keycloak 26.4 en `start-dev`), un backend Micronaut compilé en natif par la CI (job « Build natif GraalVM », sans publication d'image), une PWA Vite (`dist/`), un realm Keycloak de dev (redirections vers `localhost:5173`, secrets de dev), un script d'init PostgreSQL qui crée un schéma et un compte par domaine (`identity`, `household`, `budget`, `vehicle`, `shopping`, `reminder`). Aucun serveur n'est encore configuré. Ce change est une **proposition** : rien n'est déployé ni installé.
+Côté dépôt : un `docker-compose.yml` de développement (PostgreSQL 18, Keycloak 26.4 en `start-dev`), un backend Micronaut compilé en natif par la CI (sans publication d'image), une PWA Vite (`dist/`), un realm Keycloak de dev, un script d'init PostgreSQL qui crée un schéma et un compte par domaine (`identity`, `household`, `budget`, `vehicle`, `shopping`, `reminder`). Le backend lit sa configuration dans l'environnement (`KEYCLOAK_URL`, `KEYCLOAK_API_CLIENT_*`, `<DOMAINE>_DB_URL/USER/PASSWORD`, `STORAGE_ROOT`).
+
+Côté VPS (inspecté le 2026-11-18, OVH VPS-1, Strasbourg, Ubuntu 26.04, 4 Go de RAM dont 1,7 Go libres, 38 Go de disque dont 11 Go libres) : un **socle partagé** déjà en service pour d'autres applications.
+
+- `~/infra` : Caddy 2 (seul à publier 80/443, routage importé depuis `~/infra/conf.d/*.caddy`) et PostgreSQL 16 (port lié à `127.0.0.1` uniquement), données en bind mount sous `~/volumes`.
+- `~/keycloak` : Keycloak `latest` en mode production sur `https://iabilis.fr`, base `keycloak` dans le PostgreSQL du socle, mis à jour automatiquement chaque nuit avec retour arrière.
+- Réseau Docker externe `socle` partagé par tous les projets Compose.
+- `~/infra/backup.sh` (cron 3 h) : `pg_dumpall` de toutes les bases + volumes + configuration, archive locale gardée 14 jours.
+- Serveur : ufw (22/80/443), fail2ban, `unattended-upgrades`, sudo sans mot de passe pour `ubuntu`.
+
+Ce change est une **proposition** : rien n'est déployé ni modifié sur le serveur.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Une installation reproductible sur un VPS Debian/Ubuntu avec Docker, en une poignée de commandes.
-- Sécurité de base sérieuse pour des données financières : HTTPS, secrets uniques, base non exposée, sauvegardes chiffrées hors site.
-- Peu de ressources : backend natif, un seul PostgreSQL partagé (schémas séparés), pas d'outillage lourd.
+- Brancher Life Manager sur le socle sans arrêter ni modifier les autres applications.
+- Sécurité sérieuse pour des données financières : HTTPS, secrets uniques hors du dépôt, base non exposée, sauvegardes.
+- Peu de ressources : backend natif, pas de deuxième PostgreSQL, Keycloak ou Caddy.
 
 **Non-Goals:**
-- Orchestration (Kubernetes), haute disponibilité, CD automatique.
+- Orchestration, haute disponibilité, CD automatique.
+- Refonte du socle (il appartient à l'organisation décrite dans le dépôt mybook, ADR-0030).
 
 ## Decisions
 
-### 1. Docker Compose sur le VPS
+### 1. Une pile Life Manager raccordée au socle
 
-`docker-compose.prod.yml` : `caddy`, `api` (natif), `postgres`, `keycloak` (`start`, mode production, base PostgreSQL), `backup`. Réseau interne Docker ; seul Caddy publie 80/443. Volumes nommés pour PostgreSQL et les certificats Caddy. Politique `restart: unless-stopped`, contrôles de santé.
+`~/life-manager/docker-compose.prod.yml` : deux services sur le réseau externe `socle`, sans port publié, `restart: unless-stopped`, limites de ressources, contrôles de santé.
 
-### 2. Caddy en frontal
+- `api` : backend natif (limite 256 Mo), `STORAGE_ROOT=/data/files` monté sur `~/volumes/life-manager-files` (bind mount, comme les autres applications).
+- `web` : fichiers statiques de la PWA servis par un petit serveur (limite 32 Mo).
 
-Un domaine pour l'application (`app.<domaine>`) : Caddy sert les fichiers de la PWA et relaie `/api/*` vers le backend. Un sous-domaine `auth.<domaine>` relaie vers Keycloak (`KC_PROXY_HEADERS=xforwarded`, `KC_HOSTNAME` fixé). Certificats Let's Encrypt automatiques, en-têtes de sécurité (HSTS, `X-Content-Type-Options`, CSP restreinte au domaine et à `auth.<domaine>`). La console d'administration Keycloak n'est accessible que par tunnel SSH.
+Noms de conteneurs préfixés (`life-manager-api`, `life-manager-web`) pour éviter toute collision d'alias sur le réseau partagé (`app` y est déjà pris par mybook).
 
-### 3. Images construites par la CI
+### 2. Routage par un fragment Caddy
 
-Workflow déclenché sur tag `v*` : build natif du backend (image distroless ou `debian-slim` minimale, utilisateur non root), build de la PWA avec `VITE_OIDC_AUTHORITY` de production, publication sur `ghcr.io/doriangrelu/life-manager-api` et `…-web` avec le tag. Les images ne contiennent aucun secret.
+`infra/caddy/life-manager.caddy`, copié par `deploy.sh` dans `~/infra/conf.d/`, puis `caddy reload` dans le conteneur du socle (aucun redémarrage). Un seul sous-domaine (`<sous-domaine>.iabilis.fr`) : `/api/*` vers `life-manager-api`, le reste vers `life-manager-web`. En-têtes : HSTS, `X-Content-Type-Options`, `Referrer-Policy`, CSP limitée au domaine de l'application et à `https://iabilis.fr` pour la connexion (`connect-src`), avec `blob:` autorisé pour l'affichage des pièces jointes. Caddy obtient le certificat automatiquement dès que le DNS pointe vers le VPS.
 
-### 4. Secrets et configuration
+### 3. Realm dans le Keycloak existant
 
-`infra/deploy/install.sh` (à lancer sur le VPS) : vérifie Docker, crée `/opt/life-manager`, génère `.env` (mots de passe aléatoires par compte PostgreSQL, secret du client API, admin Keycloak, mot de passe restic) avec droits `600`, copie le compose et le Caddyfile. Le realm de production (`realm-life-manager.prod.json`) reprend celui de dev avec les URL du domaine, l'inscription fermée, et un secret client lu depuis l'environnement à l'import.
+Pas de nouveau Keycloak. `infra/keycloak/realm-life-manager.prod.json` reprend le realm de dev : URL de redirection du sous-domaine, inscription fermée, secret du client `life-manager-api` remplacé à l'import par celui du `.env`. Import une fois par `infra/deploy/create-realm.sh`, qui passe par `kcadm.sh` dans le conteneur Keycloak (aucun redémarrage). Émetteur des jetons : `https://iabilis.fr/realms/life-manager`. Le backend appelle l'introspection par l'URL publique (`KEYCLOAK_URL=https://iabilis.fr`), qui reste valable quel que soit le chemin réseau. Les deux comptes du foyer sont créés à la main dans la console.
 
-### 5. Sauvegardes
+Keycloak est en `latest` avec mise à jour automatique : le backend n'utilise que l'introspection standard (RFC 7662), peu exposée aux changements de version.
 
-Conteneur `backup` (image officielle restic + client PostgreSQL) déclenché chaque nuit : `pg_dump` de `lifemanager` et `keycloak`, envoi chiffré vers un dépôt restic externe (OVH Object Storage compatible S3), puis `restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune`. Restauration documentée et testée une fois sur une machine vierge.
+### 4. Base dans le PostgreSQL du socle
 
-**Fichiers envoyés** (ajouté avec le change `pieces-jointes-entretien`) : le backend range les pièces jointes sous `STORAGE_ROOT` (par exemple `/data/files`), monté sur un volume Docker nommé `files`. Ce volume est sauvegardé par le même conteneur `backup`, dans le même dépôt restic, juste après le `pg_dump` (base et fichiers restaurés ensemble restent cohérents à quelques secondes près ; au pire un fichier orphelin). Surveiller l'espace disque du volume (10 Mo par fichier, 10 fichiers par opération).
+`infra/deploy/create-database.sh` (une fois) : crée la base `lifemanager`, un schéma et un compte par domaine avec des mots de passe aléatoires écrits dans `~/life-manager/.env`, en reprenant le script d'init de dev. Exécuté par `docker exec` dans le conteneur `db` du socle avec son compte administrateur ; aucun autre schéma ni base n'est touché. Les migrations Flyway tournent au démarrage du backend.
 
-### 6. Mise à jour
+PostgreSQL 16 au lieu de 18 en dev : nos migrations n'utilisent rien de propre à la version 18 ; la CI vérifiera les migrations sur une image 16 avant le premier déploiement.
 
-`infra/deploy/deploy.sh <tag>` : met à jour la variable de tag dans `.env`, `docker compose pull`, `docker compose up -d`, attend `GET /health = UP`. Retour arrière = relancer avec le tag précédent (les migrations Flyway sont additives ; une migration destructive demandera une sauvegarde préalable explicite).
+### 5. Images construites par la CI
 
-### 7. Durcissement du VPS (documenté, appliqué par Dorian)
+Workflow sur tag `v*` : build natif du backend (image minimale, utilisateur non root), build de la PWA avec `VITE_OIDC_AUTHORITY=https://iabilis.fr/realms/life-manager`, publication sur `ghcr.io/<propriétaire>/life-manager-api` et `…-web`. Images publiques (dépôt open source, aucun secret dedans) : pas d'identifiant GHCR à stocker sur le VPS.
 
-SSH par clé uniquement, connexion root désactivée, pare-feu (22, 80, 443), `unattended-upgrades`, fail2ban facultatif.
+### 6. Secrets
+
+`infra/deploy/install.sh` crée `~/life-manager` et `~/volumes/life-manager-files`, génère `.env` (droits `600`) : mots de passe des six comptes PostgreSQL, secret du client API, tag déployé. Les secrets du socle ne sont ni lus ni modifiés.
+
+### 7. Sauvegardes
+
+La base `lifemanager` (et le realm, via la base `keycloak`) est déjà incluse dans le `pg_dumpall` nocturne du socle. Seul ajout : `life-manager-files` dans la liste des volumes archivés par `~/infra/backup.sh` (une ligne, validée par Dorian). Base et fichiers sont archivés à quelques secondes d'intervalle : au pire un fichier orphelin. Restauration documentée et testée sur une machine vierge.
+
+**Limite actuelle du socle** : les archives restent sur le disque du VPS, non chiffrées. Une panne grave du serveur ou du site de Strasbourg les emporterait avec les données. Voir les recommandations.
+
+### 8. Mise à jour
+
+`infra/deploy/deploy.sh <tag>` : met à jour le tag dans `.env`, `docker compose pull`, `docker compose up -d`, copie le fragment Caddy et recharge Caddy, attend `GET /health = UP`. Retour arrière = relancer avec le tag précédent (migrations Flyway additives ; une migration destructive demandera une sauvegarde préalable explicite).
+
+## Recommandations pour le serveur (hors change, avec accord de Dorian)
+
+1. **Sauvegardes hors du serveur** : envoyer chaque nuit les archives du socle vers un dépôt restic chiffré dans une autre région (OVH Object Storage Gravelines, autre S3, ou machine personnelle), rétention 7 jours / 4 semaines / 6 mois. Profite à toutes les applications du VPS.
+2. **SSH** : désactiver l'authentification par mot de passe (`PasswordAuthentication no`), les connexions se faisant par clé.
+3. **Disque** : environ 20 Go récupérables en anciennes images et cache de build Docker (`docker builder prune`, `docker image prune`).
+4. **Mémoire** : ajouter un fichier d'échange de 2 Go, pour éviter qu'un pic de mémoire fasse tuer un conteneur.
+5. **Console Keycloak** : réserver `/admin` au tunnel SSH en le bloquant dans le fragment Caddy de Keycloak.
 
 ## Risks / Trade-offs
 
-- **Un seul serveur** → indisponibilité possible lors d'une panne OVH ; acceptable pour un usage familial, la sauvegarde hors site garantit les données.
+- **Socle partagé** → une panne de PostgreSQL, Caddy ou Keycloak touche toutes les applications ; en contrepartie une seule instance à maintenir et sauvegarder.
+- **Keycloak en `latest`** → une version majeure peut arriver sans relecture ; atténué par le retour arrière automatique du socle et notre usage limité à l'introspection.
+- **Mémoire** (1,7 Go libres, pas de swap) → backend natif et PWA estimés à moins de 200 Mo ; à mesurer après le premier déploiement.
+- **Disque** (11 Go libres) → pièces jointes limitées à 10 Mo, surveiller le volume `life-manager-files` et les archives locales de sauvegarde, qui le contiennent 14 fois.
 - **Build natif en CI (~7 Go de RAM, plusieurs minutes)** → limité aux tags.
-- **Keycloak consomme plus que le backend** (~400–600 Mo) → dimensionner le VPS à 2 Go de RAM minimum.
-- **Sans outbox**, un arrêt brutal pendant une publication d'événement peut désynchroniser une copie locale (membres, échéances) ; risque inchangé, à traiter avec un broker.
+- **Sans outbox**, un arrêt brutal pendant une publication d'événement peut désynchroniser une copie locale (membres, échéances) ; risque inchangé.
 
 ## Migration Plan
 
-1. Créer les DNS `app.` et `auth.` vers le VPS. 2. Durcir le VPS. 3. `install.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Vérifier une sauvegarde puis une restauration. Retour arrière : arrêter la pile, aucune donnée locale à migrer.
+1. Créer l'enregistrement DNS du sous-domaine vers le VPS (A `152.228.237.190`, AAAA facultatif). 2. Publier un premier tag `v0.1.0` (images). 3. `install.sh`, `create-database.sh`, `create-realm.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Ajouter `life-manager-files` à `backup.sh`, vérifier une sauvegarde puis une restauration.
+
+Retour arrière : `docker compose down` dans `~/life-manager`, retirer le fragment Caddy et recharger ; la base et le realm peuvent rester ou être supprimés sans effet sur les autres applications.
 
 ## Open Questions
 
-- Nom de domaine et fournisseur DNS de Dorian.
-- Stockage des sauvegardes : OVH Object Storage, autre fournisseur, ou machine personnelle via SFTP ?
-- Taille du VPS déjà souscrit (RAM disponible pour Keycloak).
+- Nom du sous-domaine (`budget.iabilis.fr`, `maison.iabilis.fr`…).
+- Destination des sauvegardes hors du serveur (recommandation 1) : OVH Object Storage Gravelines, autre S3, ou machine personnelle via SFTP ?
 
 ## Décisions prises sans Dorian
 
-1. **Docker Compose plutôt que Kubernetes ou installation directe (systemd)** — alternatives : k3s, binaires natifs gérés par systemd. Raison : déjà utilisé en dev, reproductible, adapté à un seul serveur. Revenir en arrière : les images restent utilisables par tout orchestrateur.
-2. **Caddy comme reverse proxy** — alternatives : Nginx + certbot, Traefik. Raison : HTTPS automatique sans configuration, fichier de configuration court. Revenir en arrière : remplacer le service `caddy` par Nginx, les autres services ne changent pas.
-3. **Deux sous-domaines (`app.` et `auth.`)** — alternative : Keycloak sous un chemin `/auth` du même domaine. Raison : configuration Keycloak plus simple et cookies isolés. Revenir en arrière : `KC_HTTP_RELATIVE_PATH=/auth` et une route Caddy.
-4. **Images publiées sur GHCR par la CI sur tag** — alternatives : build sur le VPS, Docker Hub. Raison : le build natif est trop gourmand pour un petit VPS ; GHCR est intégré au dépôt GitHub. Revenir en arrière : build local puis `docker save | ssh … docker load`.
-5. **Déploiement déclenché manuellement par Dorian (`deploy.sh`)** — alternative : CD par SSH depuis GitHub Actions. Raison : pas de clé SSH du serveur dans la CI, contrôle humain sur un projet perso. Revenir en arrière : ajouter un job `workflow_dispatch` qui lance `deploy.sh` par SSH.
-6. **restic vers un stockage objet externe pour les sauvegardes** — alternatives : simple `pg_dump` local, snapshots OVH. Raison : chiffrement, déduplication, rétention intégrée et données hors du serveur. Revenir en arrière : remplacer la cible restic (SFTP, disque local) sans changer la procédure.
-7. **Un seul PostgreSQL pour l'application et Keycloak** (bases distinctes, comptes distincts) — alternative : une instance par usage. Raison : économie de mémoire ; l'isolation par comptes et schémas est déjà en place. Revenir en arrière : sortir Keycloak dans sa propre instance.
+1. **Se brancher sur le socle plutôt qu'une pile dédiée** — validé par Dorian le 2026-11-18.
+2. **Docker Compose** — déjà la norme du VPS.
+3. **PWA servie par un petit conteneur `web`** — alternative : monter `dist/` dans le Caddy du socle. Raison : ne pas modifier le compose du socle, déployer la PWA avec son tag. Revenir en arrière : copier `dist/` dans un volume monté par Caddy et utiliser `file_server`.
+4. **Images publiques sur GHCR par la CI sur tag** — alternatives : build sur le VPS, images privées. Raison : le build natif est trop gourmand pour le VPS ; le dépôt est open source. Revenir en arrière : images privées + `docker login` sur le VPS.
+5. **Déploiement déclenché manuellement par Dorian (`deploy.sh`)** — alternative : CD par SSH depuis GitHub Actions. Raison : pas de clé du serveur dans la CI. Revenir en arrière : job `workflow_dispatch`.
+6. **Introspection par l'URL publique de Keycloak** — alternative : `http://keycloak:8080` sur le réseau `socle`. Raison : l'émetteur des jetons est fixé à `https://iabilis.fr`, l'URL publique évite toute ambiguïté d'hôte. Revenir en arrière : changer `KEYCLOAK_URL`.
