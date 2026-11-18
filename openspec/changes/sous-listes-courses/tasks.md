@@ -8,9 +8,9 @@
 
 ## 2. Historique des achats
 
-- [ ] 2.1 [shopping/domain] Agrégat `PurchaseHistoryEntry` (`recordPurchase`) ; vérifié par des tests unitaires
-- [ ] 2.2 [shopping/application + infrastructure] `ClearCheckedItems` alimente l'historique (libellé sans tenir compte des majuscules, compteur, date) ; vérifié par des tests d'intégration reprenant les scénarios « Premier achat » et « Article racheté »
-- [ ] 2.3 [shopping] `ListPurchaseHistory`, `RestockFromHistory` (tout ou rien), `ForgetHistoryEntry` et leurs routes ; vérifié par des tests d'intégration (remise de 3 articles, 404 sans ajout partiel, oubli)
+- [x] 2.1 [shopping/domain] Agrégat `PurchaseHistoryEntry` (`recordPurchase`) ; vérifié par des tests unitaires
+- [x] 2.2 [shopping/application + infrastructure] `ClearCheckedItems` alimente l'historique (libellé sans tenir compte des majuscules, compteur, date) ; vérifié par des tests d'intégration reprenant les scénarios « Premier achat » et « Article racheté »
+- [x] 2.3 [shopping] `ListPurchaseHistory`, `RestockFromHistory` (tout ou rien), `ForgetHistoryEntry` et leurs routes ; vérifié par des tests d'intégration (remise de 3 articles, 404 sans ajout partiel, oubli)
 
 ## 3. PWA
 
