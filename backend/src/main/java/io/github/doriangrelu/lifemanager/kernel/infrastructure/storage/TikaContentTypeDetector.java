@@ -1,6 +1,6 @@
-package io.github.doriangrelu.lifemanager.vehicle.infrastructure.out.storage;
+package io.github.doriangrelu.lifemanager.kernel.infrastructure.storage;
 
-import io.github.doriangrelu.lifemanager.vehicle.application.port.out.ContentTypeDetector;
+import io.github.doriangrelu.lifemanager.kernel.application.port.out.ContentTypeDetector;
 import jakarta.inject.Singleton;
 import org.apache.tika.Tika;
 

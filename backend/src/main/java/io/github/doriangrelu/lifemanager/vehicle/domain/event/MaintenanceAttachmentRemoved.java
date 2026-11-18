@@ -1,7 +1,7 @@
 package io.github.doriangrelu.lifemanager.vehicle.domain.event;
 
 import io.github.doriangrelu.lifemanager.kernel.domain.event.DomainEvent;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.StorageKey;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.StorageKey;
 
 import java.time.Instant;
 

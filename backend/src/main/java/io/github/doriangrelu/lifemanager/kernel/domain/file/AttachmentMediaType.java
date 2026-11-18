@@ -1,4 +1,4 @@
-package io.github.doriangrelu.lifemanager.vehicle.domain.valueobject;
+package io.github.doriangrelu.lifemanager.kernel.domain.file;
 
 import io.github.doriangrelu.lifemanager.kernel.domain.exception.InvalidValueException;
 

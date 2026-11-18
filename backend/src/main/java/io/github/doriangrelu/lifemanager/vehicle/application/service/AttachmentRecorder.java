@@ -5,7 +5,7 @@ import io.github.doriangrelu.lifemanager.vehicle.application.port.in.result.Atta
 import io.github.doriangrelu.lifemanager.vehicle.application.port.out.MaintenanceAttachmentRepository;
 import io.github.doriangrelu.lifemanager.vehicle.domain.aggregate.MaintenanceAttachment;
 import io.github.doriangrelu.lifemanager.vehicle.domain.exception.TooManyAttachmentsException;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachedFile;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.AttachedFile;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachmentId;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MemberId;
 import io.micronaut.transaction.annotation.Transactional;

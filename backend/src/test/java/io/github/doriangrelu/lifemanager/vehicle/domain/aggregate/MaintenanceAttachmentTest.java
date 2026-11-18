@@ -2,14 +2,14 @@ package io.github.doriangrelu.lifemanager.vehicle.domain.aggregate;
 
 import io.github.doriangrelu.lifemanager.kernel.domain.exception.InvalidValueException;
 import io.github.doriangrelu.lifemanager.vehicle.domain.event.MaintenanceAttachmentRemoved;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachedFile;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachmentFileName;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.AttachedFile;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.AttachmentFileName;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachmentId;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachmentMediaType;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.FileSize;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.AttachmentMediaType;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.FileSize;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceEntryId;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MemberId;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.StorageKey;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.StorageKey;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;

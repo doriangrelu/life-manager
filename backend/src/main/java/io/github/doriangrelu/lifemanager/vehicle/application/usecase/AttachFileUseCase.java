@@ -4,13 +4,13 @@ import io.github.doriangrelu.lifemanager.vehicle.application.port.in.AttachFile;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.command.AttachFileCommand;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.result.AttachmentView;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.out.AttachmentStorage;
-import io.github.doriangrelu.lifemanager.vehicle.application.port.out.ContentTypeDetector;
+import io.github.doriangrelu.lifemanager.kernel.application.port.out.ContentTypeDetector;
 import io.github.doriangrelu.lifemanager.vehicle.application.service.AttachmentRecorder;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachedFile;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachmentFileName;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachmentMediaType;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.FileSize;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.StorageKey;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.AttachedFile;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.AttachmentFileName;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.AttachmentMediaType;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.FileSize;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.StorageKey;
 import jakarta.inject.Singleton;
 
 /**

@@ -3,7 +3,7 @@ package io.github.doriangrelu.lifemanager.vehicle.domain.aggregate;
 import io.github.doriangrelu.lifemanager.kernel.domain.aggregate.AggregateRoot;
 import io.github.doriangrelu.lifemanager.kernel.domain.validation.Require;
 import io.github.doriangrelu.lifemanager.vehicle.domain.event.MaintenanceAttachmentRemoved;
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachedFile;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.AttachedFile;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.AttachmentId;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceEntryId;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MemberId;

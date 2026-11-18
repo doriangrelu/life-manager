@@ -1,6 +1,6 @@
 package io.github.doriangrelu.lifemanager.vehicle.application.port.out;
 
-import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.StorageKey;
+import io.github.doriangrelu.lifemanager.kernel.domain.file.StorageKey;
 
 import java.io.InputStream;
 
