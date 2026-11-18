@@ -1,7 +1,7 @@
 <script lang="ts">
   import { displayName } from '../text'
-  import { Check, ChevronDown, House, LogOut, Plus } from '@lucide/svelte'
-  import { logout } from '../auth/auth'
+  import { Check, ChevronDown, House, LogOut, Plus, UserCog } from '@lucide/svelte'
+  import { accountConsoleUrl, logout } from '../auth/auth'
   import type { HouseholdSummary, UserProfile } from '../api/types'
   import Modal from '../ui/Modal.svelte'
 
@@ -69,6 +69,10 @@
     <strong>{profile.displayName}</strong>
     <span class="muted">{profile.email}</span>
   </div>
+  <button class="soft" onclick={() => (window.location.href = accountConsoleUrl())}>
+    <UserCog size={18} /> Gérer mon compte
+  </button>
+  <p class="muted hint">Mot de passe, nom, adresse e-mail et appareils connectés.</p>
   <button class="danger" onclick={logout}><LogOut size={18} /> Se déconnecter</button>
 </Modal>
 
@@ -152,6 +156,11 @@
   }
   .choice[aria-pressed='true'] {
     color: var(--color-primary-text);
+  }
+  .hint {
+    margin-top: -8px;
+    font-size: 0.85rem;
+    text-align: center;
   }
   .profile {
     display: grid;

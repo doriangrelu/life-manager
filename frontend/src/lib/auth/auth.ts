@@ -67,6 +67,15 @@ export function login(): Promise<void> {
   return userManager.signinRedirect({ state })
 }
 
+/**
+ * Console de compte Keycloak (mot de passe, nom, sessions ouvertes…). Le lien « retour » de la console
+ * ramène à l'application (referrer = client de la PWA, adresse de retour autorisée par le realm).
+ */
+export function accountConsoleUrl(): string {
+  const back = new URLSearchParams({ referrer: config.oidcClientId, referrer_uri: `${window.location.origin}/` })
+  return `${config.oidcAuthority}/account?${back}`
+}
+
 export async function logout(): Promise<void> {
   await userManager.signoutRedirect()
 }
