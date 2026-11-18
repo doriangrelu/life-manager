@@ -68,8 +68,9 @@ MONTH=$(date +%Y-%m)
 
 echo "== Identité et foyer"
 # Comme la PWA au démarrage : le premier appel crée la fiche de l'utilisateur, transmise aux autres domaines par événement.
-call "$BOB" GET /whoami 200
-call "$ALICE" GET /whoami 200
+# Keycloak peut finir de démarrer après l'API : l'introspection des jetons répond alors 503 quelques secondes.
+eventually 30 call "$BOB" GET /whoami 200
+eventually 30 call "$ALICE" GET /whoami 200
 ALICE_ID=$(body "['userId']")
 eventually 10 call "$ALICE" POST /households 201 '{"name":"  Foyer   NATIF "}'
 HOUSEHOLD=$(body "['id']")
