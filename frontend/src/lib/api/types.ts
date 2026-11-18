@@ -117,6 +117,22 @@ export interface ShoppingItem {
   addedAt: string
 }
 
+/** Sous-liste de courses (« Courses », « Bricolage »…). */
+export interface ShoppingList {
+  id: string
+  name: string
+  /** Nombre d'articles non cochés. */
+  pendingCount: number
+}
+
+/** Article déjà acheté dans une sous-liste. */
+export interface PurchaseHistoryEntry {
+  id: string
+  label: string
+  lastPurchasedAt: string
+  purchaseCount: number
+}
+
 export interface HouseholdDetails {
   id: string
   name: string

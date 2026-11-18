@@ -4,6 +4,7 @@ import type { NotifiedMemo } from './reminders'
 
 const SELECTED_HOUSEHOLD_KEY = 'life-manager.selected-household'
 const NOTIFIED_KEY = 'life-manager.notified-reminders'
+const SHOPPING_LIST_KEY = 'life-manager.shopping-list.'
 
 /** Rappels déjà notifiés aujourd'hui sur cet appareil. */
 export function notifiedMemo(): NotifiedMemo | null {
@@ -35,5 +36,22 @@ export function rememberHouseholdId(householdId: string): void {
     localStorage.setItem(SELECTED_HOUSEHOLD_KEY, householdId)
   } catch {
     // Sans stockage, on reviendra simplement au premier foyer au prochain lancement.
+  }
+}
+
+/** Dernière sous-liste de courses consultée dans ce foyer, sur cet appareil. */
+export function rememberedShoppingListId(householdId: string): string | null {
+  try {
+    return localStorage.getItem(SHOPPING_LIST_KEY + householdId)
+  } catch {
+    return null
+  }
+}
+
+export function rememberShoppingListId(householdId: string, listId: string): void {
+  try {
+    localStorage.setItem(SHOPPING_LIST_KEY + householdId, listId)
+  } catch {
+    // Sans stockage, on rouvrira simplement la sous-liste « Courses ».
   }
 }

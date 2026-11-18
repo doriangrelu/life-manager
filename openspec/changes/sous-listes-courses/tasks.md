@@ -14,9 +14,9 @@
 
 ## 3. PWA
 
-- [ ] 3.1 [frontend] Client d'API des sous-listes et de l'historique ; vérifié par `bun run check`
-- [ ] 3.2 [frontend] Pastilles de sous-listes avec compteurs, sous-liste mémorisée sur l'appareil, gestion (ajout, renommage, suppression avec confirmation) ; vérifié dans le navigateur
-- [ ] 3.3 [frontend] Écran d'historique avec sélection multiple et remise en liste ; vérifié dans le navigateur, desktop et mobile
+- [x] 3.1 [frontend] Client d'API des sous-listes et de l'historique ; vérifié par `bun run check`
+- [x] 3.2 [frontend] Pastilles de sous-listes avec compteurs, sous-liste mémorisée sur l'appareil, gestion (ajout, renommage, suppression avec confirmation) ; vérifié dans le navigateur
+- [x] 3.3 [frontend] Écran d'historique avec sélection multiple et remise en liste ; vérifié dans le navigateur, desktop et mobile
 
 ## Workflow follow-up
 
