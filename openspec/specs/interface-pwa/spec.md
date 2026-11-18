@@ -1,0 +1,66 @@
+# interface-pwa Specification
+
+## Purpose
+Fixer les règles communes de l'interface de la PWA (navigation, fenêtres modales, thème, accessibilité) pour que chaque écran, présent ou à venir, reste cohérent sur mobile comme sur grand écran.
+
+## Requirements
+
+### Requirement: Navigation principale
+
+La PWA SHALL proposer, pour le foyer sélectionné, quatre sections : Budget, Courses, Véhicules et Foyer. Sur un écran de moins de 900 px de large, elles SHALL être présentées dans une barre d'onglets fixée en bas de l'écran ; au-delà, dans un menu latéral. La section active est signalée visuellement et pour les lecteurs d'écran.
+
+#### Scenario: Mobile
+
+- **WHEN** un membre ouvre la PWA sur un écran de 390 px de large
+- **THEN** la barre d'onglets Budget, Courses, Véhicules, Foyer est visible en bas de l'écran, la section affichée étant mise en évidence
+
+#### Scenario: Grand écran
+
+- **WHEN** un membre ouvre la PWA sur un écran de 1280 px de large
+- **THEN** les quatre sections sont présentées dans un menu latéral et le contenu occupe le reste de la largeur
+
+### Requirement: Saisie dans une fenêtre modale
+
+La PWA SHALL ouvrir chaque formulaire de saisie ou de modification dans une fenêtre modale : un panneau qui monte du bas de l'écran sur mobile, une fenêtre centrée sur grand écran. La modale SHALL garder le focus clavier à l'intérieur tant qu'elle est ouverte, se fermer avec la touche Échap ou un bouton « Fermer », et rendre le focus à l'élément qui l'a ouverte.
+
+#### Scenario: Ajout d'une dépense
+
+- **WHEN** un membre touche le bouton d'ajout de l'écran Budget
+- **THEN** le formulaire de dépense s'ouvre dans un panneau qui recouvre le bas de l'écran, l'écran du mois restant visible, assombri, derrière
+
+#### Scenario: Fermeture au clavier
+
+- **WHEN** une modale est ouverte et que le membre appuie sur Échap
+- **THEN** la modale se ferme sans rien enregistrer et le focus revient sur le bouton qui l'avait ouverte
+
+### Requirement: Confirmation des suppressions
+
+La PWA SHALL demander confirmation, dans une fenêtre modale indiquant clairement ce qui sera supprimé, avant toute suppression définitive (dépense, catégorie, véhicule, opération, article, sous-liste).
+
+#### Scenario: Suppression d'une dépense
+
+- **WHEN** un membre demande la suppression d'une dépense de 42,50 €
+- **THEN** une modale « Supprimer la dépense de 42,50 € ? » propose « Supprimer » et « Annuler », et rien n'est supprimé avant le choix
+
+### Requirement: Thème et accessibilité
+
+La PWA SHALL appliquer le thème de la maquette validée (couleurs, police, arrondis), en clair et en sombre selon le réglage de l'appareil. Tout texte SHALL respecter un contraste d'au moins 4,5:1 (3:1 pour un texte de 24 px et plus), et toute cible tactile SHALL mesurer au moins 44 × 44 px.
+
+#### Scenario: Thème sombre
+
+- **WHEN** l'appareil du membre est réglé en mode sombre
+- **THEN** la PWA s'affiche en thème sombre, avec des contrastes conformes
+
+#### Scenario: Cibles tactiles
+
+- **WHEN** un membre utilise la PWA sur mobile
+- **THEN** chaque bouton, onglet, puce et case à cocher offre une zone tactile d'au moins 44 × 44 px
+
+### Requirement: Affichage sans débordement
+
+La PWA SHALL s'afficher sans défilement horizontal sur un écran de 360 px de large et plus, sur tous ses écrans et dans toutes ses modales.
+
+#### Scenario: Petit téléphone
+
+- **WHEN** un membre parcourt chaque section et ouvre chaque modale sur un écran de 360 px de large
+- **THEN** aucun contenu ne déborde horizontalement
