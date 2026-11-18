@@ -1,11 +1,16 @@
 <script lang="ts">
-  import { ClipboardCheck, CircleDot, Droplet, Settings, Trash2, Wrench, Hammer } from '@lucide/svelte'
+  import { ClipboardCheck, CircleDot, Droplet, Paperclip, Settings, Trash2, Wrench, Hammer } from '@lucide/svelte'
   import type { MaintenanceEntry, MaintenanceKind } from '../../api/types'
+  import { attachmentCountLabel } from '../../attachments'
   import { formatCents } from '../../money'
   import { formatDay, kindLabel } from '../../vehicles'
 
-  // Une opération du carnet : type (avec son icône), date, kilométrage, coût et note.
-  let { entry, ondelete }: { entry: MaintenanceEntry; ondelete: () => void } = $props()
+  // Une opération du carnet : type (avec son icône), date, kilométrage, coût, note et pièces jointes.
+  let {
+    entry,
+    ondelete,
+    onattachments,
+  }: { entry: MaintenanceEntry; ondelete: () => void; onattachments: () => void } = $props()
 
   const ICONS: Record<MaintenanceKind, typeof Wrench> = {
     SERVICE: Settings,
@@ -29,6 +34,10 @@
     <strong>{kindLabel(entry.kind)}</strong>
     <span class="muted">{details}</span>
     {#if entry.note}<span class="note">{entry.note}</span>{/if}
+    <button class="files" onclick={onattachments}>
+      <Paperclip size={15} />
+      {entry.attachmentCount > 0 ? attachmentCountLabel(entry.attachmentCount) : 'Joindre un fichier'}
+    </button>
   </div>
   {#if entry.costCents !== null}<span class="amount">{formatCents(entry.costCents)}</span>{/if}
   <button class="link icon" aria-label="Supprimer l'opération {kindLabel(entry.kind)}" onclick={ondelete}>
@@ -68,6 +77,21 @@
   }
   .note {
     overflow-wrap: anywhere;
+  }
+  .files {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    margin-top: 4px;
+    padding: 0 12px;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-soft);
+    color: var(--color-on-primary-soft);
+    box-shadow: none;
+    font-size: 0.85rem;
+    font-weight: 700;
   }
   .amount {
     padding-top: 2px;

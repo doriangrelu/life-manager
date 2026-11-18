@@ -13,8 +13,8 @@
 
 ## 3. PWA
 
-- [ ] 3.1 [frontend] Client d'API (envoi multipart, téléchargement en blob) ; vérifié par `bun run check`
-- [ ] 3.2 [frontend] Pièces jointes dans le carnet : ajout multiple avec progression, liste, ouverture, suppression avec confirmation ; vérifié dans le navigateur, desktop et mobile
+- [x] 3.1 [frontend] Client d'API (envoi multipart, téléchargement en blob) ; vérifié par `bun run check`
+- [x] 3.2 [frontend] Pièces jointes dans le carnet : ajout multiple avec progression, liste, ouverture, suppression avec confirmation ; vérifié dans le navigateur, desktop et mobile
 
 ## 4. Intégration
 

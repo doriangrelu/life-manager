@@ -179,6 +179,9 @@
         <artifactId>micronaut-maven-plugin</artifactId>
         <configuration>
           <configFile>aot-${packaging}.properties</configFile>
+          <!-- mn:run tourne depuis target/ : les fichiers envoyés en dev vont dans backend/data/files (ignoré par Git),
+               pour survivre à un « mvn clean ». -->
+          <jvmArguments>-Dlife-manager.storage.root=${project.basedir}/data/files</jvmArguments>
         </configuration>
       </plugin>
 

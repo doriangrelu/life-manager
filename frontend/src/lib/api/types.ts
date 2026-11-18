@@ -95,6 +95,16 @@ export interface MaintenanceInput {
 
 export interface MaintenanceEntry extends MaintenanceInput {
   id: string
+  attachmentCount: number
+}
+
+/** Fichier joint à une opération du carnet ; mediaType est le type vérifié par le serveur. */
+export interface Attachment {
+  id: string
+  fileName: string
+  mediaType: string
+  sizeBytes: number
+  addedAt: string
 }
 
 // ---- Rappels : daysLeft négatif = en retard.

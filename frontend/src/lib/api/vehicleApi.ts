@@ -1,5 +1,5 @@
-import { apiRequest } from './http'
-import type { MaintenanceEntry, MaintenanceInput, Vehicle, VehicleInput } from './types'
+import { apiBlob, apiRequest, apiUpload } from './http'
+import type { Attachment, MaintenanceEntry, MaintenanceInput, Vehicle, VehicleInput } from './types'
 
 const base = (householdId: string) => `/households/${householdId}/vehicles`
 
@@ -33,4 +33,33 @@ export function recordMaintenance(
 
 export function deleteMaintenance(householdId: string, vehicleId: string, entryId: string): Promise<void> {
   return apiRequest('DELETE', `${base(householdId)}/${vehicleId}/maintenance/${entryId}`)
+}
+
+// --- Pièces jointes d'une opération du carnet ---
+
+const attachments = (householdId: string, vehicleId: string, entryId: string) =>
+  `${base(householdId)}/${vehicleId}/maintenance/${entryId}/attachments`
+
+export function listAttachments(householdId: string, vehicleId: string, entryId: string): Promise<Attachment[]> {
+  return apiRequest('GET', attachments(householdId, vehicleId, entryId))
+}
+
+/** Envoie un fichier ; {@code onprogress} reçoit l'avancement entre 0 et 1. */
+export function uploadAttachment(
+  householdId: string,
+  vehicleId: string,
+  entryId: string,
+  file: File,
+  onprogress: (ratio: number) => void,
+): Promise<Attachment> {
+  return apiUpload(attachments(householdId, vehicleId, entryId), file, onprogress)
+}
+
+/** Contenu du fichier, à ouvrir via URL.createObjectURL. */
+export function attachmentContent(householdId: string, vehicleId: string, entryId: string, attachmentId: string): Promise<Blob> {
+  return apiBlob(`${attachments(householdId, vehicleId, entryId)}/${attachmentId}/content`)
+}
+
+export function removeAttachment(householdId: string, vehicleId: string, entryId: string, attachmentId: string): Promise<void> {
+  return apiRequest('DELETE', `${attachments(householdId, vehicleId, entryId)}/${attachmentId}`)
 }

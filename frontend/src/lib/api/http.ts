@@ -16,11 +16,7 @@ export async function apiRequest<T>(
   path: string,
   body?: unknown,
 ): Promise<T> {
-  const token = await accessToken()
-  if (!token) {
-    await login()
-    throw new ApiError(401, 'Connexion nécessaire')
-  }
+  const token = await requireToken()
   const response = await fetch(`/api${path}`, {
     method,
     headers: {
@@ -37,6 +33,63 @@ export async function apiRequest<T>(
   }
   // 204 : succès sans contenu (ex. suppression).
   return (response.status === 204 ? undefined : await response.json()) as T
+}
+
+/** Jeton d'accès, ou renvoi vers Keycloak si la session a expiré. */
+async function requireToken(): Promise<string> {
+  const token = await accessToken()
+  if (!token) {
+    await login()
+    throw new ApiError(401, 'Connexion nécessaire')
+  }
+  return token
+}
+
+/**
+ * Envoie un fichier (multipart, champ « file ») en suivant la progression : fetch ne la donne pas,
+ * d'où XMLHttpRequest. {@code onprogress} reçoit un ratio entre 0 et 1.
+ */
+export async function apiUpload<T>(path: string, file: File, onprogress: (ratio: number) => void): Promise<T> {
+  const token = await requireToken()
+  const form = new FormData()
+  form.append('file', file, file.name)
+  return new Promise<T>((resolve, reject) => {
+    const request = new XMLHttpRequest()
+    request.open('POST', `/api${path}`)
+    request.setRequestHeader('Authorization', `Bearer ${token}`)
+    request.upload.onprogress = (event) => event.lengthComputable && onprogress(event.loaded / event.total)
+    request.onerror = () => reject(new ApiError(0, 'Envoi impossible : vérifiez la connexion'))
+    request.onload = () => {
+      if (request.status >= 200 && request.status < 300) {
+        resolve(JSON.parse(request.responseText) as T)
+      } else {
+        reject(new ApiError(request.status, uploadErrorMessage(request)))
+      }
+    }
+    request.send(form)
+  })
+}
+
+function uploadErrorMessage(request: XMLHttpRequest): string {
+  if (request.status === 413) {
+    return 'Fichier trop lourd (10 Mo au plus)'
+  }
+  try {
+    const json = JSON.parse(request.responseText)
+    return json?._embedded?.errors?.[0]?.message ?? json?.message ?? 'Erreur inattendue'
+  } catch {
+    return 'Erreur inattendue'
+  }
+}
+
+/** Télécharge un contenu binaire avec le jeton (jamais dans l'URL). */
+export async function apiBlob(path: string): Promise<Blob> {
+  const token = await requireToken()
+  const response = await fetch(`/api${path}`, { headers: { Authorization: `Bearer ${token}` } })
+  if (!response.ok) {
+    throw new ApiError(response.status, await errorMessage(response))
+  }
+  return response.blob()
 }
 
 // Format d'erreur Micronaut : { message, _embedded: { errors: [{ message }] } }.

@@ -12,6 +12,7 @@
   import { formatDay, kindLabel } from '../../vehicles'
   import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import AttachmentsDialog from './AttachmentsDialog.svelte'
   import DeadlineBadge from './DeadlineBadge.svelte'
   import MaintenanceEntryCard from './MaintenanceEntryCard.svelte'
   import MaintenanceForm from './MaintenanceForm.svelte'
@@ -32,6 +33,8 @@
   let confirmingRemoval = $state(false)
   let deletingEntry = $state<MaintenanceEntry | null>(null)
   let confirmingEntryDeletion = $state(false)
+  let attachmentsOf = $state<MaintenanceEntry | null>(null)
+  let attachmentsOpen = $state(false)
 
   onMount(() => run(async () => (entries = await listMaintenance(householdId, vehicle.id))))
 
@@ -69,6 +72,16 @@
       addingEntry = false
     }
     return done
+  }
+
+  function showAttachments(entry: MaintenanceEntry) {
+    attachmentsOf = entry
+    attachmentsOpen = true
+  }
+
+  // Après un ajout ou une suppression de fichier : le nombre affiché sur la carte suit.
+  function reloadEntries() {
+    run(async () => (entries = await listMaintenance(householdId, vehicle.id)))
   }
 
   function askDeleteEntry(entry: MaintenanceEntry) {
@@ -119,7 +132,13 @@
   {:else}
     <ul class="entries">
       {#each entries as entry (entry.id)}
-        <li><MaintenanceEntryCard {entry} ondelete={() => askDeleteEntry(entry)} /></li>
+        <li>
+          <MaintenanceEntryCard
+            {entry}
+            ondelete={() => askDeleteEntry(entry)}
+            onattachments={() => showAttachments(entry)}
+          />
+        </li>
       {/each}
     </ul>
   {/if}
@@ -143,6 +162,16 @@
   message="Le véhicule et tout son carnet d'entretien seront définitivement supprimés."
   onconfirm={remove}
 />
+
+{#if attachmentsOf}
+  <AttachmentsDialog
+    bind:open={attachmentsOpen}
+    {householdId}
+    vehicleId={vehicle.id}
+    entry={attachmentsOf}
+    onchanged={reloadEntries}
+  />
+{/if}
 
 <ConfirmDialog
   bind:open={confirmingEntryDeletion}
