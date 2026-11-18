@@ -38,12 +38,12 @@ Les secrets de production de Life Manager (mots de passe des comptes PostgreSQL,
 
 ### Requirement: Sauvegardes
 
-Le système SHALL sauvegarder chaque jour la base de Life Manager, son realm Keycloak et les fichiers des pièces jointes. Une procédure de restauration documentée SHALL permettre de reconstruire Life Manager à partir d'une sauvegarde.
+Le système SHALL sauvegarder chaque jour la base de Life Manager, son realm Keycloak et les fichiers des pièces jointes, et SHALL en envoyer une copie chiffrée hors du VPS, dans une autre région, en conservant 7 sauvegardes quotidiennes, 4 hebdomadaires et 6 mensuelles. Une procédure de restauration documentée SHALL permettre de reconstruire Life Manager à partir d'une sauvegarde.
 
 #### Scenario: Sauvegarde quotidienne
 
 - **WHEN** la sauvegarde nocturne du serveur s'exécute
-- **THEN** l'archive produite contient la base `lifemanager`, le realm `life-manager` et les pièces jointes
+- **THEN** l'archive produite contient la base `lifemanager`, le realm `life-manager` et les pièces jointes, une copie chiffrée est disponible sur le stockage externe et les copies au-delà de la rétention sont supprimées
 
 #### Scenario: Restauration
 

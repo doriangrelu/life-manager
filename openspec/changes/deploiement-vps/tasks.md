@@ -23,7 +23,8 @@
 ## 4. Sauvegardes
 
 - [ ] 4.1 [infra/backup] Ajout du dossier des pièces jointes à `~/infra/backup.sh` (avec accord de Dorian) ; archive vérifiée
-- [ ] 4.2 [doc] Procédure de restauration de Life Manager, testée sur une machine vierge
+- [ ] 4.2 [infra/backup] `offsite-backup.sh` : envoi restic chiffré de la dernière archive du socle vers OVH Object Storage Gravelines, rétention 7/4/6, échec visible dans le journal ; vérifié par `restic snapshots`
+- [ ] 4.3 [doc] Procédure de restauration de Life Manager depuis le dépôt restic, testée sur une machine vierge
 
 ## 5. Documentation
 

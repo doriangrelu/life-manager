@@ -12,7 +12,7 @@ Le VPS de Dorian héberge déjà d'autres applications sur un **socle partagé**
 - **Authentification** : un realm `life-manager` créé dans le Keycloak existant (inscription fermée, URL de redirection du sous-domaine).
 - **Base** : une base `lifemanager` et un compte par domaine métier, créés une fois dans le PostgreSQL du socle.
 - **Secrets** : générés à l'installation dans `~/life-manager/.env` (droits `600`), jamais dans le dépôt ni les images.
-- **Sauvegardes** : la base est déjà couverte par le `pg_dumpall` du socle ; le dossier des pièces jointes est ajouté à la sauvegarde du socle. Restauration documentée et testée.
+- **Sauvegardes** : la base est déjà couverte par le `pg_dumpall` du socle ; le dossier des pièces jointes est ajouté à la sauvegarde du socle. Une copie chiffrée (restic) des archives du socle part chaque nuit sur OVH Object Storage à Gravelines, rétention 7 jours / 4 semaines / 6 mois. Restauration documentée et testée.
 - **Mise à jour** : script `deploy.sh <tag>` lancé par Dorian (tirer les images, redémarrer, attendre le contrôle de santé), retour arrière sur le tag précédent.
 - **Documentation** : `docs/deploiement.md` (installation, mise à jour, sauvegarde, restauration).
 
@@ -38,5 +38,5 @@ _Aucune._
 - Haute disponibilité, plusieurs serveurs, Kubernetes.
 - Déploiement continu automatique à chaque commit (le déploiement reste déclenché par Dorian).
 - Supervision avancée (métriques, alertes) au-delà du contrôle de santé et des journaux Docker.
-- Changements du socle qui ne concernent pas Life Manager (durcissement SSH, swap, nettoyage Docker, export des sauvegardes hors du serveur) : listés comme recommandations dans le design, appliqués seulement avec l'accord de Dorian.
+- Changements du socle qui ne concernent pas Life Manager (durcissement SSH, swap, nettoyage Docker, console Keycloak) : listés comme recommandations dans le design, appliqués seulement avec l'accord de Dorian.
 - Web Push, envoi de courriels.

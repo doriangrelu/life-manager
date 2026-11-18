@@ -62,7 +62,7 @@ Workflow sur tag `v*` : build natif du backend (image minimale, utilisateur non 
 
 La base `lifemanager` (et le realm, via la base `keycloak`) est déjà incluse dans le `pg_dumpall` nocturne du socle. Seul ajout : `life-manager-files` dans la liste des volumes archivés par `~/infra/backup.sh` (une ligne, validée par Dorian). Base et fichiers sont archivés à quelques secondes d'intervalle : au pire un fichier orphelin. Restauration documentée et testée sur une machine vierge.
 
-**Limite actuelle du socle** : les archives restent sur le disque du VPS, non chiffrées. Une panne grave du serveur ou du site de Strasbourg les emporterait avec les données. Voir les recommandations.
+**Copie hors du serveur** (choix de Dorian, 2026-11-18) : les archives du socle restent aujourd'hui sur le disque du VPS, non chiffrées ; une panne grave du serveur ou du site de Strasbourg les emporterait avec les données. Chaque nuit, après `backup.sh`, un script `offsite-backup.sh` envoie la dernière archive dans un dépôt **restic** (chiffré côté VPS, mot de passe dans un `.env` en `600`) hébergé sur **OVH Object Storage, région Gravelines** (compatible S3), puis applique la rétention `--keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune`. restic tourne dans son image officielle (`docker run --rm`), rien n'est installé sur l'hôte. Le conteneur S3 et ses identifiants sont créés par Dorian dans l'espace client OVH ; le mot de passe restic est conservé aussi hors du VPS (gestionnaire de mots de passe), sinon les sauvegardes sont illisibles. Ce script profite à toutes les applications du socle.
 
 ### 8. Mise à jour
 
@@ -70,11 +70,10 @@ La base `lifemanager` (et le realm, via la base `keycloak`) est déjà incluse d
 
 ## Recommandations pour le serveur (hors change, avec accord de Dorian)
 
-1. **Sauvegardes hors du serveur** : envoyer chaque nuit les archives du socle vers un dépôt restic chiffré dans une autre région (OVH Object Storage Gravelines, autre S3, ou machine personnelle), rétention 7 jours / 4 semaines / 6 mois. Profite à toutes les applications du VPS.
-2. **SSH** : désactiver l'authentification par mot de passe (`PasswordAuthentication no`), les connexions se faisant par clé.
-3. **Disque** : environ 20 Go récupérables en anciennes images et cache de build Docker (`docker builder prune`, `docker image prune`).
-4. **Mémoire** : ajouter un fichier d'échange de 2 Go, pour éviter qu'un pic de mémoire fasse tuer un conteneur.
-5. **Console Keycloak** : réserver `/admin` au tunnel SSH en le bloquant dans le fragment Caddy de Keycloak.
+1. **SSH** : désactiver l'authentification par mot de passe (`PasswordAuthentication no`), les connexions se faisant par clé.
+2. **Disque** : environ 20 Go récupérables en anciennes images et cache de build Docker (`docker builder prune`, `docker image prune`).
+3. **Mémoire** : ajouter un fichier d'échange de 2 Go, pour éviter qu'un pic de mémoire fasse tuer un conteneur.
+4. **Console Keycloak** : réserver `/admin` au tunnel SSH en le bloquant dans le fragment Caddy de Keycloak.
 
 ## Risks / Trade-offs
 
@@ -87,13 +86,13 @@ La base `lifemanager` (et le realm, via la base `keycloak`) est déjà incluse d
 
 ## Migration Plan
 
-1. Dans la zone DNS de `dorian-grelu.fr`, créer l'enregistrement `maison` vers le VPS (A `152.228.237.190`, AAAA facultatif). 2. Publier un premier tag `v0.1.0` (images). 3. `install.sh`, `create-database.sh`, `create-realm.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Ajouter `life-manager-files` à `backup.sh`, vérifier une sauvegarde puis une restauration.
+1. Dans la zone DNS de `dorian-grelu.fr`, créer l'enregistrement `maison` vers le VPS (A `152.228.237.190`, AAAA facultatif). 2. Publier un premier tag `v0.1.0` (images). 3. `install.sh`, `create-database.sh`, `create-realm.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Ajouter `life-manager-files` à `backup.sh`. 7. Dorian crée le conteneur Object Storage à Gravelines et ses identifiants S3 ; installer `offsite-backup.sh` et sa ligne cron. 8. Vérifier une sauvegarde hors site puis une restauration.
 
 Retour arrière : `docker compose down` dans `~/life-manager`, retirer le fragment Caddy et recharger ; la base et le realm peuvent rester ou être supprimés sans effet sur les autres applications.
 
 ## Open Questions
 
-- Destination des sauvegardes hors du serveur (recommandation 1) : OVH Object Storage Gravelines, autre S3, ou machine personnelle via SFTP ?
+_Aucune : sous-domaine et destination des sauvegardes tranchés par Dorian le 2026-11-18._
 
 ## Décisions prises sans Dorian
 
