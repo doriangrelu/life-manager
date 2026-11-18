@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Archive, ArchiveRestore, Pencil } from '@lucide/svelte'
   import { displayName } from '../../text'
   import { addCategory, archiveCategory, reactivateCategory, renameCategory } from '../../api/budgetApi'
   import type { Category } from '../../api/types'
@@ -72,9 +73,21 @@
       <span class="bubble" style:background={style.soft} aria-hidden="true">
         <style.icon size={18} color={style.strong} />
       </span>
-      <span class="name">{displayName(category.name)}{category.archived ? ' (archivée)' : ''}</span>
-      <button class="link" onclick={() => startRename(category)}>Renommer</button>
-      <button class="link" onclick={() => toggle(category)}>{category.archived ? 'Réactiver' : 'Archiver'}</button>
+      <span class="name">
+        {displayName(category.name)}
+        {#if category.archived}<span class="tag">Archivée</span>{/if}
+      </span>
+      <button class="icon ghost" aria-label="Renommer {displayName(category.name)}" title="Renommer" onclick={() => startRename(category)}>
+        <Pencil size={17} />
+      </button>
+      <button
+        class="icon ghost"
+        aria-label="{category.archived ? 'Réactiver' : 'Archiver'} {displayName(category.name)}"
+        title={category.archived ? 'Réactiver' : 'Archiver'}
+        onclick={() => toggle(category)}
+      >
+        {#if category.archived}<ArchiveRestore size={17} />{:else}<Archive size={17} />{/if}
+      </button>
     </li>
   {/each}
 </ul>
@@ -103,11 +116,33 @@
   .list li {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 6px;
+    padding: 4px 4px 4px 6px;
+    border-radius: var(--radius-md);
+    transition: background-color 0.15s ease;
   }
-  .list li.archived .name {
+  @media (hover: hover) {
+    .list li:hover {
+      background: var(--color-surface-muted);
+    }
+  }
+  .list li.archived .name,
+  .list li.archived .bubble {
+    opacity: 0.55;
+  }
+  .list .ghost {
+    box-shadow: none;
+    background: transparent;
     color: var(--color-text-muted);
+  }
+  .tag {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
   }
   .bubble {
     width: 34px;
@@ -121,6 +156,7 @@
   .name {
     flex: 1;
     font-weight: 700;
-    min-width: 120px;
+    min-width: 0;
+    margin-left: 6px;
   }
 </style>

@@ -10,6 +10,9 @@ export class ApiError extends Error {
   }
 }
 
+const UNREACHABLE = 'Serveur injoignable : vérifiez votre connexion, puis réessayez.'
+const SERVER_ERROR = 'Le serveur a rencontré un problème. Réessayez dans un instant.'
+
 /** Appelle l'API en ajoutant le jeton d'accès ; renvoie vers Keycloak si la session a expiré. */
 export async function apiRequest<T>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
@@ -17,7 +20,7 @@ export async function apiRequest<T>(
   body?: unknown,
 ): Promise<T> {
   const token = await requireToken()
-  const response = await fetch(`/api${path}`, {
+  const response = await send(`/api${path}`, {
     method,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -45,6 +48,15 @@ async function requireToken(): Promise<string> {
   return token
 }
 
+// fetch échoue sans réponse (réseau coupé, serveur arrêté) : message clair au lieu de « Failed to fetch ».
+async function send(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, init)
+  } catch {
+    throw new ApiError(0, UNREACHABLE)
+  }
+}
+
 /**
  * Envoie un fichier (multipart, champ « file ») en suivant la progression : fetch ne la donne pas,
  * d'où XMLHttpRequest. {@code onprogress} reçoit un ratio entre 0 et 1.
@@ -58,7 +70,7 @@ export async function apiUpload<T>(path: string, file: File, onprogress: (ratio:
     request.open('POST', `/api${path}`)
     request.setRequestHeader('Authorization', `Bearer ${token}`)
     request.upload.onprogress = (event) => event.lengthComputable && onprogress(event.loaded / event.total)
-    request.onerror = () => reject(new ApiError(0, 'Envoi impossible : vérifiez la connexion'))
+    request.onerror = () => reject(new ApiError(0, 'Envoi impossible : vérifiez votre connexion, puis réessayez.'))
     request.onload = () => {
       if (request.status >= 200 && request.status < 300) {
         resolve(JSON.parse(request.responseText) as T)
@@ -75,17 +87,16 @@ function uploadErrorMessage(request: XMLHttpRequest): string {
     return 'Fichier trop lourd (10 Mo au plus)'
   }
   try {
-    const json = JSON.parse(request.responseText)
-    return json?._embedded?.errors?.[0]?.message ?? json?.message ?? 'Erreur inattendue'
+    return readableMessage(request.status, JSON.parse(request.responseText))
   } catch {
-    return 'Erreur inattendue'
+    return readableMessage(request.status, null)
   }
 }
 
 /** Télécharge un contenu binaire avec le jeton (jamais dans l'URL). */
 export async function apiBlob(path: string): Promise<Blob> {
   const token = await requireToken()
-  const response = await fetch(`/api${path}`, { headers: { Authorization: `Bearer ${token}` } })
+  const response = await send(`/api${path}`, { headers: { Authorization: `Bearer ${token}` } })
   if (!response.ok) {
     throw new ApiError(response.status, await errorMessage(response))
   }
@@ -95,9 +106,24 @@ export async function apiBlob(path: string): Promise<Blob> {
 // Format d'erreur Micronaut : { message, _embedded: { errors: [{ message }] } }.
 async function errorMessage(response: Response): Promise<string> {
   try {
-    const json = await response.json()
-    return json?._embedded?.errors?.[0]?.message ?? json?.message ?? 'Erreur inattendue'
+    return readableMessage(response.status, await response.json())
   } catch {
-    return 'Erreur inattendue'
+    return readableMessage(response.status, null)
   }
+}
+
+/**
+ * Message à montrer : celui de l'API pour une demande refusée (400, 404, 409…), toujours en français ;
+ * un message générique pour une panne du serveur, dont le texte technique n'aide pas l'utilisateur.
+ */
+export function readableMessage(status: number, json: unknown): string {
+  if (status >= 500) {
+    return status === 503 ? (apiMessage(json) ?? SERVER_ERROR) : SERVER_ERROR
+  }
+  return apiMessage(json) ?? 'Demande refusée. Réessayez.'
+}
+
+function apiMessage(json: unknown): string | null {
+  const body = json as { message?: string; _embedded?: { errors?: { message?: string }[] } } | null
+  return body?._embedded?.errors?.[0]?.message ?? body?.message ?? null
 }
