@@ -10,6 +10,7 @@
   import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
   import Fab from '../../ui/Fab.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import Skeleton from '../../ui/Skeleton.svelte'
   import CategoryBreakdown from './CategoryBreakdown.svelte'
   import CategoryManager from './CategoryManager.svelte'
   import ExpenseForm from './ExpenseForm.svelte'
@@ -25,6 +26,8 @@
   let categories = $state<Category[]>([])
   let members = $state<Member[]>([])
   let error = $state<string | null>(null)
+  // Mois en cours de chargement : l'ancien reste affiché, estompé.
+  let loadingMonth = $state(false)
 
   let editorOpen = $state(false)
   let editing = $state<Expense | null>(null)
@@ -47,10 +50,17 @@
   })
 
   async function loadMonth(shown: string = month) {
-    const loaded = await monthlyBudget(householdId, shown)
-    // Réponse d'un mois quitté entre-temps : ignorée.
-    if (shown === month) {
-      budget = loaded
+    loadingMonth = true
+    try {
+      const loaded = await monthlyBudget(householdId, shown)
+      // Réponse d'un mois quitté entre-temps : ignorée.
+      if (shown === month) {
+        budget = loaded
+      }
+    } finally {
+      if (shown === month) {
+        loadingMonth = false
+      }
     }
   }
 
@@ -120,14 +130,19 @@
 {/if}
 
 {#if budget}
-  <MonthHero {budget} {memberName} />
-  {#if budget.expenses.length > 0}
-    <CategoryBreakdown {budget} {memberName} onmanage={() => (managingCategories = true)} />
-  {/if}
-  <ExpenseList expenses={budget.expenses} {categories} {memberName} onopen={openEditor} />
-  {#if budget.expenses.length === 0}
-    <button class="link manage" onclick={() => (managingCategories = true)}>Gérer les catégories</button>
-  {/if}
+  <div class="stack" class:reloading={loadingMonth} aria-busy={loadingMonth}>
+    <MonthHero {budget} {memberName} />
+    {#if budget.expenses.length > 0}
+      <CategoryBreakdown {budget} {memberName} onmanage={() => (managingCategories = true)} />
+    {/if}
+    <ExpenseList expenses={budget.expenses} {categories} {memberName} onopen={openEditor} />
+    {#if budget.expenses.length === 0}
+      <button class="link manage" onclick={() => (managingCategories = true)}>Gérer les catégories</button>
+    {/if}
+  </div>
+{:else if !error}
+  <Skeleton variant="hero" />
+  <Skeleton variant="rows" count={5} />
 {/if}
 
 <Fab label="Ajouter une dépense" onclick={() => openEditor(null)} />

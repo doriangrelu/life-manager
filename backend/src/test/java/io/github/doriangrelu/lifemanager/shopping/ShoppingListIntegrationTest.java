@@ -46,7 +46,7 @@ class ShoppingListIntegrationTest extends IntegrationTestSupport {
         var household = households.create(owner, "Maison").id();
 
         assertThat(lists(owner, household)).extracting(ShoppingListResponse::name, ShoppingListResponse::pendingCount)
-                .containsExactly(tuple("Bricolage", 0L), tuple("Courses", 0L), tuple("Vêtements", 0L));
+                .containsExactly(tuple("bricolage", 0L), tuple("courses", 0L), tuple("vêtements", 0L));
     }
 
     @Test
@@ -61,8 +61,8 @@ class ShoppingListIntegrationTest extends IntegrationTestSupport {
 
         assertThat(renamed.pendingCount()).isEqualTo(1);
         assertThat(lists(owner, household)).extracting(ShoppingListResponse::name, ShoppingListResponse::pendingCount)
-                .contains(tuple("Pharmacie", 1L));
-        assertThat(rename(owner, household, pharmacy.id(), "PHARMACIE").name()).isEqualTo("PHARMACIE");
+                .contains(tuple("pharmacie", 1L));
+        assertThat(rename(owner, household, pharmacy.id(), "PHARMACIE").name()).isEqualTo("pharmacie");
     }
 
     @Test
@@ -86,7 +86,7 @@ class ShoppingListIntegrationTest extends IntegrationTestSupport {
         http.exchange(HttpRequest.DELETE(lists(household) + "/" + tools).bearerAuth(owner));
 
         assertThat(lists(owner, household)).extracting(ShoppingListResponse::name)
-                .containsExactly("Courses", "Vêtements");
+                .containsExactly("courses", "vêtements");
         assertThat(failure(() -> items(owner, household, tools)).code()).isEqualTo(404);
     }
 
@@ -106,7 +106,7 @@ class ShoppingListIntegrationTest extends IntegrationTestSupport {
         assertThat(checked.checked()).isTrue();
         assertThat(items(guest, household, groceries))
                 .extracting(ShoppingItemResponse::label, ShoppingItemResponse::checked)
-                .containsExactly(tuple("Pain", false), tuple("Lait", false), tuple("Œufs", true));
+                .containsExactly(tuple("pain", false), tuple("lait", false), tuple("œufs", true));
     }
 
     @Test
@@ -148,7 +148,7 @@ class ShoppingListIntegrationTest extends IntegrationTestSupport {
         clearChecked(owner, household, groceries);
 
         assertThat(items(owner, household, groceries)).extracting(ShoppingItemResponse::label)
-                .containsExactly("Beurre");
+                .containsExactly("beurre");
     }
 
     @Test
@@ -176,7 +176,7 @@ class ShoppingListIntegrationTest extends IntegrationTestSupport {
     }
 
     private UUID listNamed(String token, UUID household, String name) {
-        return lists(token, household).stream().filter(list -> list.name().equals(name)).findFirst()
+        return lists(token, household).stream().filter(list -> list.name().equalsIgnoreCase(name)).findFirst()
                 .orElseThrow().id();
     }
 

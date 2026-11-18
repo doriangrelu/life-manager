@@ -6,6 +6,7 @@
   import { navigate, route } from '../../route'
   import Fab from '../../ui/Fab.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import Skeleton from '../../ui/Skeleton.svelte'
   import DeadlineBadge from './DeadlineBadge.svelte'
   import VehicleDetail from './VehicleDetail.svelte'
   import VehicleForm from './VehicleForm.svelte'
@@ -85,7 +86,9 @@
     <p class="error" role="alert">{error}</p>
   {/if}
 
-  {#if vehicles.length === 0}
+  {#if !loaded && !error}
+    <Skeleton variant="cards" count={2} />
+  {:else if vehicles.length === 0}
     <p class="muted">Aucun véhicule pour l'instant : touchez + pour en ajouter un.</p>
   {/if}
 
@@ -134,6 +137,12 @@
     background: var(--color-surface);
     color: var(--color-text);
     text-align: left;
+  }
+  @media (hover: hover) {
+    .vehicle:hover {
+      filter: none;
+      box-shadow: var(--shadow-sm), 0 0 0 2px var(--color-primary-soft);
+    }
   }
   .bubble {
     width: 44px;

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { displayName } from '../text'
   import { Check, ChevronDown, House, LogOut, Plus } from '@lucide/svelte'
   import { logout } from '../auth/auth'
   import type { HouseholdSummary, UserProfile } from '../api/types'
@@ -40,7 +41,7 @@
     <span class="logo" aria-hidden="true"><House size={22} color="#ffffff" /></span>
     <span class="names">
       <span class="caption">Foyer</span>
-      <span class="name">{current?.name ?? 'Choisir un foyer'} <ChevronDown size={16} strokeWidth={2.6} /></span>
+      <span class="name">{current ? displayName(current.name) : 'Choisir un foyer'} <ChevronDown size={16} strokeWidth={2.6} /></span>
     </span>
   </button>
   <button class="avatar" aria-label="Profil de {profile.displayName}" onclick={() => (showingProfile = true)}>
@@ -53,7 +54,7 @@
     {#each households as household (household.id)}
       <li>
         <button class="ghost choice" aria-pressed={household.id === selectedId} onclick={() => choose(household.id)}>
-          <span>{household.name}</span>
+          <span>{displayName(household.name)}</span>
           {#if household.id === selectedId}<Check size={20} strokeWidth={2.6} />{/if}
         </button>
       </li>

@@ -51,7 +51,7 @@ class PurchaseHistoryIntegrationTest extends IntegrationTestSupport {
 
         assertThat(history(owner, household, groceries))
                 .extracting(PurchaseHistoryEntryResponse::label, PurchaseHistoryEntryResponse::purchaseCount)
-                .containsExactlyInAnyOrder(tuple("Lait", 1), tuple("Pain", 1));
+                .containsExactlyInAnyOrder(tuple("lait", 1), tuple("pain", 1));
     }
 
     @Test
@@ -65,7 +65,7 @@ class PurchaseHistoryIntegrationTest extends IntegrationTestSupport {
 
         var history = history(owner, household, groceries);
         assertThat(history).extracting(PurchaseHistoryEntryResponse::label, PurchaseHistoryEntryResponse::purchaseCount)
-                .containsExactly(tuple("Lait", 2), tuple("Pain", 1));
+                .containsExactly(tuple("lait", 2), tuple("pain", 1));
         assertThat(history.getFirst().lastPurchasedAt()).isAfter(history.get(1).lastPurchasedAt());
     }
 
@@ -75,7 +75,7 @@ class PurchaseHistoryIntegrationTest extends IntegrationTestSupport {
         var household = households.create(owner, "Maison").id();
         buy(owner, household, listNamed(owner, household, "Courses"), "Lait");
 
-        assertThat(history(owner, household, listNamed(owner, household, "Bricolage"))).isEmpty();
+        assertThat(history(owner, household, listNamed(owner, household, "bricolage"))).isEmpty();
     }
 
     @Test
@@ -90,7 +90,7 @@ class PurchaseHistoryIntegrationTest extends IntegrationTestSupport {
         var added = restock(owner, household, groceries, ids);
 
         // « lait » était déjà à acheter : il n'est pas ajouté une seconde fois.
-        assertThat(added).extracting(ShoppingItemResponse::label).containsExactlyInAnyOrder("Pain", "Œufs");
+        assertThat(added).extracting(ShoppingItemResponse::label).containsExactlyInAnyOrder("pain", "œufs");
         assertThat(items(owner, household, groceries)).extracting(ShoppingItemResponse::checked)
                 .containsExactly(false, false, false);
     }
@@ -122,13 +122,13 @@ class PurchaseHistoryIntegrationTest extends IntegrationTestSupport {
         var groceries = listNamed(owner, household, "Courses");
         buy(owner, household, groceries, "Couches", "Lait");
         var nappies = history(owner, household, groceries).stream()
-                .filter(entry -> entry.label().equals("Couches")).findFirst().orElseThrow().id();
+                .filter(entry -> entry.label().equals("couches")).findFirst().orElseThrow().id();
 
         assertThat(failure(() -> forget(neighbour, household, groceries, nappies)).code()).isEqualTo(404);
         forget(owner, household, groceries, nappies);
 
         assertThat(history(owner, household, groceries)).extracting(PurchaseHistoryEntryResponse::label)
-                .containsExactly("Lait");
+                .containsExactly("lait");
     }
 
     /** Ajoute, coche puis vide les articles : ils sont achetés. */
@@ -167,7 +167,7 @@ class PurchaseHistoryIntegrationTest extends IntegrationTestSupport {
     private UUID listNamed(String token, UUID household, String name) {
         return http.retrieve(HttpRequest.GET(lists(household)).bearerAuth(token),
                         Argument.listOf(ShoppingListResponse.class)).stream()
-                .filter(list -> list.name().equals(name)).findFirst().orElseThrow().id();
+                .filter(list -> list.name().equalsIgnoreCase(name)).findFirst().orElseThrow().id();
     }
 
     private static String lists(UUID household) {

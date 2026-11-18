@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { displayName } from '../../text'
   import type { MonthlyBudget } from '../../api/types'
   import { categoryStyle } from '../../categoryStyle'
   import { formatCents } from '../../money'
@@ -23,7 +24,7 @@
     {#each budget.byCategory as category (category.categoryId)}
       <li>
         <div class="line">
-          <span>{category.name}</span>
+          <span>{displayName(category.name)}</span>
           <span class="amount">{formatCents(category.totalCents)}</span>
         </div>
         <ProgressBar ratio={category.totalCents / largest} color={categoryStyle(category.name).bar} />

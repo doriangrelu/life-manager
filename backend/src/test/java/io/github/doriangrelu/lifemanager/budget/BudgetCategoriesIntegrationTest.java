@@ -44,7 +44,7 @@ class BudgetCategoriesIntegrationTest extends IntegrationTestSupport {
         var household = households.create(owner, "Maison").id();
 
         assertThat(list(owner, household)).extracting(CategoryResponse::name).containsExactly(
-                "Abonnements", "Courses", "Logement", "Loisirs", "Restaurants", "Santé", "Transport", "Autre");
+                "abonnements", "courses", "logement", "loisirs", "restaurants", "santé", "transport", "autre");
     }
 
     @Test
@@ -83,7 +83,7 @@ class BudgetCategoriesIntegrationTest extends IntegrationTestSupport {
         var archived = call(owner, HttpRequest.POST(base + "/archive", ""));
         var reactivated = call(owner, HttpRequest.POST(base + "/reactivate", ""));
 
-        assertThat(renamed.name()).isEqualTo("Sorties");
+        assertThat(renamed.name()).isEqualTo("sorties");
         assertThat(archived.archived()).isTrue();
         assertThat(reactivated.archived()).isFalse();
         assertThat(failure(() -> call(owner, HttpRequest.PUT(base, Map.of("name", "Courses")))).code())
@@ -115,7 +115,7 @@ class BudgetCategoriesIntegrationTest extends IntegrationTestSupport {
     }
 
     private CategoryResponse categoryNamed(String token, UUID household, String name) {
-        return list(token, household).stream().filter(c -> c.name().equals(name)).findFirst().orElseThrow();
+        return list(token, household).stream().filter(c -> c.name().equalsIgnoreCase(name)).findFirst().orElseThrow();
     }
 
     private CategoryResponse call(String token, io.micronaut.http.MutableHttpRequest<?> request) {

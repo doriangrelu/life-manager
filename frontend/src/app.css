@@ -184,6 +184,106 @@ button:disabled {
   cursor: default;
 }
 
+/* ---- Retours visuels : survol (souris uniquement), appui, attente */
+
+button {
+  transition:
+    filter 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+@media (hover: hover) {
+  button:not(:disabled):hover {
+    filter: brightness(0.94);
+  }
+  button.link:not(:disabled):hover {
+    filter: none;
+    text-decoration: underline;
+  }
+}
+
+@media (hover: hover) and (prefers-color-scheme: dark) {
+  button:not(:disabled):hover {
+    filter: brightness(1.18);
+  }
+}
+
+button:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+/* Bouton en attente (enregistrement, envoi…) : un petit rond tourne devant le texte. */
+button[aria-busy='true'] {
+  cursor: progress;
+}
+
+button[aria-busy='true']:disabled {
+  opacity: 0.8;
+}
+
+/* Le rond d'attente remplace l'icône du bouton. */
+button[aria-busy='true'] > svg {
+  display: none;
+}
+
+button[aria-busy='true']::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ---- Chargement : forme grise qui scintille (voir ui/Skeleton.svelte) */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-muted) 25%,
+    var(--color-border) 45%,
+    var(--color-surface-muted) 65%
+  );
+  background-size: 300% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* Contenu en cours de rechargement (changement de mois…) : estompé en attendant. */
+.reloading {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  button[aria-busy='true']::before {
+    animation-duration: 3s;
+  }
+  button {
+    transition: none;
+  }
+}
+
 button.large {
   min-height: 56px;
   border-radius: 18px;

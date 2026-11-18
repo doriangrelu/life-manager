@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { displayName } from '../../text'
   import { Pencil, Plus, Trash2 } from '@lucide/svelte'
   import { addShoppingList, deleteShoppingList, renameShoppingList } from '../../api/shoppingApi'
   import type { ShoppingList } from '../../api/types'
@@ -63,12 +64,12 @@
   <ul class="lists">
     {#each lists as list (list.id)}
       <li>
-        <span class="name">{list.name}</span>
+        <span class="name">{displayName(list.name)}</span>
         <span class="muted count">{list.pendingCount} à acheter</span>
-        <button class="icon ghost" aria-label="Renommer {list.name}" onclick={() => askRename(list)}>
+        <button class="icon ghost" aria-label="Renommer {displayName(list.name)}" onclick={() => askRename(list)}>
           <Pencil size={18} />
         </button>
-        <button class="icon ghost" aria-label="Supprimer {list.name}" onclick={() => askDelete(list)}>
+        <button class="icon ghost" aria-label="Supprimer {displayName(list.name)}" onclick={() => askDelete(list)}>
           <Trash2 size={18} />
         </button>
       </li>
@@ -86,14 +87,14 @@
   bind:open={renameOpen}
   title="Renommer la sous-liste"
   label="Nom"
-  initial={renaming?.name ?? ''}
+  initial={renaming ? displayName(renaming.name) : ''}
   maxlength={30}
   onsubmit={(text) => renaming && run(async () => (await renameShoppingList(householdId, renaming!.id, text)).id)}
 />
 
 <ConfirmDialog
   bind:open={deleteOpen}
-  title="Supprimer « {deleting?.name} » ?"
+  title="Supprimer « {deleting ? displayName(deleting.name) : ''} » ?"
   message="Ses articles et son historique d'achats seront supprimés aussi."
   onconfirm={() => deleting && run(async () => {
     await deleteShoppingList(householdId, deleting!.id)

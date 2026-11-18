@@ -25,6 +25,8 @@
   $effect(() => {
     if (open && dialog && !dialog.open) {
       dialog.showModal()
+      // Champ principal du formulaire (marqué data-autofocus) prêt à la saisie, plutôt que le bouton Fermer.
+      dialog.querySelector<HTMLElement>('[data-autofocus]')?.focus()
     } else if (!open && dialog?.open) {
       dialog.close()
     }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { displayName } from '../../text'
   import type { Category, Expense } from '../../api/types'
   import { categoryStyle } from '../../categoryStyle'
   import { formatCents } from '../../money'
@@ -16,7 +17,7 @@
     onopen: (expense: Expense) => void
   } = $props()
 
-  const categoryName = (categoryId: string) => categories.find((c) => c.id === categoryId)?.name ?? 'Catégorie'
+  const categoryName = (categoryId: string) => displayName(categories.find((c) => c.id === categoryId)?.name ?? 'Catégorie')
   const dayLabel = (day: string) =>
     new Date(`${day}T12:00:00`).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
 </script>
@@ -34,7 +35,7 @@
               <style.icon size={20} color={style.strong} />
             </span>
             <span class="text">
-              <span class="title">{expense.label ?? name}</span>
+              <span class="title">{expense.label ? displayName(expense.label) : name}</span>
               <span class="meta">
                 {name} · {dayLabel(expense.spentOn)} · {memberName(expense.paidBy)} → {memberName(expense.beneficiary)}
               </span>

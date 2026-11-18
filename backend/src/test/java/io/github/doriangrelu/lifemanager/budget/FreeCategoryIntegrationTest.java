@@ -47,7 +47,7 @@ class FreeCategoryIntegrationTest extends IntegrationTestSupport {
     @Test
     void other_is_always_listed_last() {
         assertThat(names()).containsExactly(
-                "Abonnements", "Courses", "Logement", "Loisirs", "Restaurants", "Santé", "Transport", "Autre");
+                "abonnements", "courses", "logement", "loisirs", "restaurants", "santé", "transport", "autre");
     }
 
     @Test
@@ -56,14 +56,14 @@ class FreeCategoryIntegrationTest extends IntegrationTestSupport {
 
         var gifts = budget.category(alice.token(), household, "Cadeaux");
         assertThat(expense.categoryId()).isEqualTo(gifts);
-        assertThat(names()).containsSubsequence("Cadeaux", "Autre");
+        assertThat(names()).containsSubsequence("cadeaux", "autre");
     }
 
     @Test
     void an_existing_name_is_reused_whatever_the_case() {
         var expense = budget.record(alice.token(), household, withName(1000, "courses"));
 
-        assertThat(expense.categoryId()).isEqualTo(budget.category(alice.token(), household, "Courses"));
+        assertThat(expense.categoryId()).isEqualTo(budget.category(alice.token(), household, "courses"));
         assertThat(names()).hasSize(8);
     }
 
@@ -84,7 +84,7 @@ class FreeCategoryIntegrationTest extends IntegrationTestSupport {
     void a_refused_expense_creates_no_category() {
         assertThat(failure(() -> budget.record(alice.token(), household, withName(0, "Cadeaux"))).code())
                 .isEqualTo(400);
-        assertThat(names()).doesNotContain("Cadeaux");
+        assertThat(names()).doesNotContain("cadeaux");
     }
 
     @Test

@@ -41,7 +41,7 @@ class HouseholdIntegrationTest extends IntegrationTestSupport {
 
         assertThat(api.list(token)).containsExactly(home, family);
         var details = api.get(token, home.id());
-        assertThat(details.name()).isEqualTo("Maison");
+        assertThat(details.name()).isEqualTo("maison");
         assertThat(details.members()).extracting(MemberResponse::displayName).containsExactly("Fanny");
         assertThat(details.activeInvitation()).isNull();
     }

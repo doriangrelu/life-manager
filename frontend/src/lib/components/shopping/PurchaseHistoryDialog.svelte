@@ -3,7 +3,9 @@
   import { forgetHistoryEntry, listPurchaseHistory, restockFromHistory } from '../../api/shoppingApi'
   import type { PurchaseHistoryEntry, ShoppingList } from '../../api/types'
   import { purchaseSummary } from '../../shopping'
+  import { displayName } from '../../text'
   import Modal from '../../ui/Modal.svelte'
+  import Skeleton from '../../ui/Skeleton.svelte'
 
   // Historique des achats d'une sous-liste : on coche ce qu'il faut racheter et on le remet en liste d'un coup.
   let {
@@ -76,13 +78,13 @@
   }
 </script>
 
-<Modal bind:open title="Historique · {list.name}">
+<Modal bind:open title="Historique · {displayName(list.name)}">
   {#if error}
     <p class="error" role="alert">{error}</p>
   {/if}
 
   {#if loading && entries.length === 0}
-    <p class="muted">Chargement…</p>
+    <Skeleton variant="rows" count={4} />
   {:else if entries.length === 0}
     <p class="muted">
       Rien encore : les articles cochés rejoignent l'historique quand vous videz le panier.
@@ -98,7 +100,7 @@
           <label>
             <input type="checkbox" checked={selected.includes(entry.id)} onchange={() => toggle(entry.id)} />
             <span class="text">
-              <span class="label">{entry.label}</span>
+              <span class="label">{displayName(entry.label)}</span>
               <span class="muted summary">{purchaseSummary(entry)}</span>
             </span>
           </label>

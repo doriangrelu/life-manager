@@ -11,6 +11,7 @@
   import CreateOrJoin from './lib/components/CreateOrJoin.svelte'
   import HouseholdTabs from './lib/components/HouseholdTabs.svelte'
   import Modal from './lib/ui/Modal.svelte'
+  import Skeleton from './lib/ui/Skeleton.svelte'
 
   let profile = $state<UserProfile | null>(null)
   let households = $state<HouseholdSummary[]>([])
@@ -61,7 +62,7 @@
 {#if error}
   <main class="content"><p class="error" role="alert">{error}</p></main>
 {:else if !profile}
-  <main class="content"><p class="muted">Chargement…</p></main>
+  <main class="content stack"><Skeleton variant="hero" /><Skeleton variant="rows" /></main>
 {:else if !selectedId}
   <main class="content welcome">
     <h1>Bienvenue, {profile.displayName}</h1>

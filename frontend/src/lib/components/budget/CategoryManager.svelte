@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { displayName } from '../../text'
   import { addCategory, archiveCategory, reactivateCategory, renameCategory } from '../../api/budgetApi'
   import type { Category } from '../../api/types'
   import { sortCategories } from '../../categories'
@@ -43,7 +44,8 @@
 
   function rename(name: string) {
     const category = renaming
-    if (category && name !== category.name) {
+    // Le nom affiché a une majuscule, l'enregistré non : on compare sans tenir compte de la casse.
+    if (category && name.trim().toLowerCase() !== category.name) {
       run(() => renameCategory(householdId, category.id, name))
     }
   }
@@ -70,7 +72,7 @@
       <span class="bubble" style:background={style.soft} aria-hidden="true">
         <style.icon size={18} color={style.strong} />
       </span>
-      <span class="name">{category.name}{category.archived ? ' (archivée)' : ''}</span>
+      <span class="name">{displayName(category.name)}{category.archived ? ' (archivée)' : ''}</span>
       <button class="link" onclick={() => startRename(category)}>Renommer</button>
       <button class="link" onclick={() => toggle(category)}>{category.archived ? 'Réactiver' : 'Archiver'}</button>
     </li>
@@ -81,7 +83,7 @@
   bind:open={renameOpen}
   title="Renommer la catégorie"
   label="Nouveau nom"
-  initial={renaming?.name ?? ''}
+  initial={renaming ? displayName(renaming.name) : ''}
   maxlength={40}
   onsubmit={rename}
 />

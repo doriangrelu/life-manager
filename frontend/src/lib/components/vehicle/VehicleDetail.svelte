@@ -13,6 +13,7 @@
   import { formatDay, kindLabel } from '../../vehicles'
   import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
   import Modal from '../../ui/Modal.svelte'
+  import Skeleton from '../../ui/Skeleton.svelte'
   import AttachmentsDialog from './AttachmentsDialog.svelte'
   import DeadlineBadge from './DeadlineBadge.svelte'
   import MaintenanceEntryCard from './MaintenanceEntryCard.svelte'
@@ -28,6 +29,7 @@
   }: { householdId: string; vehicle: Vehicle; onremoved: () => void; onclose: () => void } = $props()
 
   let entries = $state<MaintenanceEntry[]>([])
+  let entriesLoaded = $state(false)
   let error = $state<string | null>(null)
   let editing = $state(false)
   let addingEntry = $state(false)
@@ -37,7 +39,12 @@
   let attachmentsOf = $state<MaintenanceEntry | null>(null)
   let attachmentsOpen = $state(false)
 
-  onMount(() => run(async () => (entries = await listMaintenance(householdId, vehicle.id))))
+  onMount(() =>
+    run(async () => {
+      entries = await listMaintenance(householdId, vehicle.id)
+      entriesLoaded = true
+    }),
+  )
 
   // Exécute une action, affiche son erreur éventuelle et dit si elle a réussi.
   async function run(action: () => Promise<unknown>): Promise<boolean> {
@@ -130,7 +137,9 @@
     <h2>Carnet d'entretien</h2>
     <button class="soft" onclick={() => (addingEntry = true)}>+ Opération</button>
   </div>
-  {#if entries.length === 0}
+  {#if !entriesLoaded && !error}
+    <Skeleton variant="cards" count={2} />
+  {:else if entries.length === 0}
     <p class="muted">Aucune opération pour l'instant.</p>
   {:else}
     <ul class="entries">

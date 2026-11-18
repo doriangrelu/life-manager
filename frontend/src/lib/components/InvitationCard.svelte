@@ -41,11 +41,11 @@
     <p class="muted">Valable jusqu'au {expiresOn(invitation.expiresAt)}, une seule fois.</p>
     <div class="actions">
       <button onclick={() => copy(invitation.code)}><Copy size={18} /> {copied ? 'Copié !' : 'Copier le code'}</button>
-      <button class="soft" disabled={busy} onclick={renew}><RefreshCw size={18} /> Nouveau code</button>
+      <button class="soft" disabled={busy} aria-busy={busy} onclick={renew}><RefreshCw size={18} /> Nouveau code</button>
     </div>
   {:else}
     <p class="muted">Générez un code et transmettez-le à la personne à inviter.</p>
-    <button disabled={busy} onclick={renew}>Générer un code</button>
+    <button disabled={busy} aria-busy={busy} onclick={renew}>Générer un code</button>
   {/if}
   {#if error}
     <p class="error" role="alert">{error}</p>
@@ -70,7 +70,9 @@
     gap: 8px;
     flex-wrap: wrap;
   }
+  /* Texte d'un bouton jamais coupé : s'ils ne tiennent pas côte à côte, ils passent l'un sous l'autre. */
   .actions button {
-    flex: 1 1 140px;
+    flex: 1 1 auto;
+    white-space: nowrap;
   }
 </style>

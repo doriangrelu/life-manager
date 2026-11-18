@@ -12,8 +12,10 @@
   import type { ShoppingItem, ShoppingList } from '../../api/types'
   import { rememberedShoppingListId, rememberShoppingListId } from '../../preferences'
   import { pickList, REFRESH_MS, toggled } from '../../shopping'
+  import { displayName } from '../../text'
   import Chip from '../../ui/Chip.svelte'
   import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
+  import Skeleton from '../../ui/Skeleton.svelte'
   import PurchaseHistoryDialog from './PurchaseHistoryDialog.svelte'
   import ShoppingListsManager from './ShoppingListsManager.svelte'
 
@@ -29,6 +31,9 @@
   let confirmingClear = $state(false)
   let managing = $state(false)
   let showingHistory = $state(false)
+  // Premier chargement, ou articles d'une autre sous-liste en route : squelette à la place de la liste.
+  let loaded = $state(false)
+  let switching = $state(false)
   let pending = 0 // actions en cours : on ne remplace pas la liste sous les doigts de l'utilisateur
   let field: HTMLInputElement | undefined = $state()
   const current = $derived(lists.find((l) => l.id === currentId) ?? null)
@@ -62,6 +67,8 @@
       }
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
+    } finally {
+      loaded = true
     }
   }
 
@@ -77,7 +84,9 @@
       error = null
       select(list)
       items = []
+      switching = true
       await refresh(list.id)
+      switching = false
     }
   }
 
@@ -127,9 +136,9 @@
   <li class:checked={item.checked}>
     <label>
       <input type="checkbox" checked={item.checked} onchange={() => toggle(item, listId)} />
-      <span>{item.label}</span>
+      <span>{displayName(item.label)}</span>
     </label>
-    <button class="link icon" aria-label="Supprimer {item.label}" onclick={() => remove(item, listId)}>
+    <button class="link icon" aria-label="Supprimer {displayName(item.label)}" onclick={() => remove(item, listId)}>
       <X size={18} />
     </button>
   </li>
@@ -150,7 +159,7 @@
 <nav class="lists" aria-label="Sous-listes">
   {#each lists as list (list.id)}
     <Chip selected={list.id === currentId} onclick={() => open(list)}>
-      {list.name}
+      {displayName(list.name)}
       {#if list.pendingCount > 0}<span class="count">{list.pendingCount}</span>{/if}
     </Chip>
   {/each}
@@ -160,17 +169,22 @@
   <p class="error" role="alert">{error}</p>
 {/if}
 
-{#if current}
+{#if !loaded}
+  <Skeleton variant="rows" count={5} />
+{:else if current}
   {@const listId = current.id}
+  {@const currentName = displayName(current.name)}
   <form class="add" onsubmit={add}>
-    <label class="visually-hidden" for="new-item">Nouvel article dans {current.name}</label>
-    <input id="new-item" bind:this={field} bind:value={label} maxlength="60" placeholder="Ajouter à {current.name}…" />
+    <label class="visually-hidden" for="new-item">Nouvel article dans {currentName}</label>
+    <input id="new-item" bind:this={field} bind:value={label} maxlength="60" placeholder="Ajouter à {currentName}…" />
     <button class="icon add-button" aria-label="Ajouter" disabled={!label.trim()}><Plus size={22} strokeWidth={2.6} /></button>
   </form>
 
-  {#if items.length === 0}
+  {#if switching}
+    <Skeleton variant="rows" count={4} />
+  {:else if items.length === 0}
     <div class="empty card">
-      <p class="muted">« {current.name} » est vide.</p>
+      <p class="muted">« {currentName} » est vide.</p>
       <button class="soft" onclick={() => (showingHistory = true)}><History size={18} /> Reprendre des achats passés</button>
     </div>
   {/if}
@@ -200,7 +214,7 @@
   <ConfirmDialog
     bind:open={confirmingClear}
     title="Vider le panier ?"
-    message="Les {inCart.length} article(s) coché(s) quittent la liste et rejoignent l'historique de « {current.name} »."
+    message="Les {inCart.length} article(s) coché(s) quittent la liste et rejoignent l'historique de « {currentName} »."
     confirmLabel="Vider"
     onconfirm={() => clearChecked(listId)}
   />
@@ -287,6 +301,17 @@
   }
   .list li:last-child {
     border-bottom: none;
+  }
+  @media (hover: hover) {
+    .list li:hover {
+      background: var(--color-surface-muted);
+    }
+  }
+  .list li:first-child {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .list li:last-child {
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   }
   .list label {
     display: flex;

@@ -56,8 +56,8 @@ class MonthlyBudgetIntegrationTest extends IntegrationTestSupport {
 
         assertThat(month.totalCents()).isEqualTo(10_000);
         assertThat(month.byCategory()).containsExactly(
-                new CategoryTotal(groceries.categoryId(), "Courses", 5500),
-                new CategoryTotal(transport.categoryId(), "Transport", 4500));
+                new CategoryTotal(groceries.categoryId(), "courses", 5500),
+                new CategoryTotal(transport.categoryId(), "transport", 4500));
         assertThat(month.expenses()).extracting(ExpenseResponse::spentOn).containsExactly(
                 LocalDate.of(2026, 10, 31), LocalDate.of(2026, 10, 20), LocalDate.of(2026, 10, 3));
     }

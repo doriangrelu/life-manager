@@ -21,7 +21,7 @@ record BudgetApi(BlockingHttpClient http) {
 
     UUID category(String token, UUID household, String name) {
         return categories(token, household).stream()
-                .filter(category -> category.name().equals(name))
+                .filter(category -> category.name().equalsIgnoreCase(name))
                 .findFirst().orElseThrow().id();
     }
 

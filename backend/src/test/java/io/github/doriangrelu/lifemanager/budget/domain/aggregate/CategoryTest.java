@@ -19,7 +19,7 @@ class CategoryTest {
         var defaults = Category.defaultsFor(HOME);
 
         assertThat(defaults).extracting(category -> category.name().value()).containsExactly(
-                "Courses", "Logement", "Transport", "Santé", "Loisirs", "Restaurants", "Abonnements", "Autre");
+                "courses", "logement", "transport", "santé", "loisirs", "restaurants", "abonnements", "autre");
         assertThat(defaults).allMatch(category -> category.isUsableBy(HOME));
     }
 
@@ -48,7 +48,7 @@ class CategoryTest {
 
         category.rename(new CategoryName("Sorties"));
 
-        assertThat(category.name()).isEqualTo(new CategoryName("Sorties"));
+        assertThat(category.name()).isEqualTo(new CategoryName("sorties"));
         assertThat(category.id()).isEqualTo(id);
     }
 }

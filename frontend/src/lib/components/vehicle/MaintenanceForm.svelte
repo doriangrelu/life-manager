@@ -117,7 +117,7 @@
   {#if error}
     <p class="error" role="alert">{error}</p>
   {/if}
-  <button class="large" disabled={busy}>Ajouter au carnet</button>
+  <button class="large" disabled={busy} aria-busy={busy}>Ajouter au carnet</button>
 </form>
 
 <style>

@@ -31,7 +31,7 @@
     Nom du foyer
     <input bind:value={name} maxlength="100" required placeholder="Maison" />
   </label>
-  <button disabled={busy || !name.trim()}>Créer</button>
+  <button disabled={busy || !name.trim()} aria-busy={busy}>Créer</button>
 </form>
 
 <form class="card stack" onsubmit={(e) => submit(e, () => joinHousehold(code))}>
@@ -40,7 +40,7 @@
     Code d'invitation
     <input bind:value={code} required placeholder="ABCD2345" autocapitalize="characters" autocomplete="off" />
   </label>
-  <button class="soft" disabled={busy || !code.trim()}>Rejoindre</button>
+  <button class="soft" disabled={busy || !code.trim()} aria-busy={busy}>Rejoindre</button>
 </form>
 
 {#if error}

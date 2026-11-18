@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { displayName } from '../../text'
   import { Trash2 } from '@lucide/svelte'
   import { untrack } from 'svelte'
   import { correctExpense, recordExpense } from '../../api/budgetApi'
@@ -40,7 +41,7 @@
   let paidBy = $state(initial.expense?.paidBy ?? initial.currentUserId)
   let beneficiary = $state(initial.expense?.beneficiary ?? '') // '' = commun
   let spentOn = $state(initial.expense?.spentOn ?? today())
-  let label = $state(initial.expense?.label ?? '')
+  let label = $state(initial.expense?.label ? displayName(initial.expense.label) : '')
   let precision = $state('') // nom tapé sous « Autre » : crée (ou retrouve) la catégorie de ce nom
   let busy = $state(false)
   let error = $state<string | null>(null)
@@ -119,7 +120,7 @@
     <legend>Catégorie</legend>
     <div class="chips">
       {#each choices as category (category.id)}
-        <Chip selected={categoryId === category.id} onclick={() => (categoryId = category.id)}>{category.name}</Chip>
+        <Chip selected={categoryId === category.id} onclick={() => (categoryId = category.id)}>{displayName(category.name)}</Chip>
       {/each}
     </div>
     {#if otherChosen}
@@ -153,7 +154,7 @@
     <p class="confirmation" role="status">{confirmation}</p>
   {/if}
 
-  <button class="large" disabled={busy}>{initial.expense ? 'Enregistrer' : 'Ajouter la dépense'}</button>
+  <button class="large" disabled={busy} aria-busy={busy}>{initial.expense ? 'Enregistrer' : 'Ajouter la dépense'}</button>
   {#if initial.expense}
     <button type="button" class="danger" onclick={() => initial.expense && ondelete(initial.expense)}>
       <Trash2 size={18} /> Supprimer la dépense

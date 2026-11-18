@@ -3,6 +3,8 @@
   import { onMount } from 'svelte'
   import { getHousehold, issueInvitation } from '../api/householdApi'
   import type { HouseholdDetails } from '../api/types'
+  import { displayName } from '../text'
+  import Skeleton from '../ui/Skeleton.svelte'
   import InvitationCard from './InvitationCard.svelte'
 
   // Onglet Foyer : ses membres, le code pour inviter quelqu'un, et l'accès aux autres foyers.
@@ -31,9 +33,9 @@
 {#if error}
   <p class="error" role="alert">{error}</p>
 {:else if !household}
-  <p class="muted">Chargement…</p>
+  <Skeleton variant="cards" count={2} />
 {:else}
-  <h1>{household.name}</h1>
+  <h1>{displayName(household.name)}</h1>
 
   <section class="card stack">
     <h2>Membres</h2>

@@ -17,7 +17,7 @@ class ShoppingListTest {
 
     @Test
     void a_name_has_1_to_30_characters() {
-        assertThat(new ListName(" Bricolage ").value()).isEqualTo("Bricolage");
+        assertThat(new ListName(" Bricolage ").value()).isEqualTo("bricolage");
         assertThatThrownBy(() -> new ListName(" ")).isInstanceOf(InvalidValueException.class);
         assertThatThrownBy(() -> new ListName("a".repeat(31))).isInstanceOf(InvalidValueException.class);
     }
@@ -27,7 +27,7 @@ class ShoppingListTest {
         var lists = ShoppingList.defaultsFor(HOUSEHOLD);
 
         assertThat(lists).extracting(list -> list.name().value())
-                .containsExactly("Courses", "Bricolage", "Vêtements");
+                .containsExactly("courses", "bricolage", "vêtements");
         assertThat(lists).allMatch(list -> list.belongsTo(HOUSEHOLD));
         assertThat(lists).extracting(ShoppingList::id).doesNotHaveDuplicates();
     }
@@ -38,7 +38,7 @@ class ShoppingListTest {
 
         list.rename(new ListName("Pharmacie"));
 
-        assertThat(list.name().value()).isEqualTo("Pharmacie");
+        assertThat(list.name().value()).isEqualTo("pharmacie");
     }
 
     @Test
@@ -46,7 +46,7 @@ class ShoppingListTest {
         var list = ShoppingList.create(ShoppingListId.newId(), HOUSEHOLD, new ListName("Courses"));
 
         assertThat(list.belongsTo(new HouseholdId(UUID.randomUUID()))).isFalse();
-        assertThatThrownBy(() -> ShoppingList.create(ShoppingListId.newId(), null, new ListName("Courses")))
+        assertThatThrownBy(() -> ShoppingList.create(ShoppingListId.newId(), null, new ListName("courses")))
                 .isInstanceOf(InvalidValueException.class);
     }
 }

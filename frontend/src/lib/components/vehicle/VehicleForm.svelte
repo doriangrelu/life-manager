@@ -50,5 +50,5 @@
       <input type="date" bind:value={serviceDue} />
     </label>
   </div>
-  <button class="large" disabled={busy || !name.trim()}>Enregistrer</button>
+  <button class="large" disabled={busy || !name.trim()} aria-busy={busy}>Enregistrer</button>
 </form>
