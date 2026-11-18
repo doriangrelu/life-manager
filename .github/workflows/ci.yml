@@ -8,8 +8,13 @@ on:
 
 jobs:
   backend:
-    name: Backend (tests, Checkstyle, ArchUnit)
+    name: Backend (tests, Checkstyle, ArchUnit) — ${{ matrix.postgres }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 18 : version de développement ; 16 : version du PostgreSQL partagé du VPS.
+        postgres: [postgres:18-alpine, postgres:16-alpine]
     defaults:
       run:
         working-directory: backend
@@ -21,7 +26,7 @@ jobs:
           distribution: graalvm-community
           cache: maven
       # Testcontainers utilise le Docker fourni par le runner.
-      - run: ./mvnw -B verify
+      - run: ./mvnw -B verify -Dtest.postgres.image=${{ matrix.postgres }}
 
   frontend:
     name: PWA (types, tests, build)

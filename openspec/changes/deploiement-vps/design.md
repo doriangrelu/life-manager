@@ -29,10 +29,10 @@ Ce change est une **proposition** : rien n'est déployé ni modifié sur le serv
 
 `~/life-manager/docker-compose.prod.yml` : deux services sur le réseau externe `socle`, sans port publié, `restart: unless-stopped`, limites de ressources, contrôles de santé.
 
-- `api` : backend natif (limite 256 Mo), `STORAGE_ROOT=/data/files` monté sur `~/volumes/life-manager-files` (bind mount, comme les autres applications).
+- `api` : backend natif (limite 384 Mo ; ~70 Mo mesurés après un envoi de pièce jointe), `STORAGE_ROOT=/data/files` monté sur `~/volumes/life-manager-files` (bind mount, comme les autres applications).
 - `web` : fichiers statiques de la PWA servis par un petit serveur (limite 32 Mo).
 
-Noms de conteneurs préfixés (`life-manager-api`, `life-manager-web`) pour éviter toute collision d'alias sur le réseau partagé (`app` y est déjà pris par mybook).
+Projet Compose `life-manager-prod`, distinct du projet de développement `life-manager` : un déploiement ne peut jamais arrêter les conteneurs de l'autre. Noms de conteneurs préfixés (`life-manager-api`, `life-manager-web`) pour éviter toute collision d'alias sur le réseau partagé (`app` y est déjà pris par mybook).
 
 ### 2. Routage par un fragment Caddy
 
@@ -40,7 +40,7 @@ Noms de conteneurs préfixés (`life-manager-api`, `life-manager-web`) pour évi
 
 ### 3. Realm dans le Keycloak existant
 
-Pas de nouveau Keycloak. `infra/keycloak/realm-life-manager.prod.json` reprend le realm de dev : URL de redirection du sous-domaine, inscription fermée, secret du client `life-manager-api` remplacé à l'import par celui du `.env`. Import une fois par `infra/deploy/create-realm.sh`, qui passe par `kcadm.sh` dans le conteneur Keycloak (aucun redémarrage). Émetteur des jetons : `https://iabilis.fr/realms/life-manager`. L'application et Keycloak sont sur deux domaines différents : sans effet sur la connexion, qui passe par des redirections et un rafraîchissement par jeton, sans cookie tiers ni iframe. Le backend appelle l'introspection par l'URL publique (`KEYCLOAK_URL=https://iabilis.fr`), qui reste valable quel que soit le chemin réseau. Les deux comptes du foyer sont créés à la main dans la console.
+Pas de nouveau Keycloak. `infra/keycloak/realm-life-manager.prod.json` reprend le realm de dev : URL de redirection du sous-domaine, inscription fermée, secret du client `life-manager-api` remplacé à l'import par celui du `.env`. Import par Dorian dans la console Keycloak (fichier JSON avec un secret généré pour lui, jamais commité), puis `install.sh` reçoit ce même secret ; `infra/deploy/create-realm.sh` reste disponible pour un import en ligne de commande (`kcadm.sh` dans le conteneur, sans redémarrage). Émetteur des jetons : `https://iabilis.fr/realms/life-manager`. L'application et Keycloak sont sur deux domaines différents : sans effet sur la connexion, qui passe par des redirections et un rafraîchissement par jeton, sans cookie tiers ni iframe. Le backend appelle l'introspection par l'URL publique (`KEYCLOAK_URL=https://iabilis.fr`), qui reste valable quel que soit le chemin réseau. Les deux comptes du foyer sont créés à la main dans la console.
 
 Keycloak est en `latest` avec mise à jour automatique : le backend n'utilise que l'introspection standard (RFC 7662), peu exposée aux changements de version.
 
@@ -48,7 +48,9 @@ Keycloak est en `latest` avec mise à jour automatique : le backend n'utilise qu
 
 `infra/deploy/create-database.sh` (une fois) : crée la base `lifemanager`, un schéma et un compte par domaine avec des mots de passe aléatoires écrits dans `~/life-manager/.env`, en reprenant le script d'init de dev. Exécuté par `docker exec` dans le conteneur `db` du socle avec son compte administrateur ; aucun autre schéma ni base n'est touché. Les migrations Flyway tournent au démarrage du backend.
 
-PostgreSQL 16 au lieu de 18 en dev : nos migrations n'utilisent rien de propre à la version 18 ; la CI vérifiera les migrations sur une image 16 avant le premier déploiement.
+PostgreSQL 16 au lieu de 18 en dev : nos migrations n'utilisent rien de propre à la version 18 ; la CI exécute tous les tests sur les deux versions.
+
+**Migrations en natif** : dans l'exécutable natif, Micronaut Flyway fournit un catalogue unique contenant les migrations de tous les domaines ; chaque datasource voyait donc les `V1` des autres et le démarrage échouait. Un réglage Flyway par datasource (`platform/infrastructure/persistence/migration`) ne laisse voir à chaque domaine que son dossier. Sans effet en JVM.
 
 ### 5. Images construites par la CI
 
@@ -62,7 +64,7 @@ Workflow sur tag `v*` : build natif du backend (image minimale, utilisateur non 
 
 La base `lifemanager` (et le realm, via la base `keycloak`) est déjà incluse dans le `pg_dumpall` nocturne du socle. Seul ajout : `life-manager-files` dans la liste des volumes archivés par `~/infra/backup.sh` (une ligne, validée par Dorian). Base et fichiers sont archivés à quelques secondes d'intervalle : au pire un fichier orphelin. Restauration documentée et testée sur une machine vierge.
 
-**Copie hors du serveur** (choix de Dorian, 2026-11-18) : les archives du socle restent aujourd'hui sur le disque du VPS, non chiffrées ; une panne grave du serveur ou du site de Strasbourg les emporterait avec les données. Chaque nuit, après `backup.sh`, un script `offsite-backup.sh` envoie la dernière archive dans un dépôt **restic** (chiffré côté VPS, mot de passe dans un `.env` en `600`) hébergé sur **OVH Object Storage, région Gravelines** (compatible S3), puis applique la rétention `--keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune`. restic tourne dans son image officielle (`docker run --rm`), rien n'est installé sur l'hôte. Le conteneur S3 et ses identifiants sont créés par Dorian dans l'espace client OVH ; le mot de passe restic est conservé aussi hors du VPS (gestionnaire de mots de passe), sinon les sauvegardes sont illisibles. Ce script profite à toutes les applications du socle.
+**Copie hors du serveur** : assurée par la sauvegarde automatique du VPS souscrite chez OVH (décision de Dorian, 2026-11-18) ; pas de dépôt restic supplémentaire.
 
 ### 8. Mise à jour
 
@@ -86,13 +88,13 @@ La base `lifemanager` (et le realm, via la base `keycloak`) est déjà incluse d
 
 ## Migration Plan
 
-1. Dans la zone DNS de `dorian-grelu.fr`, créer l'enregistrement `maison` vers le VPS (A `152.228.237.190`, AAAA facultatif). 2. Publier un premier tag `v0.1.0` (images). 3. `install.sh`, `create-database.sh`, `create-realm.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Ajouter `life-manager-files` à `backup.sh`. 7. Dorian crée le conteneur Object Storage à Gravelines et ses identifiants S3 ; installer `offsite-backup.sh` et sa ligne cron. 8. Vérifier une sauvegarde hors site puis une restauration.
+1. Dans la zone DNS de `dorian-grelu.fr`, créer l'enregistrement `maison` vers le VPS (A `152.228.237.190`, AAAA facultatif). 2. Publier un premier tag `v0.1.0` (images). 3. Dorian importe le realm dans la console Keycloak ; `install.sh` (avec le secret client du realm), `create-database.sh`. 4. Premier `deploy.sh v0.1.0`. 5. Créer les deux comptes dans Keycloak. 6. Ajouter `life-manager-files` à `backup.sh`, vérifier une sauvegarde puis une restauration.
 
 Retour arrière : `docker compose down` dans `~/life-manager`, retirer le fragment Caddy et recharger ; la base et le realm peuvent rester ou être supprimés sans effet sur les autres applications.
 
 ## Open Questions
 
-_Aucune : sous-domaine et destination des sauvegardes tranchés par Dorian le 2026-11-18._
+_Aucune : sous-domaine, import du realm et sauvegardes tranchés par Dorian le 2026-11-18._
 
 ## Décisions prises sans Dorian
 

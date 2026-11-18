@@ -1,0 +1,65 @@
+# Production de Life Manager sur le socle partagé du VPS (voir docs/deploiement.md).
+# Le Caddy, le PostgreSQL et le Keycloak du socle sont réutilisés : seuls l'API et la PWA tournent ici,
+# sur le réseau Docker « socle », sans aucun port publié.
+#
+# Lancé par deploy.sh :
+#   docker compose -p life-manager-prod --env-file ~/life-manager/.env.prod -f infra/deploy/docker-compose.prod.yml up -d
+
+services:
+  api:
+    image: ghcr.io/doriangrelu/life-manager-api:${LIFE_MANAGER_TAG:?tag à déployer}
+    # Nom explicite : « app » est déjà pris sur le réseau partagé.
+    container_name: life-manager-api
+    restart: unless-stopped
+    environment:
+      KEYCLOAK_URL: https://iabilis.fr
+      KEYCLOAK_API_CLIENT_SECRET: ${KEYCLOAK_API_CLIENT_SECRET:?}
+      STORAGE_ROOT: /data/files
+      # « db » : le PostgreSQL du socle, sur le réseau partagé.
+      IDENTITY_DB_URL: &url jdbc:postgresql://db:5432/lifemanager
+      IDENTITY_DB_PASSWORD: ${IDENTITY_DB_PASSWORD:?}
+      HOUSEHOLD_DB_URL: *url
+      HOUSEHOLD_DB_PASSWORD: ${HOUSEHOLD_DB_PASSWORD:?}
+      BUDGET_DB_URL: *url
+      BUDGET_DB_PASSWORD: ${BUDGET_DB_PASSWORD:?}
+      VEHICLE_DB_URL: *url
+      VEHICLE_DB_PASSWORD: ${VEHICLE_DB_PASSWORD:?}
+      SHOPPING_DB_URL: *url
+      SHOPPING_DB_PASSWORD: ${SHOPPING_DB_PASSWORD:?}
+      REMINDER_DB_URL: *url
+      REMINDER_DB_PASSWORD: ${REMINDER_DB_PASSWORD:?}
+    volumes:
+      # Pièces jointes : dossier de l'hôte, inclus dans la sauvegarde du socle.
+      - ${FILES_DIR:-/home/ubuntu/volumes/life-manager-files}:/data/files
+    expose:
+      - "8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.75"
+          memory: 384M
+    networks:
+      - socle
+
+  web:
+    image: ghcr.io/doriangrelu/life-manager-web:${LIFE_MANAGER_TAG:?tag à déployer}
+    container_name: life-manager-web
+    restart: unless-stopped
+    read_only: true
+    # Système de fichiers en lecture seule : nginx n'écrit que dans ces deux dossiers temporaires.
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+    expose:
+      - "8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 32M
+    networks:
+      - socle
+
+networks:
+  socle:
+    external: true

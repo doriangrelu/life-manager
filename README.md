@@ -5,6 +5,7 @@ Application open source et auto-hébergée pour gérer le quotidien d'un foyer :
 - Vision produit : [docs/vision.md](docs/vision.md)
 - Architecture backend : [docs/architecture.md](docs/architecture.md)
 - Changements en cours et specs : [openspec/](openspec/)
+- Mise en production sur le VPS : [docs/deploiement.md](docs/deploiement.md)
 
 ## Environnement de développement
 

@@ -45,7 +45,9 @@ public abstract class IntegrationTestSupport implements TestPropertyProvider {
     }
 
     private static PostgreSQLContainer startPostgres() {
-        var container = new PostgreSQLContainer("postgres:18-alpine")
+        // Image surchargeable (-Dtest.postgres.image=postgres:16-alpine) : la CI vérifie aussi la version de production.
+        var image = System.getProperty("test.postgres.image", "postgres:18-alpine");
+        var container = new PostgreSQLContainer(image)
                 .withDatabaseName("lifemanager")
                 .withInitScript("db/test-init.sql");
         container.start();

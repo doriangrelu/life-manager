@@ -12,7 +12,7 @@ Le VPS de Dorian héberge déjà d'autres applications sur un **socle partagé**
 - **Authentification** : un realm `life-manager` créé dans le Keycloak existant (inscription fermée, URL de redirection du sous-domaine).
 - **Base** : une base `lifemanager` et un compte par domaine métier, créés une fois dans le PostgreSQL du socle.
 - **Secrets** : générés à l'installation dans `~/life-manager/.env` (droits `600`), jamais dans le dépôt ni les images.
-- **Sauvegardes** : la base est déjà couverte par le `pg_dumpall` du socle ; le dossier des pièces jointes est ajouté à la sauvegarde du socle. Une copie chiffrée (restic) des archives du socle part chaque nuit sur OVH Object Storage à Gravelines, rétention 7 jours / 4 semaines / 6 mois. Restauration documentée et testée.
+- **Sauvegardes** : la base est déjà couverte par le `pg_dumpall` du socle ; le dossier des pièces jointes est ajouté à la sauvegarde du socle. La copie hors du serveur est assurée par la sauvegarde automatique du VPS chez OVH. Restauration documentée et testée.
 - **Mise à jour** : script `deploy.sh <tag>` lancé par Dorian (tirer les images, redémarrer, attendre le contrôle de santé), retour arrière sur le tag précédent.
 - **Documentation** : `docs/deploiement.md` (installation, mise à jour, sauvegarde, restauration).
 
@@ -28,10 +28,10 @@ _Aucune._
 
 ## Impact
 
-- Nouveaux fichiers : `docker-compose.prod.yml`, `infra/caddy/life-manager.caddy`, `infra/keycloak/realm-life-manager.prod.json`, `infra/deploy/` (scripts), Dockerfiles backend et PWA, workflow GitHub Actions de publication.
+- Nouveaux fichiers : `infra/deploy/docker-compose.prod.yml`, `infra/caddy/life-manager.caddy`, `infra/keycloak/realm-life-manager.prod.json`, `infra/deploy/` (scripts), Dockerfiles backend et PWA, workflow GitHub Actions de publication.
 - PWA : URL Keycloak de production injectée au build (`VITE_OIDC_AUTHORITY`).
 - Socle du VPS : un fragment Caddy, un realm, une base et une ligne dans `~/infra/backup.sh`. Les autres applications ne sont ni arrêtées ni modifiées.
-- Aucun changement de code métier.
+- Aucun changement de code métier. Un correctif technique : en natif, chaque domaine n'applique que ses propres migrations Flyway.
 
 ## Hors périmètre
 

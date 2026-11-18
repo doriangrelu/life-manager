@@ -1,0 +1,25 @@
+# Routage de Life Manager dans le Caddy du socle.
+# Copié par infra/deploy/deploy.sh dans ~/infra/conf.d/life-manager.caddy, puis Caddy est rechargé.
+# Caddy obtient et renouvelle le certificat HTTPS ; une requête en http:// est redirigée en https://.
+
+maison.dorian-grelu.fr {
+	encode gzip zstd
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "DENY"
+		# iabilis.fr : Keycloak (connexion). blob: : affichage des pièces jointes.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://iabilis.fr; frame-src 'self' blob: https://iabilis.fr; object-src 'self' blob:; worker-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'self' https://iabilis.fr; frame-ancestors 'none'"
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy life-manager-api:8080
+	}
+
+	handle {
+		reverse_proxy life-manager-web:8080
+	}
+}
