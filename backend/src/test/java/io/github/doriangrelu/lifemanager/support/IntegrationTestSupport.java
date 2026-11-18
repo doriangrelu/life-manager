@@ -5,6 +5,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,8 @@ public abstract class IntegrationTestSupport implements TestPropertyProvider {
 
     protected static final FakeKeycloak KEYCLOAK = startKeycloak();
     private static final PostgreSQLContainer POSTGRES = startPostgres();
+    /** Dossier temporaire des fichiers envoyés pendant les tests. */
+    protected static final Path STORAGE_ROOT = temporaryStorage();
 
     @Override
     public Map<String, String> getProperties() {
@@ -31,6 +35,7 @@ public abstract class IntegrationTestSupport implements TestPropertyProvider {
         properties.put("micronaut.http.services.keycloak.url", KEYCLOAK.url());
         // Port libre au hasard : les tests passent même si l'application tourne déjà sur 8080.
         properties.put("micronaut.server.port", "-1");
+        properties.put("life-manager.storage.root", STORAGE_ROOT.toString());
         return properties;
     }
 
@@ -45,6 +50,14 @@ public abstract class IntegrationTestSupport implements TestPropertyProvider {
                 .withInitScript("db/test-init.sql");
         container.start();
         return container;
+    }
+
+    private static Path temporaryStorage() {
+        try {
+            return Files.createTempDirectory("life-manager-files-");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private static FakeKeycloak startKeycloak() {

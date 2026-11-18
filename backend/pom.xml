@@ -27,6 +27,7 @@
 
     <archunit.version>1.5.1</archunit.version>
     <bucket4j.version>8.22.0</bucket4j.version>
+    <tika.version>4.2.0</tika.version>
     <checkstyle.version>14.4.0</checkstyle.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
   </properties>
@@ -82,6 +83,13 @@
       <groupId>com.bucket4j</groupId>
       <artifactId>bucket4j_jdk17-core</artifactId>
       <version>${bucket4j.version}</version>
+    </dependency>
+
+    <!-- Fichiers : vrai type d'une pièce jointe d'après son contenu (détection seule, sans les parseurs) -->
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-core</artifactId>
+      <version>${tika.version}</version>
     </dependency>
 
     <!-- Persistance -->

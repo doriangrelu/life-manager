@@ -36,6 +36,6 @@ class RecordMaintenanceUseCase implements RecordMaintenance {
         var entry = MaintenanceEntry.record(MaintenanceEntryId.newId(), vehicle.id(), details,
                 MemberId.of(command.requesterId()), clock);
         entries.save(entry);
-        return MaintenanceEntryView.from(entry);
+        return MaintenanceEntryView.from(entry, 0);
     }
 }

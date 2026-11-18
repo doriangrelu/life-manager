@@ -10,10 +10,10 @@ import java.util.UUID;
 /** Une opération du carnet d'entretien. Coût en centimes d'euro. */
 @Serdeable
 public record MaintenanceResponse(UUID id, LocalDate performedOn, String kind, @Nullable Integer mileageKm,
-                                  @Nullable Long costCents, @Nullable String note) {
+                                  @Nullable Long costCents, @Nullable String note, long attachmentCount) {
 
     public static MaintenanceResponse from(MaintenanceEntryView entry) {
         return new MaintenanceResponse(entry.id(), entry.performedOn(), entry.kind(), entry.mileageKm(),
-                entry.costCents(), entry.note());
+                entry.costCents(), entry.note(), entry.attachmentCount());
     }
 }

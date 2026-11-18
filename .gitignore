@@ -13,6 +13,9 @@ dev-dist/
 *.tsbuildinfo
 npm-debug.log*
 
+# Fichiers envoyés en développement (pièces jointes)
+data/
+
 # Secrets et configuration locale
 .env
 .env.*
