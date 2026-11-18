@@ -43,6 +43,12 @@
     budget = await monthlyBudget(householdId, month)
   }
 
+  // Après une saisie : le mois, et les catégories (une précision sous « Autre » a pu en créer une).
+  async function reloadAfterSave() {
+    const [loadedCategories] = await Promise.all([listCategories(householdId), loadMonth()])
+    categories = loadedCategories
+  }
+
   function changeMonth(delta: number) {
     month = shiftMonth(month, delta)
     run(loadMonth)
@@ -122,7 +128,7 @@
     {members}
     currentUserId={profile.userId}
     expense={editing}
-    onsaved={() => run(loadMonth)}
+    onsaved={() => run(reloadAfterSave)}
     onclose={() => (editorOpen = false)}
     ondelete={askDelete}
   />

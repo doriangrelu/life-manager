@@ -30,18 +30,23 @@ export interface Category {
   archived: boolean
 }
 
-/** Saisie ou correction d'une dépense. beneficiary = null pour une dépense commune. */
+/**
+ * Saisie ou correction d'une dépense. beneficiary = null pour une dépense commune.
+ * La catégorie : soit categoryId (existante), soit newCategoryName (tapée librement, créée si besoin).
+ */
 export interface ExpenseInput {
   amountCents: number
-  categoryId: string
+  categoryId: string | null
+  newCategoryName: string | null
   spentOn: string
   paidBy: string
   beneficiary: string | null
   label: string | null
 }
 
-export interface Expense extends ExpenseInput {
+export interface Expense extends Omit<ExpenseInput, 'categoryId' | 'newCategoryName'> {
   id: string
+  categoryId: string
 }
 
 export interface CategoryTotal {

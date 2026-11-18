@@ -1,6 +1,7 @@
 <script lang="ts">
   import { addCategory, archiveCategory, reactivateCategory, renameCategory } from '../../api/budgetApi'
   import type { Category } from '../../api/types'
+  import { sortCategories } from '../../categories'
   import { categoryStyle } from '../../categoryStyle'
   import TextDialog from '../../ui/TextDialog.svelte'
 
@@ -12,10 +13,9 @@
   let renaming = $state<Category | null>(null)
   let renameOpen = $state(false)
 
-  // Remplace (ou ajoute) une catégorie dans la liste, triée par nom comme côté serveur.
+  // Remplace (ou ajoute) une catégorie dans la liste, triée comme côté serveur (« Autre » en dernier).
   function upsert(category: Category) {
-    const others = categories.filter((c) => c.id !== category.id)
-    categories = [...others, category].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+    categories = sortCategories([...categories.filter((c) => c.id !== category.id), category])
   }
 
   async function run(action: () => Promise<Category>): Promise<boolean> {

@@ -20,7 +20,7 @@ Nouveau service `ExpenseCategoryResolver` (dans `budget/application/service`), u
 - `newCategoryName` fourni → recherche par nom sans tenir compte des majuscules (`CategoryRepository.findByName`) ; trouvée : réactivée si archivée puis sauvegardée ; absente : `Category.create`, sauvegardée.
 - Les deux ou aucun → `InvalidValueException` (`400`).
 
-La règle « un nom unique par foyer » reste garantie par l'index unique `(household_id, lower(name))`. En cas de création simultanée du même nom par deux membres, la seconde transaction échoue sur l'index : le service relit alors la catégorie et l'utilise (une seule nouvelle tentative).
+La règle « un nom unique par foyer » reste garantie par l'index unique `(household_id, lower(name))`. La création passe par `INSERT … ON CONFLICT (household_id, (lower(name))) DO NOTHING` : si deux membres créent le même nom en même temps, le second n'insère rien, sans erreur, et relit la catégorie du premier. (Une violation de contrainte rendrait la transaction PostgreSQL inutilisable : impossible de relire ensuite.)
 
 Pourquoi un service plutôt que de laisser le contrôleur appeler `AddCategory` puis `RecordExpense` : une seule transaction, donc ni catégorie orpheline si la dépense est refusée, ni appel en deux temps côté PWA.
 

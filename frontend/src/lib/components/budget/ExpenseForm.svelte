@@ -3,6 +3,7 @@
   import { untrack } from 'svelte'
   import { correctExpense, recordExpense } from '../../api/budgetApi'
   import type { Category, Expense, ExpenseInput, Member } from '../../api/types'
+  import { isOther } from '../../categories'
   import { centsToInput, formatCents, parseAmountToCents } from '../../money'
   import { today } from '../../month'
   import AmountInput from '../../ui/AmountInput.svelte'
@@ -40,6 +41,7 @@
   let beneficiary = $state(initial.expense?.beneficiary ?? '') // '' = commun
   let spentOn = $state(initial.expense?.spentOn ?? today())
   let label = $state(initial.expense?.label ?? '')
+  let precision = $state('') // nom tapé sous « Autre » : crée (ou retrouve) la catégorie de ce nom
   let busy = $state(false)
   let error = $state<string | null>(null)
   let confirmation = $state<string | null>(null)
@@ -47,11 +49,22 @@
 
   // Catégories proposées : les actives, plus la catégorie actuelle si elle a été archivée depuis.
   const choices = $derived(categories.filter((c) => !c.archived || c.id === initial.expense?.categoryId))
+  const otherChosen = $derived(isOther(categories.find((c) => c.id === categoryId)?.name ?? ''))
   const payers = $derived(members.map((m) => ({ value: m.memberId, label: m.displayName })))
   const beneficiaries = $derived([{ value: '', label: 'Commun' }, ...payers])
 
+  // Sous « Autre », une précision remplace la catégorie choisie par une catégorie de ce nom.
   function input(amountCents: number): ExpenseInput {
-    return { amountCents, categoryId, spentOn, paidBy, beneficiary: beneficiary || null, label: label.trim() || null }
+    const newCategoryName = otherChosen && precision.trim() ? precision.trim() : null
+    return {
+      amountCents,
+      categoryId: newCategoryName ? null : categoryId,
+      newCategoryName,
+      spentOn,
+      paidBy,
+      beneficiary: beneficiary || null,
+      label: label.trim() || null,
+    }
   }
 
   async function submit(event: SubmitEvent) {
@@ -93,6 +106,7 @@
     confirmation = `Dépense de ${formatCents(amountCents)} enregistrée`
     amount = ''
     label = ''
+    precision = ''
     categoryId = ''
     amountField?.focus()
   }
@@ -108,6 +122,12 @@
         <Chip selected={categoryId === category.id} onclick={() => (categoryId = category.id)}>{category.name}</Chip>
       {/each}
     </div>
+    {#if otherChosen}
+      <label class="precision">
+        Préciser (facultatif) — crée la catégorie
+        <input bind:value={precision} maxlength="40" placeholder="Cadeaux, Animaux…" />
+      </label>
+    {/if}
   </fieldset>
 
   <div class="form-row">
@@ -159,6 +179,12 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+  .precision {
+    margin-top: 12px;
+  }
+  .precision input {
+    border: 2px solid var(--color-primary);
   }
   .confirmation {
     margin: 0;
