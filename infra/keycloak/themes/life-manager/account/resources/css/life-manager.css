@@ -1,0 +1,483 @@
+/*
+ * Console « Mon compte » aux couleurs de Life Manager.
+ * Valeurs reprises de frontend/src/app.css et du thème de connexion : à garder alignées si la charte change.
+ * Seules les variables et quelques classes de PatternFly 5 (le kit graphique de Keycloak) sont surchargées.
+ */
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('../fonts/plus-jakarta-sans-latin.woff2') format('woff2');
+}
+
+/* ---- Couleurs (clair) */
+:root {
+  --lm-bg: #f4f5fa;
+  --lm-surface: #ffffff;
+  --lm-surface-muted: #f1f2f7;
+  --lm-text: #15172a;
+  --lm-text-muted: #5b5f78;
+  --lm-border: #e3e6f0;
+  --lm-primary: #4f46e5;
+  --lm-primary-hover: #4338ca;
+  --lm-primary-text: #4338ca;
+  --lm-primary-soft: #eef0ff;
+  --lm-danger: #b42318;
+  --lm-danger-soft: #fee4e2;
+  --lm-success-soft: #dcfae6;
+  --lm-shadow: 0 10px 30px rgb(21 23 42 / 0.06);
+  --lm-radius: 14px;
+  --lm-radius-lg: 20px;
+}
+
+/* ---- Couleurs (sombre) : Keycloak ajoute cette classe selon le réglage du système.
+   « :root. » rend la règle aussi prioritaire que celles de PatternFly, chargées avant. */
+:root.pf-v5-theme-dark {
+  --lm-bg: #0f1020;
+  --lm-surface: #1a1c2e;
+  --lm-surface-muted: #24263a;
+  --lm-text: #ecedf7;
+  --lm-text-muted: #a3a7c2;
+  --lm-border: #2e3148;
+  --lm-primary-text: #a5b4fc;
+  --lm-primary-soft: #26285a;
+  --lm-danger: #fda29b;
+  --lm-danger-soft: #3d1715;
+  --lm-success-soft: #123524;
+  --lm-shadow: 0 10px 30px rgb(0 0 0 / 0.4);
+}
+
+/* ---- Branchement sur les variables globales de PatternFly */
+:root,
+:root.pf-v5-theme-dark {
+  --pf-v5-global--FontFamily--text: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --pf-v5-global--FontFamily--heading: var(--pf-v5-global--FontFamily--text);
+  --pf-v5-global--primary-color--100: var(--lm-primary);
+  --pf-v5-global--primary-color--200: var(--lm-primary-hover);
+  --pf-v5-global--active-color--100: var(--lm-primary);
+  --pf-v5-global--link--Color: var(--lm-primary-text);
+  --pf-v5-global--link--Color--hover: var(--lm-primary-text);
+  --pf-v5-global--Color--100: var(--lm-text);
+  --pf-v5-global--Color--200: var(--lm-text-muted);
+  --pf-v5-global--BackgroundColor--100: var(--lm-surface);
+  --pf-v5-global--BackgroundColor--200: var(--lm-bg);
+  --pf-v5-global--BorderColor--100: var(--lm-border);
+  --pf-v5-global--danger-color--100: var(--lm-danger);
+  --pf-v5-global--BorderRadius--sm: var(--lm-radius);
+  --pf-v5-c-button--BorderRadius: var(--lm-radius);
+}
+
+body {
+  background: var(--lm-bg);
+  color: var(--lm-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Écran de chargement (avant l'application) */
+.keycloak__loading-container {
+  background-color: var(--lm-bg) !important;
+  color: var(--lm-text) !important;
+}
+
+/* ---- Bandeau du haut : clair et sobre, comme l'en-tête de la PWA */
+.pf-v5-c-masthead {
+  --pf-v5-c-masthead--BackgroundColor: var(--lm-surface);
+  --pf-v5-c-masthead--m-display-inline__content--BorderLeftColor: transparent;
+  --pf-v5-global--Color--100: var(--lm-text);
+  color: var(--lm-text);
+  border-bottom: 1px solid var(--lm-border);
+  /* Une seule ligne, même sur téléphone : menu, logo, puis les boutons à droite. */
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding-block: 8px;
+}
+
+.pf-v5-c-masthead__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.pf-v5-c-masthead .pf-v5-c-toolbar {
+  --pf-v5-c-toolbar--BackgroundColor: transparent;
+  background: transparent;
+}
+
+/* Tous les boutons du bandeau groupés à droite */
+.pf-v5-c-masthead .pf-v5-c-toolbar__content-section {
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+/* PatternFly repousse chaque élément « à droite » par une marge automatique, ce qui isole le bouton ⋮ au milieu. */
+.pf-v5-c-masthead .pf-v5-c-toolbar .pf-v5-c-toolbar__item.pf-m-align-right {
+  margin-left: 0;
+  margin-inline-start: 0;
+}
+
+/* PatternFly prévoit un bandeau sombre : ses boutons sont clairs, voire blancs une fois ouverts.
+   On lui rend les couleurs « claires » de la charte (« :root » pour passer devant ses règles). */
+:root .pf-v5-c-masthead,
+:root .pf-v5-c-masthead .pf-v5-c-button.pf-m-plain {
+  --pf-v5-global--Color--100: var(--lm-text);
+  --pf-v5-global--Color--200: var(--lm-text-muted);
+  --pf-v5-global--BorderColor--100: var(--lm-border);
+  --pf-v5-global--primary-color--100: var(--lm-primary);
+  --pf-v5-global--link--Color: var(--lm-primary-text);
+  --pf-v5-global--BackgroundColor--100: var(--lm-surface);
+}
+
+.pf-v5-c-masthead__toggle .pf-v5-c-button {
+  border-radius: 12px;
+}
+
+.pf-v5-c-masthead__toggle .pf-v5-c-button[aria-expanded='true'] {
+  background: var(--lm-primary-soft);
+}
+
+.pf-v5-c-masthead .pf-v5-c-brand,
+.pf-v5-c-masthead__brand img {
+  height: 40px;
+  max-height: 40px;
+  border-radius: 12px;
+}
+
+/* Boutons et menus du bandeau (compte, langue, aide) */
+.pf-v5-c-masthead .pf-v5-c-menu-toggle {
+  --pf-v5-c-menu-toggle--Color: var(--lm-text);
+  --pf-v5-c-menu-toggle--m-plain--Color: var(--lm-text-muted);
+  --pf-v5-c-menu-toggle--BackgroundColor: transparent;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.pf-v5-c-masthead .pf-v5-c-menu-toggle::before,
+.pf-v5-c-masthead .pf-v5-c-menu-toggle::after {
+  border: none;
+}
+
+.pf-v5-c-menu-toggle:hover {
+  background: var(--lm-surface-muted);
+}
+
+/* ---- Menu latéral : entrées arrondies, entrée active en pastille indigo */
+.pf-v5-c-page__sidebar {
+  --pf-v5-c-page__sidebar--BackgroundColor: var(--lm-surface);
+  border-right: 1px solid var(--lm-border);
+  box-shadow: none;
+}
+
+.pf-v5-c-page__sidebar .pf-v5-c-nav {
+  --pf-v5-c-nav--BackgroundColor: transparent;
+  --pf-v5-c-nav__link--Color: var(--lm-text-muted);
+  --pf-v5-c-nav__link--hover--Color: var(--lm-text);
+  --pf-v5-c-nav__link--focus--Color: var(--lm-text);
+  --pf-v5-c-nav__link--active--Color: var(--lm-primary-text);
+  --pf-v5-c-nav__link--m-current--Color: var(--lm-primary-text);
+  --pf-v5-c-nav__link--BackgroundColor: transparent;
+  --pf-v5-c-nav__link--hover--BackgroundColor: var(--lm-surface-muted);
+  --pf-v5-c-nav__link--m-current--BackgroundColor: var(--lm-primary-soft);
+  --pf-v5-c-nav__link--active--BackgroundColor: var(--lm-primary-soft);
+  --pf-v5-c-nav__section-title--Color: var(--lm-text-muted);
+  --pf-v5-c-nav__toggle--Color: var(--lm-text-muted);
+  padding-inline: 10px;
+}
+
+.pf-v5-c-page__sidebar .pf-v5-c-nav__link {
+  border-radius: 12px;
+  margin-block: 2px;
+  font-weight: 600;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* PatternFly marque l'entrée active d'un trait vertical : la pastille suffit. */
+.pf-v5-c-page__sidebar .pf-v5-c-nav__link::after,
+.pf-v5-c-page__sidebar .pf-v5-c-nav__link::before {
+  border: none;
+}
+
+.pf-v5-c-page__sidebar .pf-v5-c-nav__link.pf-m-current {
+  font-weight: 800;
+}
+
+/* Séparateurs du menu (sous une entrée dépliable) : trait clair au lieu de noir */
+.pf-v5-c-page__sidebar .pf-v5-c-nav__item::before,
+.pf-v5-c-page__sidebar .pf-v5-c-nav__item::after {
+  border-color: transparent;
+}
+
+.pf-v5-c-page__sidebar .pf-v5-c-nav__subnav {
+  padding-inline-start: 12px;
+}
+
+/* ---- Contenu */
+.pf-v5-c-page__main,
+.pf-v5-c-page__main-section {
+  --pf-v5-c-page__main-section--BackgroundColor: var(--lm-bg);
+  --pf-v5-c-page__main-section--m-light--BackgroundColor: var(--lm-bg);
+  background: var(--lm-bg);
+}
+
+.pf-v5-c-page__main-section.pf-m-light {
+  background: transparent;
+}
+
+/* Sections imbriquées dans un formulaire (sommaire collant) : pas de second fond. */
+.pf-v5-c-form .pf-v5-c-page__main-section {
+  background: transparent;
+  padding: 0;
+}
+
+/* Titres gras et serrés, comme ceux de la PWA (PatternFly règle leur graisse par taille). */
+.pf-v5-c-title {
+  --pf-v5-c-title--m-3xl--FontWeight: 800;
+  --pf-v5-c-title--m-2xl--FontWeight: 800;
+  --pf-v5-c-title--m-xl--FontWeight: 800;
+  --pf-v5-c-title--m-lg--FontWeight: 700;
+  --pf-v5-c-title--m-md--FontWeight: 700;
+  letter-spacing: -0.01em;
+  color: var(--lm-text);
+}
+
+.pf-v5-c-content h1,
+.pf-v5-c-content h2 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Sommaire « Sauter à la section » : encadré discret et arrondi */
+.pf-v5-c-jump-links.pf-m-vertical {
+  --pf-v5-c-jump-links__link--before--BorderColor: var(--lm-border);
+  --pf-v5-c-jump-links__item--m-current__link--before--BorderColor: var(--lm-primary);
+  --pf-v5-c-jump-links__item--m-current__link-text--Color: var(--lm-primary-text);
+  --pf-v5-c-jump-links--m-expanded__toggle--Color: var(--lm-text-muted);
+  background: var(--lm-surface-muted);
+  border-radius: var(--lm-radius);
+  padding: 4px 8px;
+}
+
+.pf-v5-c-jump-links__main,
+.pf-v5-c-jump-links__header {
+  background: transparent;
+}
+
+/* Les cartes, listes et tableaux deviennent des blocs blancs arrondis, comme les cartes de la PWA. */
+.pf-v5-c-card,
+.pf-v5-c-data-list,
+.pf-v5-c-table,
+.pf-v5-c-panel,
+.pf-v5-c-expandable-section.pf-m-display-lg {
+  --pf-v5-c-card--BackgroundColor: var(--lm-surface);
+  --pf-v5-c-data-list--BackgroundColor: var(--lm-surface);
+  --pf-v5-c-table--BackgroundColor: var(--lm-surface);
+  --pf-v5-c-data-list__item--BackgroundColor: var(--lm-surface);
+  --pf-v5-c-data-list__item--BorderBlockEndColor: var(--lm-border);
+  --pf-v5-c-data-list--BorderTopColor: transparent;
+  border-radius: var(--lm-radius-lg);
+  box-shadow: var(--lm-shadow);
+  overflow: hidden;
+  border: none;
+}
+
+.pf-v5-c-data-list__item:last-child {
+  border-block-end: none;
+}
+
+/* Formulaire « Informations personnelles » dans une carte */
+.pf-v5-c-page__main-section > .pf-v5-c-form,
+.pf-v5-c-page__main-section .pf-v5-c-form.pf-m-limit-width {
+  background: var(--lm-surface);
+  padding: 24px;
+  border-radius: var(--lm-radius-lg);
+  box-shadow: var(--lm-shadow);
+}
+
+/* ---- Champs */
+.pf-v5-c-form-control {
+  --pf-v5-c-form-control--BorderRadius: var(--lm-radius);
+  --pf-v5-c-form-control--BackgroundColor: var(--lm-surface);
+  --pf-v5-c-form-control--m-readonly--BackgroundColor: var(--lm-surface-muted);
+  border-radius: var(--lm-radius);
+  min-height: 46px;
+  align-items: center;
+}
+
+/* Champs non modifiables (identifiant, courriel) : fond légèrement grisé de la charte */
+.pf-v5-c-form-control.pf-m-readonly,
+:root.pf-v5-theme-dark .pf-v5-c-form-control.pf-m-readonly {
+  --pf-v5-c-form-control--BackgroundColor: var(--lm-surface-muted);
+  background: var(--lm-surface-muted);
+  color: var(--lm-text-muted);
+}
+
+.pf-v5-c-form-control > input,
+.pf-v5-c-form-control > select,
+.pf-v5-c-form-control > textarea {
+  min-height: 46px;
+  padding-inline: 14px;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--lm-text);
+}
+
+/* Bordure fine partout, couleur principale au focus (PatternFly la dessine dans deux pseudo-éléments). */
+.pf-v5-c-form-control::before,
+.pf-v5-c-form-control::after {
+  border-radius: var(--lm-radius);
+}
+
+.pf-v5-c-form-control::before {
+  border: 1px solid var(--lm-border);
+}
+
+.pf-v5-c-form-control::after {
+  border: none;
+}
+
+.pf-v5-c-form-control:focus-within::after {
+  border: 2px solid var(--lm-primary);
+}
+
+.pf-v5-c-form-control > input:focus,
+.pf-v5-c-form-control > select:focus,
+.pf-v5-c-form-control > textarea:focus {
+  outline: none;
+}
+
+.pf-v5-c-form-control.pf-m-error::after {
+  border: 1px solid var(--lm-danger);
+}
+
+.pf-v5-c-form__label-text {
+  font-weight: 700;
+  color: var(--lm-text-muted);
+}
+
+/* Listes déroulantes du formulaire (langue…) : même cadre arrondi que les champs, au lieu d'un soulignement */
+.pf-v5-c-form__group-control > .pf-v5-c-menu-toggle {
+  --pf-v5-c-menu-toggle--BackgroundColor: var(--lm-surface);
+  --pf-v5-c-menu-toggle--Color: var(--lm-text);
+  min-height: 46px;
+  padding-inline: 14px;
+  border-radius: var(--lm-radius);
+  font-weight: 600;
+}
+
+.pf-v5-c-form__group-control > .pf-v5-c-menu-toggle::before {
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius);
+}
+
+.pf-v5-c-form__group-control > .pf-v5-c-menu-toggle::after {
+  border: none;
+  border-radius: var(--lm-radius);
+}
+
+.pf-v5-c-form__group-control > .pf-v5-c-menu-toggle:focus-visible::after,
+.pf-v5-c-form__group-control > .pf-v5-c-menu-toggle.pf-m-expanded::after {
+  border: 2px solid var(--lm-primary);
+}
+
+/* ---- Boutons */
+.pf-v5-c-button {
+  font-weight: 700;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.pf-v5-c-button:active {
+  transform: scale(0.98);
+}
+
+.pf-v5-c-button.pf-m-primary {
+  --pf-v5-c-button--m-primary--BackgroundColor: var(--lm-primary);
+  --pf-v5-c-button--m-primary--hover--BackgroundColor: var(--lm-primary-hover);
+  --pf-v5-c-button--m-primary--focus--BackgroundColor: var(--lm-primary-hover);
+  --pf-v5-c-button--m-primary--active--BackgroundColor: var(--lm-primary-hover);
+  --pf-v5-c-button--m-primary--Color: #ffffff;
+  min-height: 44px;
+  padding-inline: 20px;
+}
+
+.pf-v5-c-button.pf-m-primary:hover {
+  box-shadow: 0 6px 16px rgb(79 70 229 / 0.3);
+}
+
+/* Boutons secondaires : fond indigo léger, comme les boutons « doux » de la PWA */
+.pf-v5-c-button.pf-m-secondary,
+.pf-v5-c-button.pf-m-tertiary {
+  --pf-v5-c-button--m-secondary--Color: var(--lm-primary-text);
+  --pf-v5-c-button--m-secondary--BackgroundColor: var(--lm-primary-soft);
+  --pf-v5-c-button--m-secondary--hover--Color: var(--lm-primary-text);
+  --pf-v5-c-button--m-secondary--hover--BackgroundColor: var(--lm-primary-soft);
+  --pf-v5-c-button--m-tertiary--Color: var(--lm-text);
+  --pf-v5-c-button--m-tertiary--BackgroundColor: var(--lm-surface-muted);
+  min-height: 44px;
+  padding-inline: 20px;
+}
+
+.pf-v5-c-button.pf-m-secondary::after,
+.pf-v5-c-button.pf-m-tertiary::after {
+  border: none;
+}
+
+.pf-v5-c-button.pf-m-secondary:hover,
+.pf-v5-c-button.pf-m-tertiary:hover {
+  filter: brightness(0.97);
+}
+
+.pf-v5-c-button.pf-m-danger {
+  --pf-v5-c-button--m-danger--BackgroundColor: var(--lm-danger);
+  --pf-v5-c-button--m-danger--Color: #ffffff;
+}
+
+.pf-v5-c-button.pf-m-link {
+  --pf-v5-c-button--m-link--Color: var(--lm-primary-text);
+  --pf-v5-c-button--m-link--hover--Color: var(--lm-primary-text);
+}
+
+/* ---- Étiquettes, alertes, fenêtres */
+.pf-v5-c-label {
+  --pf-v5-c-label--BorderRadius: 999px;
+  font-weight: 700;
+}
+
+.pf-v5-c-alert {
+  border-radius: var(--lm-radius);
+  box-shadow: var(--lm-shadow);
+}
+
+.pf-v5-c-alert.pf-m-danger {
+  background: var(--lm-danger-soft);
+}
+
+.pf-v5-c-alert.pf-m-success {
+  background: var(--lm-success-soft);
+}
+
+.pf-v5-c-modal-box {
+  --pf-v5-c-modal-box--BackgroundColor: var(--lm-surface);
+  border-radius: var(--lm-radius-lg);
+}
+
+.pf-v5-c-menu {
+  --pf-v5-c-menu--BackgroundColor: var(--lm-surface);
+  border-radius: var(--lm-radius);
+  box-shadow: var(--lm-shadow);
+  overflow: hidden;
+}
+
+/* ---- Mobile : un peu moins de marge perdue */
+@media (max-width: 768px) {
+  .pf-v5-c-page__main-section {
+    padding-inline: 12px;
+  }
+
+  .pf-v5-c-page__main-section > .pf-v5-c-form,
+  .pf-v5-c-page__main-section .pf-v5-c-form.pf-m-limit-width {
+    padding: 16px;
+  }
+}

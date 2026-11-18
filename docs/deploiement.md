@@ -56,9 +56,9 @@ infra/deploy/deploy.sh v0.3.0
 
 **Retour arrière** : relancer avec le tag précédent, affiché à la fin de chaque déploiement. Les migrations sont additives ; avant une version qui supprimerait des données, faire une sauvegarde à la main (`~/infra/backup.sh`).
 
-## Page de connexion (thème Keycloak)
+## Page de connexion et console « Mon compte » (thème Keycloak)
 
-Le thème `life-manager` vit dans [`infra/keycloak/themes/life-manager`](../infra/keycloak/themes/life-manager) et, sur le VPS, dans `~/keycloak/themes/life-manager`. Pour le mettre à jour :
+Le thème `life-manager` (types `login` et `account`) vit dans [`infra/keycloak/themes/life-manager`](../infra/keycloak/themes/life-manager) et, sur le VPS, dans `~/keycloak/themes/life-manager`. Pour le mettre à jour :
 
 ```bash
 # Depuis le dépôt, sur le PC :
@@ -67,7 +67,7 @@ tar -C infra/keycloak/themes -cf - life-manager | ssh ubuntu@152.228.237.190 'rm
 docker compose -f ~/keycloak/docker-compose.yml restart
 ```
 
-Le thème est choisi dans la console : realm `life-manager` → *Realm settings* → *Themes* → *Login theme*.
+Le thème est choisi dans la console : realm `life-manager` → *Realm settings* → *Themes* → *Login theme* et *Account theme* (`life-manager` pour les deux).
 
 ## Sauvegarde et restauration
 

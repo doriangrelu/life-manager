@@ -17,6 +17,7 @@
   "supportedLocales": ["fr", "en"],
   "defaultLocale": "fr",
   "loginTheme": "life-manager",
+  "accountTheme": "life-manager",
   "clients": [
     {
       "clientId": "life-manager-pwa",
