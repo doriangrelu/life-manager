@@ -13,6 +13,15 @@ public record Deadlines(LocalDate technicalInspectionDue, LocalDate serviceDue) 
 
     public static final Deadlines NONE = new Deadlines(null, null);
 
+    /** Mêmes échéances, celle du type de {@code next} remplacée. */
+    public Deadlines with(NextDeadline next) {
+        return switch (next.kind()) {
+            case TECHNICAL_INSPECTION -> new Deadlines(next.dueOn(), serviceDue);
+            case SERVICE -> new Deadlines(technicalInspectionDue, next.dueOn());
+            default -> throw new IllegalArgumentException("Pas d'échéance pour " + next.kind());
+        };
+    }
+
     public Optional<LocalDate> technicalInspection() {
         return Optional.ofNullable(technicalInspectionDue);
     }

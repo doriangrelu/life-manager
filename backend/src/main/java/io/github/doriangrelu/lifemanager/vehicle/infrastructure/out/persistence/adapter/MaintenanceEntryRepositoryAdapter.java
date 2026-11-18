@@ -3,11 +3,13 @@ package io.github.doriangrelu.lifemanager.vehicle.infrastructure.out.persistence
 import io.github.doriangrelu.lifemanager.vehicle.application.port.out.MaintenanceEntryRepository;
 import io.github.doriangrelu.lifemanager.vehicle.domain.aggregate.MaintenanceEntry;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceEntryId;
+import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceKind;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.VehicleId;
 import io.github.doriangrelu.lifemanager.vehicle.infrastructure.out.persistence.mapper.MaintenanceEntryMapper;
 import io.github.doriangrelu.lifemanager.vehicle.infrastructure.out.persistence.repository.MaintenanceEntryJdbcRepository;
 import jakarta.inject.Singleton;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +36,11 @@ class MaintenanceEntryRepositoryAdapter implements MaintenanceEntryRepository {
     @Override
     public void save(MaintenanceEntry entry) {
         table.save(MaintenanceEntryMapper.toEntity(entry));
+    }
+
+    @Override
+    public boolean existsLaterOfKind(VehicleId vehicleId, MaintenanceKind kind, LocalDate day) {
+        return table.existsByVehicleIdAndKindAndPerformedOnGreaterThan(vehicleId.value(), kind.name(), day);
     }
 
     @Override

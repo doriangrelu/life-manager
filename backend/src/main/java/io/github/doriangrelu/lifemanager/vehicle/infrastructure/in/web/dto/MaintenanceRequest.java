@@ -16,15 +16,17 @@ import java.time.LocalDate;
  *
  * @param kind      type : SERVICE, OIL_CHANGE, TECHNICAL_INSPECTION, TIRES, REPAIR ou OTHER
  * @param costCents coût en centimes d'euro (189,90 € = 18990)
+ * @param nextDueOn prochaine échéance précise (contrôle technique, révision) ; absente = calcul automatique
  */
 @Serdeable
 public record MaintenanceRequest(@NotNull LocalDate performedOn,
                                  @NotBlank String kind,
                                  @Nullable @PositiveOrZero @Max(2_000_000) Integer mileageKm,
                                  @Nullable @PositiveOrZero @Max(10_000_000) Long costCents,
-                                 @Nullable @Size(max = 140) String note) {
+                                 @Nullable @Size(max = 140) String note,
+                                 @Nullable LocalDate nextDueOn) {
 
     public MaintenanceInput toInput() {
-        return new MaintenanceInput(performedOn, kind, mileageKm, costCents, note);
+        return new MaintenanceInput(performedOn, kind, mileageKm, costCents, note, nextDueOn);
     }
 }

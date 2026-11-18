@@ -44,7 +44,7 @@ class MaintenanceIntegrationTest extends IntegrationTestSupport {
         var clio = clioOf(owner, household);
 
         var service = vehicles.record(owner, household, clio,
-                new MaintenanceRequest(LocalDate.of(2026, 10, 12), "SERVICE", 45_000, 18_990L, "Garage Martin"));
+                new MaintenanceRequest(LocalDate.of(2026, 10, 12), "SERVICE", 45_000, 18_990L, "Garage Martin", null));
         vehicles.record(owner, household, clio, kind(LocalDate.of(2025, 4, 2), "TIRES"));
 
         assertThat(service.mileageKm()).isEqualTo(45_000);
@@ -65,9 +65,9 @@ class MaintenanceIntegrationTest extends IntegrationTestSupport {
         assertThat(failure(() -> vehicles.record(owner, household, clio, kind(LocalDate.of(2026, 1, 1), "WASH")))
                 .code()).isEqualTo(400);
         assertThat(failure(() -> vehicles.record(owner, household, clio,
-                new MaintenanceRequest(LocalDate.of(2026, 1, 1), "REPAIR", -1, null, null))).code()).isEqualTo(400);
+                new MaintenanceRequest(LocalDate.of(2026, 1, 1), "REPAIR", -1, null, null, null))).code()).isEqualTo(400);
         assertThat(failure(() -> vehicles.record(owner, household, clio,
-                new MaintenanceRequest(LocalDate.of(2026, 1, 1), "REPAIR", null, -5L, null))).code()).isEqualTo(400);
+                new MaintenanceRequest(LocalDate.of(2026, 1, 1), "REPAIR", null, -5L, null, null))).code()).isEqualTo(400);
     }
 
     @Test
@@ -103,7 +103,7 @@ class MaintenanceIntegrationTest extends IntegrationTestSupport {
     }
 
     private static MaintenanceRequest kind(LocalDate day, String kind) {
-        return new MaintenanceRequest(day, kind, null, null, null);
+        return new MaintenanceRequest(day, kind, null, null, null, null);
     }
 
     private static String newUser() {

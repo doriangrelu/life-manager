@@ -181,7 +181,7 @@ class MaintenanceAttachmentIntegrationTest extends IntegrationTestSupport {
     }
 
     private static MaintenanceRequest oilChange() {
-        return new MaintenanceRequest(LocalDate.of(2026, 5, 1), "OIL_CHANGE", null, null, null);
+        return new MaintenanceRequest(LocalDate.of(2026, 5, 1), "OIL_CHANGE", null, null, null, null);
     }
 
     private static String newUser() {

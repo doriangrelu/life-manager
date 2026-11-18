@@ -6,6 +6,7 @@ import io.github.doriangrelu.lifemanager.vehicle.domain.event.VehicleRegistered;
 import io.github.doriangrelu.lifemanager.vehicle.domain.event.VehicleRemoved;
 import io.github.doriangrelu.lifemanager.vehicle.domain.event.VehicleUpdated;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.HouseholdId;
+import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.NextDeadline;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.VehicleDetails;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.VehicleId;
 
@@ -42,6 +43,11 @@ public final class Vehicle extends AggregateRoot<VehicleId> {
     public void update(VehicleDetails newDetails, Clock clock) {
         details = Require.notNull(newDetails, "La fiche du véhicule");
         recordEvent(new VehicleUpdated(id(), householdId, details, clock.instant()));
+    }
+
+    /** Une opération du carnet (contrôle technique, révision) fixe la prochaine échéance de son type. */
+    public void postpone(NextDeadline next, Clock clock) {
+        update(new VehicleDetails(details.name(), details.licensePlate(), details.deadlines().with(next)), clock);
     }
 
     /** À appeler juste avant de supprimer le véhicule, pour annoncer sa suppression. */

@@ -1,6 +1,7 @@
 package io.github.doriangrelu.lifemanager.vehicle.application.port.in.command;
 
 import java.time.LocalDate;
+
 /**
  * Champs d'une opération d'entretien tels que saisis (types simples, pas encore vérifiés).
  *
@@ -9,6 +10,9 @@ import java.time.LocalDate;
  * @param mileageKm   kilométrage, ou {@code null}
  * @param costCents   coût en centimes d'euro, ou {@code null}
  * @param note        note, ou {@code null}
+ * @param nextDueOn   prochaine échéance choisie (contrôle technique, révision), ou {@code null} pour le calcul
+ *                    automatique
  */
-public record MaintenanceInput(LocalDate performedOn, String kind, Integer mileageKm, Long costCents, String note) {
+public record MaintenanceInput(LocalDate performedOn, String kind, Integer mileageKm, Long costCents, String note,
+                               LocalDate nextDueOn) {
 }

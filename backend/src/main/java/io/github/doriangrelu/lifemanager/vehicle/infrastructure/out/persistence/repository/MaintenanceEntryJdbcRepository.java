@@ -7,6 +7,7 @@ import io.micronaut.data.jdbc.annotation.JdbcRepository;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.CrudRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,4 +20,7 @@ public interface MaintenanceEntryJdbcRepository extends CrudRepository<Maintenan
             SELECT * FROM maintenance_entry WHERE vehicle_id = :vehicleId
             ORDER BY performed_on DESC, recorded_at DESC""")
     List<MaintenanceEntryEntity> findAllByVehicle(UUID vehicleId);
+
+    /** Une opération de ce type, faite après cette date, existe-t-elle pour le véhicule ? */
+    boolean existsByVehicleIdAndKindAndPerformedOnGreaterThan(UUID vehicleId, String kind, LocalDate performedOn);
 }

@@ -45,8 +45,8 @@ Alternative écartée : une librairie de routage (`svelte-spa-router`…) : elle
 
 Aucune donnée. Les anciennes adresses (sans `#`) ouvrent Budget, comme aujourd'hui.
 
-## Décisions prises sans Dorian
+## Décisions
 
 1. **Adresses avec `#`** plutôt que des adresses « propres » (voir décision 1).
-2. **Module maison de quelques lignes** plutôt qu'une librairie de routage (voir décision 2), en écart assumé avec la règle « librairies connues » vu la taille du besoin.
+2. **Module maison de quelques lignes** plutôt qu'une librairie de routage (voir décision 2), en écart assumé avec la règle « librairies connues » vu la taille du besoin : validé par Dorian.
 3. **Le mois du budget fait partie de l'adresse** : F5 sur octobre reste sur octobre.
