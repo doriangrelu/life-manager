@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Copy, RefreshCw } from '@lucide/svelte'
   import type { Invitation } from '../api/types'
 
   // Code d'invitation actif (ou bouton pour en générer un) et copie dans le presse-papiers.
@@ -33,14 +34,14 @@
   const expiresOn = (date: string) => new Date(date).toLocaleDateString('fr-FR')
 </script>
 
-<div class="card stack">
+<section class="card stack">
   <h2>Inviter quelqu'un</h2>
   {#if invitation}
     <p class="code">{invitation.code}</p>
     <p class="muted">Valable jusqu'au {expiresOn(invitation.expiresAt)}, une seule fois.</p>
     <div class="actions">
-      <button onclick={() => copy(invitation.code)}>{copied ? 'Copié !' : 'Copier le code'}</button>
-      <button class="secondary" disabled={busy} onclick={renew}>Nouveau code</button>
+      <button onclick={() => copy(invitation.code)}><Copy size={18} /> {copied ? 'Copié !' : 'Copier le code'}</button>
+      <button class="soft" disabled={busy} onclick={renew}><RefreshCw size={18} /> Nouveau code</button>
     </div>
   {:else}
     <p class="muted">Générez un code et transmettez-le à la personne à inviter.</p>
@@ -49,18 +50,27 @@
   {#if error}
     <p class="error" role="alert">{error}</p>
   {/if}
-</div>
+</section>
 
 <style>
   .code {
+    margin: 0;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-soft);
+    color: var(--color-on-primary-soft);
     font-family: ui-monospace, 'SF Mono', Menlo, monospace;
     font-size: 1.8rem;
+    font-weight: 800;
     letter-spacing: 0.2em;
-    margin: 0;
+    text-align: center;
   }
   .actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+  }
+  .actions button {
+    flex: 1 1 140px;
   }
 </style>

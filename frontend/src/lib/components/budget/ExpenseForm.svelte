@@ -1,12 +1,16 @@
 <script lang="ts">
+  import { Trash2 } from '@lucide/svelte'
   import { untrack } from 'svelte'
   import { correctExpense, recordExpense } from '../../api/budgetApi'
   import type { Category, Expense, ExpenseInput, Member } from '../../api/types'
   import { centsToInput, formatCents, parseAmountToCents } from '../../money'
   import { today } from '../../month'
+  import AmountInput from '../../ui/AmountInput.svelte'
+  import Chip from '../../ui/Chip.svelte'
+  import Segmented from '../../ui/Segmented.svelte'
 
-  // Saisie rapide (ou correction) d'une dépense, pensée pour le pouce sur mobile :
-  // montant au clavier numérique, catégorie en un clic, le reste pré-rempli.
+  // Saisie rapide (ou correction) d'une dépense, affichée dans une modale :
+  // montant au clavier numérique, catégorie en un geste, le reste pré-rempli.
   let {
     householdId,
     categories,
@@ -15,6 +19,7 @@
     expense,
     onsaved,
     onclose,
+    ondelete,
   }: {
     householdId: string
     categories: Category[]
@@ -23,11 +28,11 @@
     expense: Expense | null
     onsaved: () => void
     onclose: () => void
+    ondelete: (expense: Expense) => void
   } = $props()
 
   // Le formulaire part d'une copie des valeurs reçues à l'ouverture, puis vit sa vie.
   const initial = untrack(() => ({ expense, currentUserId }))
-  const editing = initial.expense !== null
 
   let amount = $state(initial.expense ? centsToInput(initial.expense.amountCents) : '')
   let categoryId = $state(initial.expense?.categoryId ?? '')
@@ -42,6 +47,8 @@
 
   // Catégories proposées : les actives, plus la catégorie actuelle si elle a été archivée depuis.
   const choices = $derived(categories.filter((c) => !c.archived || c.id === initial.expense?.categoryId))
+  const payers = $derived(members.map((m) => ({ value: m.memberId, label: m.displayName })))
+  const beneficiaries = $derived([{ value: '', label: 'Commun' }, ...payers])
 
   function input(amountCents: number): ExpenseInput {
     return { amountCents, categoryId, spentOn, paidBy, beneficiary: beneficiary || null, label: label.trim() || null }
@@ -92,53 +99,30 @@
 </script>
 
 <form class="stack" onsubmit={submit}>
-  <h1>{editing ? 'Modifier la dépense' : 'Nouvelle dépense'}</h1>
-
-  <label>
-    Montant (€)
-    <input bind:this={amountField} bind:value={amount} inputmode="decimal" placeholder="0,00" autocomplete="off" />
-  </label>
+  <AmountInput bind:value={amount} bind:field={amountField} />
 
   <fieldset class="categories">
     <legend>Catégorie</legend>
-    {#each choices as category (category.id)}
-      <button
-        type="button"
-        class:selected={categoryId === category.id}
-        aria-pressed={categoryId === category.id}
-        onclick={() => (categoryId = category.id)}>{category.name}</button
-      >
-    {/each}
+    <div class="chips">
+      {#each choices as category (category.id)}
+        <Chip selected={categoryId === category.id} onclick={() => (categoryId = category.id)}>{category.name}</Chip>
+      {/each}
+    </div>
   </fieldset>
 
-  <div class="row">
-    <label>
-      Payé par
-      <select bind:value={paidBy}>
-        {#each members as member (member.memberId)}
-          <option value={member.memberId}>{member.displayName}</option>
-        {/each}
-      </select>
-    </label>
-    <label>
-      Pour
-      <select bind:value={beneficiary}>
-        <option value="">Commun</option>
-        {#each members as member (member.memberId)}
-          <option value={member.memberId}>{member.displayName}</option>
-        {/each}
-      </select>
-    </label>
+  <div class="form-row">
+    <Segmented label="Payé par" options={payers} bind:value={paidBy} />
+    <Segmented label="Pour" options={beneficiaries} bind:value={beneficiary} />
   </div>
 
-  <div class="row">
+  <div class="form-row">
     <label>
       Date
       <input type="date" bind:value={spentOn} max={today()} required />
     </label>
     <label>
-      Libellé (facultatif)
-      <input bind:value={label} maxlength="140" />
+      Libellé
+      <input bind:value={label} maxlength="140" placeholder="Facultatif" />
     </label>
   </div>
 
@@ -149,8 +133,14 @@
     <p class="confirmation" role="status">{confirmation}</p>
   {/if}
 
-  <button disabled={busy}>{editing ? 'Enregistrer' : 'Ajouter'}</button>
-  <button type="button" class="link" onclick={onclose}>{editing ? 'Annuler' : 'Terminé'}</button>
+  <button class="large" disabled={busy}>{initial.expense ? 'Enregistrer' : 'Ajouter la dépense'}</button>
+  {#if initial.expense}
+    <button type="button" class="danger" onclick={() => initial.expense && ondelete(initial.expense)}>
+      <Trash2 size={18} /> Supprimer la dépense
+    </button>
+  {:else if confirmation}
+    <button type="button" class="ghost" onclick={onclose}>Terminé</button>
+  {/if}
 </form>
 
 <style>
@@ -158,35 +148,24 @@
     border: none;
     padding: 0;
     margin: 0;
+  }
+  .categories legend {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+  }
+  .chips {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
   }
-  .categories legend {
-    margin-bottom: 6px;
-  }
-  .categories button {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-    padding: 8px 12px;
-  }
-  .categories button.selected {
-    background: var(--brand);
-    color: var(--on-brand);
-    border-color: var(--brand);
-  }
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .row label {
-    min-width: 0;
-  }
   .confirmation {
-    color: var(--brand);
     margin: 0;
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--color-on-success-soft);
+    background: var(--color-success-soft);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
   }
 </style>

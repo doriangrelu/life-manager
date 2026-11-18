@@ -2,12 +2,8 @@
   import { untrack } from 'svelte'
   import type { Vehicle, VehicleInput } from '../../api/types'
 
-  // Fiche d'un véhicule à créer ou modifier : nom, immatriculation et prochaines échéances.
-  let {
-    vehicle,
-    onsave,
-    oncancel,
-  }: { vehicle: Vehicle | null; onsave: (input: VehicleInput) => Promise<void>; oncancel: () => void } = $props()
+  // Véhicule à créer ou modifier (dans une modale) : nom, immatriculation et prochaines échéances.
+  let { vehicle, onsave }: { vehicle: Vehicle | null; onsave: (input: VehicleInput) => Promise<void> } = $props()
 
   const initial = untrack(() => vehicle)
 
@@ -33,19 +29,18 @@
   }
 </script>
 
-<form class="card stack" onsubmit={submit}>
-  <h2>{initial ? 'Modifier le véhicule' : 'Nouveau véhicule'}</h2>
-  <div class="row">
+<form class="stack" onsubmit={submit}>
+  <div class="form-row">
     <label>
       Nom
       <input bind:value={name} maxlength="40" placeholder="Clio" required />
     </label>
     <label>
-      Immatriculation (facultatif)
-      <input bind:value={licensePlate} maxlength="12" placeholder="AB-123-CD" autocapitalize="characters" />
+      Immatriculation
+      <input bind:value={licensePlate} maxlength="12" placeholder="Facultatif" autocapitalize="characters" />
     </label>
   </div>
-  <div class="row">
+  <div class="form-row">
     <label>
       Prochain contrôle technique
       <input type="date" bind:value={technicalInspectionDue} />
@@ -55,32 +50,5 @@
       <input type="date" bind:value={serviceDue} />
     </label>
   </div>
-  <div class="actions">
-    <button disabled={busy || !name.trim()}>Enregistrer</button>
-    <button type="button" class="link" onclick={oncancel}>Annuler</button>
-  </div>
+  <button class="large" disabled={busy || !name.trim()}>Enregistrer</button>
 </form>
-
-<style>
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .row label {
-    min-width: 0;
-  }
-  .row input {
-    width: 100%;
-  }
-  @media (max-width: 480px) {
-    .row {
-      grid-template-columns: 1fr;
-    }
-  }
-  .actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-</style>

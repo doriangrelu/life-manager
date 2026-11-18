@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Plus, X } from '@lucide/svelte'
   import { onMount } from 'svelte'
   import {
     addShoppingItem,
@@ -9,6 +10,7 @@
   } from '../../api/shoppingApi'
   import type { ShoppingItem } from '../../api/types'
   import { REFRESH_MS, toggled } from '../../shopping'
+  import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
 
   // Onglet Courses : liste partagée du foyer, pensée pour une main en magasin.
   // Synchro : rechargement toutes les 5 s quand l'écran est visible, et dès qu'il le redevient.
@@ -17,9 +19,11 @@
   let items = $state<ShoppingItem[]>([])
   let label = $state('')
   let error = $state<string | null>(null)
+  let confirmingClear = $state(false)
   let pending = 0 // actions en cours : on ne remplace pas la liste sous les doigts de l'utilisateur
   let field: HTMLInputElement | undefined = $state()
-  const checkedCount = $derived(items.filter((i) => i.checked).length)
+  const toBuy = $derived(items.filter((i) => !i.checked))
+  const inCart = $derived(items.filter((i) => i.checked))
 
   onMount(() => {
     refresh()
@@ -82,45 +86,68 @@
   }
 
   function clearChecked() {
-    if (confirm(`Retirer les ${checkedCount} article(s) coché(s) ?`)) {
-      items = items.filter((i) => !i.checked)
-      act(() => clearCheckedItems(householdId))
-    }
+    items = items.filter((i) => !i.checked)
+    act(() => clearCheckedItems(householdId))
   }
 </script>
 
-<section class="stack">
-  <h1>Courses</h1>
+{#snippet row(item: ShoppingItem)}
+  <li class:checked={item.checked}>
+    <label>
+      <input type="checkbox" checked={item.checked} onchange={() => toggle(item)} />
+      <span>{item.label}</span>
+    </label>
+    <button class="link icon" aria-label="Supprimer {item.label}" onclick={() => remove(item)}>
+      <X size={18} />
+    </button>
+  </li>
+{/snippet}
 
-  <form class="add" onsubmit={add}>
-    <input bind:this={field} bind:value={label} maxlength="60" placeholder="Ajouter un article" aria-label="Article" />
-    <button disabled={!label.trim()}>Ajouter</button>
-  </form>
+<h1>Courses</h1>
 
-  {#if error}
-    <p class="error" role="alert">{error}</p>
-  {/if}
+<form class="add" onsubmit={add}>
+  <label class="visually-hidden" for="new-item">Nouvel article</label>
+  <input id="new-item" bind:this={field} bind:value={label} maxlength="60" placeholder="Ajouter un article…" />
+  <button class="icon add-button" aria-label="Ajouter" disabled={!label.trim()}><Plus size={22} strokeWidth={2.6} /></button>
+</form>
 
-  {#if items.length === 0}
-    <p class="muted">La liste est vide.</p>
-  {:else}
-    <ul class="card list">
-      {#each items as item (item.id)}
-        <li class:checked={item.checked}>
-          <label>
-            <input type="checkbox" checked={item.checked} onchange={() => toggle(item)} />
-            <span>{item.label}</span>
-          </label>
-          <button class="link" aria-label="Supprimer {item.label}" onclick={() => remove(item)}>✕</button>
-        </li>
+{#if error}
+  <p class="error" role="alert">{error}</p>
+{/if}
+
+{#if items.length === 0}
+  <p class="muted">La liste est vide : ajoutez le premier article.</p>
+{/if}
+
+{#if toBuy.length > 0}
+  <ul class="list" aria-label="À acheter">
+    {#each toBuy as item (item.id)}
+      {@render row(item)}
+    {/each}
+  </ul>
+{/if}
+
+{#if inCart.length > 0}
+  <section class="stack">
+    <div class="section-title">
+      <h2 class="muted">Dans le panier · {inCart.length}</h2>
+      <button class="soft" onclick={() => (confirmingClear = true)}>Vider le panier</button>
+    </div>
+    <ul class="list" aria-label="Dans le panier">
+      {#each inCart as item (item.id)}
+        {@render row(item)}
       {/each}
     </ul>
-  {/if}
+  </section>
+{/if}
 
-  {#if checkedCount > 0}
-    <button class="secondary" onclick={clearChecked}>Retirer les articles cochés ({checkedCount})</button>
-  {/if}
-</section>
+<ConfirmDialog
+  bind:open={confirmingClear}
+  title="Vider le panier ?"
+  message="Les {inCart.length} article(s) coché(s) seront retirés de la liste."
+  confirmLabel="Vider"
+  onconfirm={clearChecked}
+/>
 
 <style>
   .add {
@@ -128,20 +155,27 @@
     gap: 8px;
   }
   .add input {
-    flex: 1;
-    min-width: 0;
+    min-height: 52px;
+    border-radius: 16px;
+  }
+  .add-button {
+    width: 52px;
+    min-height: 52px;
+    border-radius: 16px;
   }
   .list {
     list-style: none;
     margin: 0;
-    padding: 4px 16px;
+    padding: 4px 0;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
   }
   .list li {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    border-bottom: 1px solid var(--border);
+    gap: 8px;
+    padding: 0 8px 0 16px;
+    border-bottom: 1px solid var(--color-border);
   }
   .list li:last-child {
     border-bottom: none;
@@ -149,24 +183,19 @@
   .list label {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     flex: 1;
-    padding: 12px 0;
-    font-size: 1.05rem;
+    min-height: 56px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
     cursor: pointer;
-  }
-  .list input[type='checkbox'] {
-    width: 24px;
-    height: 24px;
-    accent-color: var(--brand);
   }
   .checked span {
     text-decoration: line-through;
-    color: var(--muted);
+    color: var(--color-text-muted);
   }
   .list .link {
-    text-decoration: none;
-    color: var(--muted);
-    padding: 8px;
+    color: var(--color-text-muted);
   }
 </style>

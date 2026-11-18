@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { Check, ChevronDown, House, LogOut, Plus } from '@lucide/svelte'
   import { logout } from '../auth/auth'
   import type { HouseholdSummary, UserProfile } from '../api/types'
+  import Modal from '../ui/Modal.svelte'
 
-  // Barre du haut : choix du foyer affiché, ajout d'un foyer, utilisateur et déconnexion.
+  // En-tête : foyer affiché (changement de foyer dans une modale) et profil (déconnexion).
   let {
     profile,
     households,
@@ -16,64 +18,144 @@
     onselect: (householdId: string) => void
     onadd: () => void
   } = $props()
+
+  let choosingHousehold = $state(false)
+  let showingProfile = $state(false)
+  const current = $derived(households.find((h) => h.id === selectedId))
+  const initial = $derived(profile.displayName.trim().charAt(0).toUpperCase())
+
+  function choose(householdId: string) {
+    choosingHousehold = false
+    onselect(householdId)
+  }
+
+  function add() {
+    choosingHousehold = false
+    onadd()
+  }
 </script>
 
-<header class="header">
-  <div class="header-row">
-    <strong class="brand">Life Manager</strong>
-    <span class="user">
-      {profile.displayName}
-      <button class="link" onclick={logout}>Se déconnecter</button>
+<header class="app-header">
+  <button class="household" onclick={() => (choosingHousehold = true)}>
+    <span class="logo" aria-hidden="true"><House size={22} color="#ffffff" /></span>
+    <span class="names">
+      <span class="caption">Foyer</span>
+      <span class="name">{current?.name ?? 'Choisir un foyer'} <ChevronDown size={16} strokeWidth={2.6} /></span>
     </span>
-  </div>
-  {#if households.length > 0}
-    <div class="header-row">
-      <label class="selector">
-        <span class="visually-hidden">Foyer affiché</span>
-        <select value={selectedId} onchange={(e) => onselect(e.currentTarget.value)}>
-          {#each households as household (household.id)}
-            <option value={household.id}>{household.name}</option>
-          {/each}
-        </select>
-      </label>
-      <button class="secondary" onclick={onadd}>+ Foyer</button>
-    </div>
-  {/if}
+  </button>
+  <button class="avatar" aria-label="Profil de {profile.displayName}" onclick={() => (showingProfile = true)}>
+    {initial}
+  </button>
 </header>
 
+<Modal bind:open={choosingHousehold} title="Mes foyers">
+  <ul class="choices">
+    {#each households as household (household.id)}
+      <li>
+        <button class="ghost choice" aria-pressed={household.id === selectedId} onclick={() => choose(household.id)}>
+          <span>{household.name}</span>
+          {#if household.id === selectedId}<Check size={20} strokeWidth={2.6} />{/if}
+        </button>
+      </li>
+    {/each}
+  </ul>
+  <button class="soft" onclick={add}><Plus size={18} /> Créer ou rejoindre un foyer</button>
+</Modal>
+
+<Modal bind:open={showingProfile} title="Mon profil">
+  <div class="profile">
+    <span class="avatar big" aria-hidden="true">{initial}</span>
+    <strong>{profile.displayName}</strong>
+    <span class="muted">{profile.email}</span>
+  </div>
+  <button class="danger" onclick={logout}><LogOut size={18} /> Se déconnecter</button>
+</Modal>
+
 <style>
-  .header {
-    background: var(--brand);
-    color: var(--on-brand);
-    padding: 12px 16px;
-    display: grid;
-    gap: 10px;
-  }
-  .header-row {
+  .app-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    max-width: 720px;
-    width: 100%;
+    padding: 20px 20px 8px;
+    max-width: 760px;
     margin: 0 auto;
   }
-  .brand {
-    font-size: 1.1rem;
+  .household {
+    background: transparent;
+    color: var(--color-text);
+    padding: 0;
+    gap: 10px;
+    min-width: 0;
   }
-  .user {
+  .logo {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--color-primary);
     display: flex;
-    gap: 12px;
     align-items: center;
-    font-size: 0.9rem;
+    justify-content: center;
+    flex-shrink: 0;
   }
-  .user .link {
-    color: var(--on-brand);
+  .names {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
   }
-  .selector {
-    flex: 1;
+  .caption {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
   }
-  .selector select {
+  .name {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    max-width: 60vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .avatar {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    background: #ffe4d6;
+    color: #9a3412;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .avatar.big {
+    width: 64px;
+    height: 64px;
+    font-size: 1.6rem;
+  }
+  .choices {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .choice {
     width: 100%;
+    justify-content: space-between;
+    min-height: 52px;
+  }
+  .choice[aria-pressed='true'] {
+    color: var(--color-primary-text);
+  }
+  .profile {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    text-align: center;
   }
 </style>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Bell } from '@lucide/svelte'
   import { onMount } from 'svelte'
   import { listReminders } from '../api/reminderApi'
   import type { Reminder } from '../api/types'
@@ -52,41 +53,62 @@
 </script>
 
 {#if reminders.length > 0}
-  <aside class="card reminders" aria-label="Rappels">
-    <h2>Rappels</h2>
-    <ul>
-      {#each reminders as reminder (reminder.deadlineId)}
-        <li class={reminder.status === 'OVERDUE' ? 'overdue' : 'soon'}>
-          <strong>{reminderTitle(reminder)}</strong> : {reminderDelay(reminder)}
-        </li>
-      {/each}
-    </ul>
-    {#if permission === 'default'}
-      <button class="link" onclick={enable}>Activer les notifications sur cet appareil</button>
-    {:else if permission === 'denied'}
-      <p class="muted">Notifications bloquées par le navigateur : les rappels restent affichés ici.</p>
-    {/if}
+  <aside class="reminders" aria-label="Rappels">
+    <span class="icon" aria-hidden="true"><Bell size={20} /></span>
+    <div class="stack-tight">
+      <ul>
+        {#each reminders as reminder (reminder.deadlineId)}
+          <li class={reminder.status === 'OVERDUE' ? 'overdue' : 'soon'}>
+            <strong>{reminderTitle(reminder)}</strong> : {reminderDelay(reminder)}
+          </li>
+        {/each}
+      </ul>
+      {#if permission === 'default'}
+        <button class="link" onclick={enable}>Activer les notifications sur cet appareil</button>
+      {:else if permission === 'denied'}
+        <p class="note">Notifications bloquées par le navigateur : les rappels restent affichés ici.</p>
+      {/if}
+    </div>
   </aside>
 {/if}
 
 <style>
   .reminders {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+    border-radius: var(--radius-lg);
+    background: var(--color-warning-soft);
+    color: var(--color-on-warning-soft);
+  }
+  .icon {
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .stack-tight {
     display: grid;
-    gap: 8px;
-    margin-bottom: 16px;
-    border-color: var(--warning);
+    gap: 4px;
+    min-width: 0;
   }
   ul {
     margin: 0;
-    padding-left: 18px;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
   }
-  .overdue {
-    color: var(--error);
-  }
-  .soon {
-    color: var(--warning);
+  .overdue strong {
+    color: var(--color-danger);
   }
   .link {
     justify-self: start;
+    min-height: 36px;
+    padding: 0;
+    color: var(--color-on-warning-soft);
+    text-decoration: underline;
+  }
+  .note {
+    margin: 0;
+    font-size: 0.85rem;
   }
 </style>

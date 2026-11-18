@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { daysBetween, deadlineStatus, formatDay, kindLabel } from './vehicles'
+import { daysBetween, deadlineStatus, deadlineText, formatDay, kindLabel } from './vehicles'
 
 describe('échéances', () => {
   it('compte les jours entre deux dates, y compris en changeant de mois', () => {
@@ -13,6 +13,15 @@ describe('échéances', () => {
     expect(deadlineStatus('2026-11-16', '2026-11-16')).toBe('soon')
     expect(deadlineStatus('2026-12-16', '2026-11-16')).toBe('soon')
     expect(deadlineStatus('2026-12-17', '2026-11-16')).toBe('later')
+  })
+
+  it("décrit l'urgence en quelques mots", () => {
+    expect(deadlineText(null, '2026-11-16')).toBe('non renseigné')
+    expect(deadlineText('2026-11-13', '2026-11-16')).toBe('en retard de 3 jours')
+    expect(deadlineText('2026-11-16', '2026-11-16')).toBe("aujourd'hui")
+    expect(deadlineText('2026-11-17', '2026-11-16')).toBe('dans 1 jour')
+    expect(deadlineText('2026-12-04', '2026-11-16')).toBe('dans 18 jours')
+    expect(deadlineText('2027-03-15', '2026-11-16')).toBe('à jour')
   })
 
   it('affiche les dates et les types en français', () => {

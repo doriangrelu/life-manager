@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ChevronLeft, Pencil, Trash2 } from '@lucide/svelte'
   import { onMount } from 'svelte'
   import {
     deleteMaintenance,
@@ -8,9 +9,11 @@
     updateVehicle,
   } from '../../api/vehicleApi'
   import type { MaintenanceEntry, MaintenanceInput, Vehicle, VehicleInput } from '../../api/types'
-  import { formatCents } from '../../money'
   import { formatDay, kindLabel } from '../../vehicles'
+  import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
+  import Modal from '../../ui/Modal.svelte'
   import DeadlineBadge from './DeadlineBadge.svelte'
+  import MaintenanceEntryCard from './MaintenanceEntryCard.svelte'
   import MaintenanceForm from './MaintenanceForm.svelte'
   import VehicleForm from './VehicleForm.svelte'
 
@@ -23,8 +26,12 @@
   }: { householdId: string; vehicle: Vehicle; onremoved: () => void; onclose: () => void } = $props()
 
   let entries = $state<MaintenanceEntry[]>([])
-  let editing = $state(false)
   let error = $state<string | null>(null)
+  let editing = $state(false)
+  let addingEntry = $state(false)
+  let confirmingRemoval = $state(false)
+  let deletingEntry = $state<MaintenanceEntry | null>(null)
+  let confirmingEntryDeletion = $state(false)
 
   onMount(() => run(async () => (entries = await listMaintenance(householdId, vehicle.id))))
 
@@ -47,23 +54,31 @@
   }
 
   function remove() {
-    if (confirm(`Supprimer « ${vehicle.name} » et tout son carnet ? C'est définitif.`)) {
-      run(async () => {
-        await removeVehicle(householdId, vehicle.id)
-        onremoved()
-      })
-    }
-  }
-
-  function addEntry(input: MaintenanceInput): Promise<boolean> {
-    return run(async () => {
-      await recordMaintenance(householdId, vehicle.id, input)
-      entries = await listMaintenance(householdId, vehicle.id)
+    run(async () => {
+      await removeVehicle(householdId, vehicle.id)
+      onremoved()
     })
   }
 
-  function deleteEntry(entry: MaintenanceEntry) {
-    if (confirm(`Supprimer « ${kindLabel(entry.kind)} » du ${formatDay(entry.performedOn)} ?`)) {
+  async function addEntry(input: MaintenanceInput): Promise<boolean> {
+    const done = await run(async () => {
+      await recordMaintenance(householdId, vehicle.id, input)
+      entries = await listMaintenance(householdId, vehicle.id)
+    })
+    if (done) {
+      addingEntry = false
+    }
+    return done
+  }
+
+  function askDeleteEntry(entry: MaintenanceEntry) {
+    deletingEntry = entry
+    confirmingEntryDeletion = true
+  }
+
+  function deleteEntry() {
+    const entry = deletingEntry
+    if (entry) {
       run(async () => {
         await deleteMaintenance(householdId, vehicle.id, entry.id)
         entries = entries.filter((e) => e.id !== entry.id)
@@ -72,88 +87,104 @@
   }
 </script>
 
-<section class="stack">
-  <button class="link back" onclick={onclose}>‹ Tous les véhicules</button>
-
-  {#if error}
-    <p class="error" role="alert">{error}</p>
-  {/if}
-
-  {#if editing}
-    <VehicleForm {vehicle} onsave={save} oncancel={() => (editing = false)} />
-  {:else}
-    <div class="card stack">
-      <h1>{vehicle.name}</h1>
-      {#if vehicle.licensePlate}<p class="muted">{vehicle.licensePlate}</p>{/if}
-      <div class="badges">
-        <DeadlineBadge label="Contrôle technique" due={vehicle.technicalInspectionDue} />
-        <DeadlineBadge label="Révision" due={vehicle.serviceDue} />
-      </div>
-      <div class="actions">
-        <button class="secondary" onclick={() => (editing = true)}>Modifier</button>
-        <button class="link danger" onclick={remove}>Supprimer</button>
-      </div>
-    </div>
-  {/if}
-
-  <MaintenanceForm onsave={addEntry} />
-
-  <div class="card stack">
-    <h2>Carnet d'entretien</h2>
-    {#if entries.length === 0}
-      <p class="muted">Aucune opération pour l'instant.</p>
-    {:else}
-      <ul class="entries">
-        {#each entries as entry (entry.id)}
-          <li>
-            <div>
-              <strong>{kindLabel(entry.kind)}</strong> — {formatDay(entry.performedOn)}
-              <div class="muted">
-                {[
-                  entry.mileageKm !== null ? `${entry.mileageKm.toLocaleString('fr-FR')} km` : null,
-                  entry.costCents !== null ? formatCents(entry.costCents) : null,
-                  entry.note,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </div>
-            </div>
-            <button class="link" aria-label="Supprimer l'opération" onclick={() => deleteEntry(entry)}>Supprimer</button>
-          </li>
-        {/each}
-      </ul>
-    {/if}
+<div class="top">
+  <button class="ghost icon" aria-label="Retour aux véhicules" onclick={onclose}>
+    <ChevronLeft size={20} strokeWidth={2.4} />
+  </button>
+  <div class="identity">
+    <h1>{vehicle.name}</h1>
+    {#if vehicle.licensePlate}<span class="plate">{vehicle.licensePlate}</span>{/if}
   </div>
+  <button class="ghost icon" aria-label="Modifier le véhicule" onclick={() => (editing = true)}>
+    <Pencil size={18} />
+  </button>
+</div>
+
+{#if error}
+  <p class="error" role="alert">{error}</p>
+{/if}
+
+<div class="deadlines">
+  <DeadlineBadge large label="Contrôle technique" due={vehicle.technicalInspectionDue} />
+  <DeadlineBadge large label="Révision" due={vehicle.serviceDue} />
+</div>
+
+<section class="stack">
+  <div class="section-title">
+    <h2>Carnet d'entretien</h2>
+    <button class="soft" onclick={() => (addingEntry = true)}>+ Opération</button>
+  </div>
+  {#if entries.length === 0}
+    <p class="muted">Aucune opération pour l'instant.</p>
+  {:else}
+    <ul class="entries">
+      {#each entries as entry (entry.id)}
+        <li><MaintenanceEntryCard {entry} ondelete={() => askDeleteEntry(entry)} /></li>
+      {/each}
+    </ul>
+  {/if}
 </section>
 
+<button class="danger remove" onclick={() => (confirmingRemoval = true)}>
+  <Trash2 size={18} /> Supprimer le véhicule
+</button>
+
+<Modal bind:open={editing} title="Modifier le véhicule">
+  <VehicleForm {vehicle} onsave={save} />
+</Modal>
+
+<Modal bind:open={addingEntry} title="Nouvelle opération">
+  <MaintenanceForm onsave={addEntry} />
+</Modal>
+
+<ConfirmDialog
+  bind:open={confirmingRemoval}
+  title="Supprimer « {vehicle.name} » ?"
+  message="Le véhicule et tout son carnet d'entretien seront définitivement supprimés."
+  onconfirm={remove}
+/>
+
+<ConfirmDialog
+  bind:open={confirmingEntryDeletion}
+  title="Supprimer l'opération ?"
+  message={deletingEntry ? `« ${kindLabel(deletingEntry.kind)} » du ${formatDay(deletingEntry.performedOn)} sera définitivement supprimée.` : ''}
+  onconfirm={deleteEntry}
+/>
+
 <style>
-  .back {
-    justify-self: start;
-  }
-  .badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .actions {
+  .top {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
   }
-  .danger {
-    color: var(--error);
+  .identity {
+    flex: 1;
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+  .plate {
+    justify-self: start;
+    padding: 1px 8px;
+    border: 1.5px solid currentColor;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+  }
+  .deadlines {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
   .entries {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 12px;
+    gap: 10px;
   }
-  .entries li {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
+  .remove {
+    justify-self: center;
   }
 </style>

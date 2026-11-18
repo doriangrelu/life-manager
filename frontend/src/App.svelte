@@ -8,6 +8,7 @@
   import AppHeader from './lib/components/AppHeader.svelte'
   import CreateOrJoin from './lib/components/CreateOrJoin.svelte'
   import HouseholdTabs from './lib/components/HouseholdTabs.svelte'
+  import Modal from './lib/ui/Modal.svelte'
 
   let profile = $state<UserProfile | null>(null)
   let households = $state<HouseholdSummary[]>([])
@@ -52,21 +53,47 @@
 </script>
 
 {#if error}
-  <main class="page"><p class="error">{error}</p></main>
+  <main class="content"><p class="error" role="alert">{error}</p></main>
 {:else if !profile}
-  <main class="page"><p class="muted">Chargement…</p></main>
-{:else}
-  <AppHeader {profile} {households} {selectedId} onselect={select} onadd={() => (addingHousehold = true)} />
-  <main class="page">
-    {#if addingHousehold || !selectedId}
-      <CreateOrJoin
-        onadded={onHouseholdAdded}
-        oncancel={selectedId ? () => (addingHousehold = false) : undefined}
-      />
-    {:else}
-      {#key selectedId}
-        <HouseholdTabs householdId={selectedId} {profile} />
-      {/key}
-    {/if}
+  <main class="content"><p class="muted">Chargement…</p></main>
+{:else if !selectedId}
+  <main class="content welcome">
+    <h1>Bienvenue, {profile.displayName}</h1>
+    <p class="muted">Créez votre foyer ou rejoignez celui d'un proche avec son code d'invitation.</p>
+    <CreateOrJoin onadded={onHouseholdAdded} />
   </main>
+{:else}
+  <div class="shell">
+    <AppHeader {profile} {households} {selectedId} onselect={select} onadd={() => (addingHousehold = true)} />
+    <main class="content">
+      {#key selectedId}
+        <HouseholdTabs householdId={selectedId} {profile} onaddhousehold={() => (addingHousehold = true)} />
+      {/key}
+    </main>
+  </div>
+  <Modal bind:open={addingHousehold} title="Créer ou rejoindre un foyer">
+    <CreateOrJoin onadded={onHouseholdAdded} />
+  </Modal>
 {/if}
+
+<style>
+  .content {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 8px 20px calc(var(--nav-height) + 110px);
+    display: grid;
+    gap: 16px;
+  }
+  .welcome {
+    padding-top: 48px;
+  }
+  @media (min-width: 900px) {
+    /* Place pour le menu latéral. */
+    .shell {
+      padding-left: 240px;
+    }
+    .content {
+      padding-bottom: 48px;
+    }
+  }
+</style>

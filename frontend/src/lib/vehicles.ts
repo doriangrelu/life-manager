@@ -37,6 +37,23 @@ export function deadlineStatus(due: string | null, today: string): DeadlineStatu
   return days <= SOON_DAYS ? 'soon' : 'later'
 }
 
+/** Texte court de l'urgence : « dans 18 jours », « en retard de 3 jours », « à jour »… */
+export function deadlineText(due: string | null, today: string): string {
+  const status = deadlineStatus(due, today)
+  if (status === 'none' || !due) {
+    return 'non renseigné'
+  }
+  if (status === 'later') {
+    return 'à jour'
+  }
+  const days = Math.abs(daysBetween(today, due))
+  const plural = days > 1 ? 's' : ''
+  if (status === 'overdue') {
+    return `en retard de ${days} jour${plural}`
+  }
+  return days === 0 ? "aujourd'hui" : `dans ${days} jour${plural}`
+}
+
 /** « 2027-03-01 » → « 01/03/2027 ». */
 export function formatDay(day: string): string {
   const [year, month, date] = day.split('-')

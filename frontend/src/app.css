@@ -1,30 +1,63 @@
-/* Styles globaux : couleurs en variables, thème clair et sombre. */
+/* Thème de l'application (maquette validée) : toutes les couleurs passent par ces variables. */
 :root {
-  --brand: #2f6f5e;
-  --on-brand: #f4efe6;
-  --bg: #f4efe6;
-  --surface: #ffffff;
-  --text: #1f2a26;
-  --muted: #5e6b66;
-  --border: #d9d2c5;
-  --error: #b3261e;
-  --warning: #8a5a00;
-  --radius: 12px;
+  --color-bg: #f4f5fa;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f2f7;
+  --color-text: #15172a;
+  --color-text-muted: #5b5f78;
+  --color-border: #e3e6f0;
+  --color-primary: #4f46e5; /* fond des boutons principaux */
+  --color-on-primary: #ffffff;
+  --color-primary-text: #4338ca; /* liens et textes en couleur principale */
+  --color-primary-soft: #e0e7ff;
+  --color-on-primary-soft: #3730a3;
+  --color-success: #10b981;
+  --color-success-soft: #dcfce7;
+  --color-on-success-soft: #14532d;
+  --color-warning: #f97316;
+  --color-warning-soft: #fff1e6;
+  --color-on-warning-soft: #9a3412;
+  --color-danger: #b42318;
+  --color-danger-soft: #fee4e2;
+  --color-backdrop: rgb(21 23 42 / 0.45);
+
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --shadow-sm: 0 1px 2px rgb(21 23 42 / 0.06);
+  --shadow-lg: 0 10px 24px rgb(79 70 229 / 0.35);
+  --nav-height: 76px;
+
   color-scheme: light;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
+  font-family: 'Plus Jakarta Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.45;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --brand: #1f4d41;
-    --bg: #141917;
-    --surface: #1e2522;
-    --text: #e8ece9;
-    --muted: #9aa8a2;
-    --border: #33403b;
-    --error: #f2b8b5;
-    --warning: #f0c36a;
+    --color-bg: #0f1020;
+    --color-surface: #1a1c2e;
+    --color-surface-muted: #24263a;
+    --color-text: #ecedf7;
+    --color-text-muted: #a3a7c2;
+    --color-border: #2e3148;
+    --color-primary: #4f46e5;
+    --color-on-primary: #ffffff;
+    --color-primary-text: #a5b4fc;
+    --color-primary-soft: #2b2a63;
+    --color-on-primary-soft: #c7d2fe;
+    --color-success: #34d399;
+    --color-success-soft: #123a2c;
+    --color-on-success-soft: #a7f3d0;
+    --color-warning: #fb923c;
+    --color-warning-soft: #3d2414;
+    --color-on-warning-soft: #fed7aa;
+    --color-danger: #fda29b;
+    --color-danger-soft: #3d1715;
+    --color-backdrop: rgb(0 0 0 / 0.6);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 24px rgb(0 0 0 / 0.5);
     color-scheme: dark;
   }
 }
@@ -35,25 +68,29 @@
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
 }
 
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
 h2 {
-  font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: 800;
   margin: 0;
 }
 
-.page {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 20px 16px 40px;
+a {
+  color: var(--color-primary-text);
 }
+
+/* ---- Mise en page */
 
 .stack {
   display: grid;
@@ -61,36 +98,85 @@ h2 {
 }
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
   padding: 16px;
 }
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ---- Formulaires */
 
 label {
   display: grid;
   gap: 6px;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
 }
 
 input,
-select {
+select,
+textarea {
   font: inherit;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--text);
+  font-size: 1rem;
+  font-weight: 500;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  width: 100%;
+  min-width: 0;
 }
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--color-primary-text);
+  outline-offset: 2px;
+}
+
+input[type='checkbox'] {
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  accent-color: var(--color-success);
+  flex-shrink: 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* ---- Boutons : principal par défaut, puis variantes */
 
 button {
   font: inherit;
-  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  min-height: 44px;
+  padding: 0 18px;
   border: none;
-  border-radius: 8px;
-  background: var(--brand);
-  color: var(--on-brand);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 button:disabled {
@@ -98,27 +184,58 @@ button:disabled {
   cursor: default;
 }
 
-button.secondary {
-  background: transparent;
-  color: inherit;
-  border: 1px solid currentColor;
+button.large {
+  min-height: 56px;
+  border-radius: 18px;
+  font-size: 1.05rem;
+}
+
+button.soft {
+  background: var(--color-primary-soft);
+  color: var(--color-on-primary-soft);
+}
+
+button.ghost {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+button.danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
 }
 
 button.link {
   background: none;
-  padding: 0;
-  color: var(--brand);
-  text-decoration: underline;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--color-primary-text);
+  font-weight: 700;
 }
 
+button.icon {
+  width: 44px;
+  padding: 0;
+}
+
+/* ---- Textes */
+
 .muted {
-  color: var(--muted);
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 .error {
-  color: var(--error);
+  color: var(--color-danger);
+  font-weight: 600;
   margin: 0;
+}
+
+.amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .visually-hidden {
@@ -127,4 +244,11 @@ button.link {
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 }

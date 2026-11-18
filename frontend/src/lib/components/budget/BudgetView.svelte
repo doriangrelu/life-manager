@@ -1,24 +1,34 @@
 <script lang="ts">
+  import { ChevronLeft, ChevronRight } from '@lucide/svelte'
   import { onMount } from 'svelte'
   import { deleteExpense, listCategories, monthlyBudget } from '../../api/budgetApi'
   import { getHousehold } from '../../api/householdApi'
   import type { Category, Expense, Member, MonthlyBudget, UserProfile } from '../../api/types'
+  import { formatCents } from '../../money'
   import { currentMonth, monthLabel, shiftMonth } from '../../month'
+  import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
+  import Fab from '../../ui/Fab.svelte'
+  import Modal from '../../ui/Modal.svelte'
+  import CategoryBreakdown from './CategoryBreakdown.svelte'
   import CategoryManager from './CategoryManager.svelte'
   import ExpenseForm from './ExpenseForm.svelte'
-  import MonthSummary from './MonthSummary.svelte'
+  import ExpenseList from './ExpenseList.svelte'
+  import MonthHero from './MonthHero.svelte'
 
   // Onglet Budget : la vue du mois, d'où l'on saisit, corrige ou supprime des dépenses.
   let { householdId, profile }: { householdId: string; profile: UserProfile } = $props()
-
-  type Screen = { kind: 'month' } | { kind: 'add' } | { kind: 'edit'; expense: Expense } | { kind: 'categories' }
 
   let month = $state(currentMonth())
   let budget = $state<MonthlyBudget | null>(null)
   let categories = $state<Category[]>([])
   let members = $state<Member[]>([])
-  let screen = $state<Screen>({ kind: 'month' })
   let error = $state<string | null>(null)
+
+  let editorOpen = $state(false)
+  let editing = $state<Expense | null>(null)
+  let managingCategories = $state(false)
+  let deleting = $state<Expense | null>(null)
+  let confirmingDelete = $state(false)
 
   onMount(() =>
     run(async () => {
@@ -38,11 +48,25 @@
     run(loadMonth)
   }
 
-  function remove(expense: Expense) {
-    run(async () => {
-      await deleteExpense(householdId, expense.id)
-      await loadMonth()
-    })
+  function openEditor(expense: Expense | null) {
+    editing = expense
+    editorOpen = true
+  }
+
+  function askDelete(expense: Expense) {
+    deleting = expense
+    confirmingDelete = true
+  }
+
+  function remove() {
+    const expense = deleting
+    if (expense) {
+      editorOpen = false
+      run(async () => {
+        await deleteExpense(householdId, expense.id)
+        await loadMonth()
+      })
+    }
   }
 
   // Exécute une action et affiche son erreur éventuelle.
@@ -64,42 +88,56 @@
   }
 </script>
 
+<div class="month-nav">
+  <button class="ghost icon" aria-label="Mois précédent" onclick={() => changeMonth(-1)}>
+    <ChevronLeft size={20} strokeWidth={2.4} />
+  </button>
+  <h1>{monthLabel(month)}</h1>
+  <button class="ghost icon" aria-label="Mois suivant" onclick={() => changeMonth(1)}>
+    <ChevronRight size={20} strokeWidth={2.4} />
+  </button>
+</div>
+
 {#if error}
   <p class="error" role="alert">{error}</p>
 {/if}
 
-{#if screen.kind === 'add' || screen.kind === 'edit'}
+{#if budget}
+  <MonthHero {budget} {memberName} />
+  {#if budget.expenses.length > 0}
+    <CategoryBreakdown {budget} {memberName} onmanage={() => (managingCategories = true)} />
+  {/if}
+  <ExpenseList expenses={budget.expenses} {categories} {memberName} onopen={openEditor} />
+  {#if budget.expenses.length === 0}
+    <button class="link manage" onclick={() => (managingCategories = true)}>Gérer les catégories</button>
+  {/if}
+{/if}
+
+<Fab label="Ajouter une dépense" onclick={() => openEditor(null)} />
+
+<Modal bind:open={editorOpen} title={editing ? 'Modifier la dépense' : 'Nouvelle dépense'}>
   <ExpenseForm
     {householdId}
     {categories}
     {members}
     currentUserId={profile.userId}
-    expense={screen.kind === 'edit' ? screen.expense : null}
+    expense={editing}
     onsaved={() => run(loadMonth)}
-    onclose={() => (screen = { kind: 'month' })}
+    onclose={() => (editorOpen = false)}
+    ondelete={askDelete}
   />
-{:else if screen.kind === 'categories'}
-  <CategoryManager {householdId} bind:categories onclose={() => (screen = { kind: 'month' })} />
-{:else}
-  <section class="stack">
-    <div class="month-nav">
-      <button class="secondary" aria-label="Mois précédent" onclick={() => changeMonth(-1)}>‹</button>
-      <h1>{monthLabel(month)}</h1>
-      <button class="secondary" aria-label="Mois suivant" onclick={() => changeMonth(1)}>›</button>
-    </div>
-    <button onclick={() => (screen = { kind: 'add' })}>+ Ajouter une dépense</button>
-    {#if budget}
-      <MonthSummary
-        {budget}
-        {categories}
-        {memberName}
-        onedit={(expense) => (screen = { kind: 'edit', expense })}
-        ondelete={remove}
-      />
-    {/if}
-    <button class="link" onclick={() => (screen = { kind: 'categories' })}>Gérer les catégories</button>
-  </section>
-{/if}
+</Modal>
+
+<Modal bind:open={managingCategories} title="Catégories">
+  <CategoryManager {householdId} bind:categories />
+</Modal>
+
+<ConfirmDialog
+  bind:open={confirmingDelete}
+  title="Supprimer la dépense ?"
+  message={deleting ? `La dépense de ${formatCents(deleting.amountCents)} sera définitivement supprimée.` : ''}
+  onconfirm={remove}
+/>
 
 <style>
   .month-nav {
@@ -109,7 +147,10 @@
     gap: 8px;
   }
   .month-nav h1 {
+    font-size: 1.1rem;
     text-transform: capitalize;
-    font-size: 1.3rem;
+  }
+  .manage {
+    justify-self: center;
   }
 </style>

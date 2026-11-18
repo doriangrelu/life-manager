@@ -3,8 +3,9 @@
   import { parseAmountToCents } from '../../money'
   import { today } from '../../month'
   import { MAINTENANCE_KINDS } from '../../vehicles'
+  import Chip from '../../ui/Chip.svelte'
 
-  // Ajout rapide d'une opération au carnet : date et type pré-remplis, le reste facultatif.
+  // Nouvelle opération du carnet (dans une modale) : date et type pré-remplis, le reste facultatif.
   let { onsave }: { onsave: (input: MaintenanceInput) => Promise<boolean> } = $props()
 
   let performedOn = $state(today())
@@ -18,16 +19,11 @@
   async function submit(event: SubmitEvent) {
     event.preventDefault()
     const input = toInput()
-    if (!input) {
-      return
+    if (input) {
+      busy = true
+      await onsave(input)
+      busy = false
     }
-    busy = true
-    if (await onsave(input)) {
-      mileage = ''
-      cost = ''
-      note = ''
-    }
-    busy = false
   }
 
   // Champs facultatifs : vide = non renseigné ; sinon la valeur doit être lisible.
@@ -47,51 +43,56 @@
   }
 </script>
 
-<form class="card stack" onsubmit={submit}>
-  <h2>Ajouter au carnet</h2>
-  <div class="row">
+<form class="stack" onsubmit={submit}>
+  <fieldset class="kinds">
+    <legend>Type</legend>
+    <div class="chips">
+      {#each MAINTENANCE_KINDS as option (option.kind)}
+        <Chip selected={kind === option.kind} onclick={() => (kind = option.kind)}>{option.label}</Chip>
+      {/each}
+    </div>
+  </fieldset>
+  <div class="form-row">
     <label>
       Date
       <input type="date" bind:value={performedOn} max={today()} required />
     </label>
     <label>
-      Type
-      <select bind:value={kind}>
-        {#each MAINTENANCE_KINDS as option (option.kind)}
-          <option value={option.kind}>{option.label}</option>
-        {/each}
-      </select>
-    </label>
-    <label>
-      Kilométrage (facultatif)
-      <input bind:value={mileage} inputmode="numeric" placeholder="45000" autocomplete="off" />
-    </label>
-    <label>
-      Coût en € (facultatif)
-      <input bind:value={cost} inputmode="decimal" placeholder="0,00" autocomplete="off" />
+      Kilométrage
+      <input bind:value={mileage} inputmode="numeric" placeholder="Facultatif" autocomplete="off" />
     </label>
   </div>
-  <label>
-    Note (facultatif)
-    <input bind:value={note} maxlength="140" placeholder="Garage, pièces changées…" />
-  </label>
+  <div class="form-row">
+    <label>
+      Coût en €
+      <input bind:value={cost} inputmode="decimal" placeholder="Facultatif" autocomplete="off" />
+    </label>
+    <label>
+      Note
+      <input bind:value={note} maxlength="140" placeholder="Garage, pièces…" />
+    </label>
+  </div>
   {#if error}
     <p class="error" role="alert">{error}</p>
   {/if}
-  <button disabled={busy}>Ajouter</button>
+  <button class="large" disabled={busy}>Ajouter au carnet</button>
 </form>
 
 <style>
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  .kinds {
+    border: none;
+    padding: 0;
+    margin: 0;
   }
-  .row label {
-    min-width: 0;
+  .kinds legend {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
   }
-  .row input,
-  .row select {
-    width: 100%;
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 </style>
