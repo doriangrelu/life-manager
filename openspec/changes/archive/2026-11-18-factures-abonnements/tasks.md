@@ -37,4 +37,4 @@
 
 - [x] 6.1 [ci] Parcours natif étendu aux charges (création, échéance, dépense, facture)
 - [x] 6.2 [doc] `docs/deploiement.md` : création du schéma `bills` en production (`add-domain-schema.sh`) ; architecture et feuille de route à jour
-- [ ] 6.3 [infra/vps] Schéma `bills` créé sur le VPS (avec accord de Dorian), version publiée et déployée
+- [x] 6.3 [infra/vps] Schéma `bills` créé sur le VPS (avec accord de Dorian), version publiée et déployée (v0.3.0, 2026-11-18)

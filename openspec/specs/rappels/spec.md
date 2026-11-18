@@ -1,7 +1,7 @@
 # rappels Specification
 
 ## Purpose
-Prévenir les membres d'un foyer des échéances de leurs véhicules qui sont passées ou qui approchent, dans l'application et, s'ils le souhaitent, par une notification de leur appareil.
+Prévenir les membres d'un foyer des échéances de leurs véhicules et de leurs charges qui sont passées ou qui approchent, dans l'application et, s'ils le souhaitent, par une notification de leur appareil.
 
 ## Requirements
 
@@ -60,3 +60,17 @@ La PWA SHALL proposer d'activer les notifications de l'appareil. Une fois activ�
 
 - **WHEN** le membre rouvre l'application le même jour
 - **THEN** aucune nouvelle notification n'est affichée pour ce rappel
+
+### Requirement: Rappels des charges récurrentes
+
+Le système SHALL ajouter aux rappels du foyer la prochaine échéance non payée de chaque charge active quand elle tombe dans les 7 jours, ainsi que toute échéance « à confirmer » tant qu'elle n'est pas confirmée ou sautée, avec le nom de la charge, la date et le nombre de jours restants. Ces rappels SHALL apparaître dans le même bandeau et les mêmes notifications que les rappels de véhicules.
+
+#### Scenario: Échéance proche
+
+- **WHEN** le 2026-12-01, la charge « Internet » a son échéance le 2026-12-05
+- **THEN** le foyer a un rappel « Internet » dans 4 jours
+
+#### Scenario: Échéance confirmée
+
+- **WHEN** un membre confirme l'échéance à confirmer d'« Électricité »
+- **THEN** son rappel disparaît
