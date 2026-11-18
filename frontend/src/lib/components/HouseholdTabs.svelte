@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { UserProfile } from '../api/types'
-  import MainNav, { type Section } from '../ui/MainNav.svelte'
+  import { navigate, route } from '../route'
+  import MainNav from '../ui/MainNav.svelte'
   import BudgetView from './budget/BudgetView.svelte'
   import HouseholdView from './HouseholdView.svelte'
   import RemindersBanner from './RemindersBanner.svelte'
@@ -14,7 +15,8 @@
     onaddhousehold,
   }: { householdId: string; profile: UserProfile; onaddhousehold: () => void } = $props()
 
-  let section = $state<Section>('budget')
+  // La section vient de l'adresse.
+  const section = $derived($route.section)
 </script>
 
 <RemindersBanner {householdId} refreshKey={section} />
@@ -29,4 +31,4 @@
   <HouseholdView {householdId} {onaddhousehold} />
 {/if}
 
-<MainNav active={section} onselect={(next) => (section = next)} />
+<MainNav active={section} onselect={(next) => navigate({ section: next })} />

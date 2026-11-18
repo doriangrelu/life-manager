@@ -6,6 +6,7 @@
   import type { Category, Expense, Member, MonthlyBudget, UserProfile } from '../../api/types'
   import { formatCents } from '../../money'
   import { currentMonth, monthLabel, shiftMonth } from '../../month'
+  import { navigate, route } from '../../route'
   import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
   import Fab from '../../ui/Fab.svelte'
   import Modal from '../../ui/Modal.svelte'
@@ -18,7 +19,8 @@
   // Onglet Budget : la vue du mois, d'où l'on saisit, corrige ou supprime des dépenses.
   let { householdId, profile }: { householdId: string; profile: UserProfile } = $props()
 
-  let month = $state(currentMonth())
+  // Le mois vient de l'adresse ; mois courant par défaut.
+  const month = $derived($route.month ?? currentMonth())
   let budget = $state<MonthlyBudget | null>(null)
   let categories = $state<Category[]>([])
   let members = $state<Member[]>([])
@@ -35,12 +37,21 @@
       const [household, loadedCategories] = await Promise.all([getHousehold(householdId), listCategories(householdId)])
       members = household.members
       categories = loadedCategories
-      await loadMonth()
     }),
   )
 
-  async function loadMonth() {
-    budget = await monthlyBudget(householdId, month)
+  // Chaque changement de mois (flèches, Précédent / Suivant) recharge le budget.
+  $effect(() => {
+    const shown = month
+    run(() => loadMonth(shown))
+  })
+
+  async function loadMonth(shown: string = month) {
+    const loaded = await monthlyBudget(householdId, shown)
+    // Réponse d'un mois quitté entre-temps : ignorée.
+    if (shown === month) {
+      budget = loaded
+    }
   }
 
   // Après une saisie : le mois, et les catégories (une précision sous « Autre » a pu en créer une).
@@ -50,8 +61,8 @@
   }
 
   function changeMonth(delta: number) {
-    month = shiftMonth(month, delta)
-    run(loadMonth)
+    const next = shiftMonth(month, delta)
+    navigate({ section: 'budget', month: next === currentMonth() ? undefined : next })
   }
 
   function openEditor(expense: Expense | null) {

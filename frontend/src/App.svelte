@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { get } from 'svelte/store'
+  import { navigate, route } from './lib/route'
   import { accessToken, completeLoginIfReturning, login } from './lib/auth/auth'
   import { listHouseholds } from './lib/api/householdApi'
   import { whoami } from './lib/api/identityApi'
@@ -39,6 +41,10 @@
   }
 
   function select(householdId: string | null) {
+    // Changement de foyer : même section, sans mois ni véhicule (propres à l'ancien foyer).
+    if (selectedId !== null && householdId !== selectedId) {
+      navigate({ section: get(route).section })
+    }
     selectedId = householdId
     addingHousehold = false
     if (householdId) {

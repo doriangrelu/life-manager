@@ -1,9 +1,6 @@
-<script lang="ts" module>
-  export type Section = 'budget' | 'shopping' | 'vehicles' | 'household'
-</script>
-
 <script lang="ts">
   import { Car, ListChecks, Users, Wallet } from '@lucide/svelte'
+  import type { Section } from '../route'
 
   // Navigation principale : barre d'onglets en bas sur mobile, menu latéral à partir de 900 px.
   let { active, onselect }: { active: Section; onselect: (section: Section) => void } = $props()

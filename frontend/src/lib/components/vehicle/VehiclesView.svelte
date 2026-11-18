@@ -3,6 +3,7 @@
   import { onMount } from 'svelte'
   import { listVehicles, registerVehicle } from '../../api/vehicleApi'
   import type { Vehicle, VehicleInput } from '../../api/types'
+  import { navigate, route } from '../../route'
   import Fab from '../../ui/Fab.svelte'
   import Modal from '../../ui/Modal.svelte'
   import DeadlineBadge from './DeadlineBadge.svelte'
@@ -13,15 +14,35 @@
   let { householdId }: { householdId: string } = $props()
 
   let vehicles = $state<Vehicle[]>([])
+  let loaded = $state(false)
   let adding = $state(false)
-  let openedId = $state<string | null>(null)
   let error = $state<string | null>(null)
+  // Le véhicule ouvert vient de l'adresse.
+  const openedId = $derived($route.vehicleId ?? null)
   const openedIndex = $derived(vehicles.findIndex((v) => v.id === openedId))
 
   onMount(() => run(load))
 
+  // Véhicule inconnu du foyer (supprimé, autre foyer) : retour à la liste.
+  $effect(() => {
+    if (loaded && openedId !== null && openedIndex < 0) {
+      navigate({ section: 'vehicles' }, { replace: true })
+    }
+  })
+
+  // Retour à la liste (bouton de la fiche ou Précédent) : liste rafraîchie.
+  let wasOpen = false
+  $effect(() => {
+    const open = openedId !== null
+    if (wasOpen && !open) {
+      run(load)
+    }
+    wasOpen = open
+  })
+
   async function load() {
     vehicles = await listVehicles(householdId)
+    loaded = true
   }
 
   async function run(action: () => Promise<void>) {
@@ -41,14 +62,23 @@
     })
   }
 
-  function close() {
-    openedId = null
-    run(load)
+  function open(vehicleId: string) {
+    navigate({ section: 'vehicles', vehicleId })
+  }
+
+  // Après une suppression, l'adresse du véhicule est remplacée : Précédent n'y ramène pas.
+  function close(replace = false) {
+    navigate({ section: 'vehicles' }, { replace })
   }
 </script>
 
 {#if openedIndex >= 0}
-  <VehicleDetail {householdId} bind:vehicle={vehicles[openedIndex]} onremoved={close} onclose={close} />
+  <VehicleDetail
+    {householdId}
+    bind:vehicle={vehicles[openedIndex]}
+    onremoved={() => close(true)}
+    onclose={() => close()}
+  />
 {:else}
   <h1>Véhicules</h1>
   {#if error}
@@ -62,7 +92,7 @@
   <ul class="vehicles">
     {#each vehicles as vehicle (vehicle.id)}
       <li>
-        <button class="vehicle" onclick={() => (openedId = vehicle.id)}>
+        <button class="vehicle" onclick={() => open(vehicle.id)}>
           <span class="bubble" aria-hidden="true"><Car size={22} /></span>
           <span class="text">
             <span class="title">
