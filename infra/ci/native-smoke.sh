@@ -5,7 +5,9 @@
 # Prérequis : PostgreSQL et Keycloak de développement lancés (docker compose up -d postgres keycloak),
 # comptes de test créés (infra/keycloak/create-dev-users.sh), API native joignable sur $API.
 # Usage : API=http://localhost:8081 infra/ci/native-smoke.sh
-set -euo pipefail
+set -Eeuo pipefail
+# Toute erreur devient une annotation GitHub, lisible sans ouvrir les journaux.
+trap 'echo "::error::native-smoke : échec ligne $LINENO : $BASH_COMMAND"' ERR
 
 API="${API:-http://localhost:8081}"
 KEYCLOAK="${KEYCLOAK:-http://localhost:8180}"
@@ -13,7 +15,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 WORK="$(mktemp -d)"
 STEP=0
 
-fail() { echo "ÉCHEC : $*" >&2; exit 1; }
+fail() { echo "ÉCHEC : $*" >&2; echo "::error::native-smoke : $*"; exit 1; }
 json() { python3 -c "import json,sys; print(json.load(sys.stdin)$1)"; }
 
 # Jeton par mot de passe : autorisé sur le client de la PWA le temps du test uniquement.
@@ -24,7 +26,7 @@ kcadm update "clients/$PWA_CLIENT" -r life-manager -s directAccessGrantsEnabled=
 trap 'kcadm update "clients/$PWA_CLIENT" -r life-manager -s directAccessGrantsEnabled=false; rm -rf "$WORK"' EXIT
 
 token() {
-  curl -sf -d grant_type=password -d client_id=life-manager-pwa -d scope=openid -d "username=$1" -d password=dev-password \
+  curl -sSf -d grant_type=password -d client_id=life-manager-pwa -d scope=openid -d "username=$1" -d password=dev-password \
     "$KEYCLOAK/realms/life-manager/protocol/openid-connect/token" | json "['access_token']"
 }
 ALICE=$(token alice@example.org)
@@ -33,7 +35,7 @@ BOB=$(token bob@example.org)
 # Appel de l'API : vrai si le code HTTP est celui attendu ; la réponse est gardée dans $WORK/body.
 attempt() { # jeton méthode chemin code-attendu [corps-json]
   local token=$1 method=$2 path=$3 expected=$4 body=${5:-}
-  LAST_CODE=$(curl -s -o "$WORK/body" -w '%{http_code}' -X "$method" -H "Authorization: Bearer $token" \
+  LAST_CODE=$(curl -s -m 20 -o "$WORK/body" -w '%{http_code}' -X "$method" -H "Authorization: Bearer $token" \
     ${body:+-H 'Content-Type: application/json' -d "$body"} "$API/api$path")
   [ "$LAST_CODE" = "$expected" ]
 }
@@ -65,9 +67,11 @@ TODAY=$(date +%F)
 MONTH=$(date +%Y-%m)
 
 echo "== Identité et foyer"
+# Comme la PWA au démarrage : le premier appel crée la fiche de l'utilisateur, transmise aux autres domaines par événement.
+call "$BOB" GET /whoami 200
 call "$ALICE" GET /whoami 200
 ALICE_ID=$(body "['userId']")
-call "$ALICE" POST /households 201 '{"name":"  Foyer   NATIF "}'
+eventually 10 call "$ALICE" POST /households 201 '{"name":"  Foyer   NATIF "}'
 HOUSEHOLD=$(body "['id']")
 call "$ALICE" GET "/households/$HOUSEHOLD" 200
 [ "$(body "['name']")" = "foyer natif" ] || fail "nom de foyer non normalisé : $(body "['name']")"
@@ -76,7 +80,7 @@ echo "== Invitation (limite d'essais en cache Caffeine)"
 call "$ALICE" POST "/households/$HOUSEHOLD/invitations" 201
 CODE=$(body "['code']")
 call "$BOB" POST /households/join 400 '{"code":"ZZZZZZZZ"}'
-call "$BOB" POST /households/join 200 "{\"code\":\"$CODE\"}"
+eventually 10 call "$BOB" POST /households/join 200 "{\"code\":\"$CODE\"}"
 
 echo "== Budget"
 eventually 10 call "$ALICE" GET "/households/$HOUSEHOLD/expense-categories" 200
