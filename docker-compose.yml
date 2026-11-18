@@ -41,7 +41,8 @@ services:
     ports:
       - "8180:8180"
     volumes:
-      - ./infra/keycloak:/opt/keycloak/data/import:ro
+      # Seul le realm de développement est importé (le dossier contient aussi celui de production).
+      - ./infra/keycloak/realm-life-manager.json:/opt/keycloak/data/import/realm-life-manager.json:ro
       # Thème de la page de connexion (rechargé à chaud en mode start-dev).
       - ./infra/keycloak/themes:/opt/keycloak/themes:ro
     depends_on:
