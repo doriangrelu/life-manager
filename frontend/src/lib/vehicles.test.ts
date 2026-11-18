@@ -1,5 +1,35 @@
 import { describe, expect, it } from 'vitest'
-import { daysBetween, deadlineStatus, deadlineText, formatDay, kindLabel } from './vehicles'
+import {
+  automaticNextDue,
+  dayAfter,
+  daysBetween,
+  deadlineStatus,
+  deadlineText,
+  formatDay,
+  kindLabel,
+  setsDeadline,
+} from './vehicles'
+
+describe('prochaine échéance fixée par le carnet', () => {
+  it('ajoute 2 ans pour un contrôle technique et 1 an pour une révision', () => {
+    expect(automaticNextDue('TECHNICAL_INSPECTION', '2026-11-18')).toBe('2028-11-18')
+    expect(automaticNextDue('SERVICE', '2026-11-18')).toBe('2027-11-18')
+  })
+
+  it('ramène un 29 février au 28 les années non bissextiles', () => {
+    expect(automaticNextDue('TECHNICAL_INSPECTION', '2024-02-29')).toBe('2026-02-28')
+    expect(automaticNextDue('SERVICE', '2027-02-28')).toBe('2028-02-28')
+  })
+
+  it('ne fixe rien pour les autres types', () => {
+    expect(setsDeadline('OIL_CHANGE')).toBe(false)
+    expect(automaticNextDue('OIL_CHANGE', '2026-11-18')).toBeNull()
+  })
+
+  it('donne le lendemain, y compris en fin de mois', () => {
+    expect(dayAfter('2026-12-31')).toBe('2027-01-01')
+  })
+})
 
 describe('échéances', () => {
   it('compte les jours entre deux dates, y compris en changeant de mois', () => {

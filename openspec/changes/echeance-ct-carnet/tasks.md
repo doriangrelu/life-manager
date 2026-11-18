@@ -6,8 +6,8 @@
 
 ## 2. PWA
 
-- [ ] 2.1 [frontend] `MaintenanceForm` : choix « Automatique / Date précise » pour un contrôle technique ou une révision, aperçu de la date calculée ; fonction de calcul testée par Vitest
-- [ ] 2.2 [frontend] Fiche du véhicule rechargée après l'ajout (nouvelle échéance visible) ; vérifié dans le navigateur, mobile et desktop
+- [x] 2.1 [frontend] `MaintenanceForm` : choix « Automatique / Date précise » pour un contrôle technique ou une révision, aperçu de la date calculée ; fonction de calcul testée par Vitest
+- [x] 2.2 [frontend] Fiche du véhicule rechargée après l'ajout (nouvelle échéance visible) ; vérifié dans le navigateur, mobile et desktop
 
 ## Workflow follow-up
 

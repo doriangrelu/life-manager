@@ -4,6 +4,7 @@
   import {
     deleteMaintenance,
     listMaintenance,
+    listVehicles,
     recordMaintenance,
     removeVehicle,
     updateVehicle,
@@ -67,6 +68,8 @@
     const done = await run(async () => {
       await recordMaintenance(householdId, vehicle.id, input)
       entries = await listMaintenance(householdId, vehicle.id)
+      // Un contrôle technique ou une révision a pu reporter une échéance : on relit le véhicule.
+      vehicle = (await listVehicles(householdId)).find((v) => v.id === vehicle.id) ?? vehicle
     })
     if (done) {
       addingEntry = false

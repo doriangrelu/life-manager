@@ -15,6 +15,37 @@ export function kindLabel(kind: MaintenanceKind): string {
   return MAINTENANCE_KINDS.find((k) => k.kind === kind)?.label ?? kind
 }
 
+/** Durée en années avant la prochaine opération (même règle que le serveur, qui fait foi). */
+const VALIDITY_YEARS: Partial<Record<MaintenanceKind, number>> = { TECHNICAL_INSPECTION: 2, SERVICE: 1 }
+
+/** Le type d'opération fixe-t-il une prochaine échéance du véhicule ? */
+export function setsDeadline(kind: MaintenanceKind): boolean {
+  return VALIDITY_YEARS[kind] !== undefined
+}
+
+/** Échéance calculée automatiquement : « 2026-11-18 » + 2 ans → « 2028-11-18 » ; un 29 février donne le 28. */
+export function automaticNextDue(kind: MaintenanceKind, performedOn: string): string | null {
+  const years = VALIDITY_YEARS[kind]
+  if (years === undefined || !performedOn) {
+    return null
+  }
+  const [year, month, day] = performedOn.split('-').map(Number)
+  const target = year + years
+  const isLeap = (target % 4 === 0 && target % 100 !== 0) || target % 400 === 0
+  const safeDay = month === 2 && day === 29 && !isLeap ? 28 : day
+  return `${target}-${String(month).padStart(2, '0')}-${String(safeDay).padStart(2, '0')}`
+}
+
+/** Lendemain d'une date ISO : première date précise acceptée pour la prochaine échéance. */
+export function dayAfter(day: string): string {
+  return new Date(Date.parse(`${day}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10)
+}
+
+/** « Prochain contrôle technique », « Prochaine révision ». */
+export function nextDueLabel(kind: MaintenanceKind): string {
+  return kind === 'SERVICE' ? 'Prochaine révision' : 'Prochain contrôle technique'
+}
+
 /** Une échéance est « proche » dans les 30 jours qui viennent. */
 export const SOON_DAYS = 30
 

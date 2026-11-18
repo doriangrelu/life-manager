@@ -91,9 +91,11 @@ export interface MaintenanceInput {
   mileageKm: number | null
   costCents: number | null
   note: string | null
+  /** Contrôle technique ou révision : prochaine échéance précise, null = calcul automatique par le serveur. */
+  nextDueOn: string | null
 }
 
-export interface MaintenanceEntry extends MaintenanceInput {
+export interface MaintenanceEntry extends Omit<MaintenanceInput, 'nextDueOn'> {
   id: string
   attachmentCount: number
 }
