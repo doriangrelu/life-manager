@@ -13,6 +13,7 @@
   "internationalizationEnabled": true,
   "supportedLocales": ["fr", "en"],
   "defaultLocale": "fr",
+  "loginTheme": "life-manager",
   "clients": [
     {
       "clientId": "life-manager-pwa",

@@ -1,0 +1,187 @@
+/*
+ * Page de connexion aux couleurs de Life Manager.
+ * Valeurs reprises de frontend/src/app.css : à garder alignées si la charte change.
+ */
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('../fonts/plus-jakarta-sans-latin.woff2') format('woff2');
+}
+
+/* ---- Couleurs (clair) */
+:root {
+  --lm-bg: #f4f5fa;
+  --lm-surface: #ffffff;
+  --lm-surface-muted: #f1f2f7;
+  --lm-text: #15172a;
+  --lm-text-muted: #5b5f78;
+  --lm-border: #e3e6f0;
+  --lm-primary: #4f46e5;
+  --lm-primary-hover: #4338ca;
+  --lm-primary-text: #4338ca;
+  --lm-danger: #b42318;
+  --lm-danger-soft: #fee4e2;
+  --lm-shadow: 0 10px 30px rgb(21 23 42 / 0.08);
+}
+
+/* ---- Couleurs (sombre) : Keycloak ajoute cette classe selon le réglage du système.
+   « :root.» rend la règle aussi prioritaire que celles de PatternFly, chargées avant. */
+:root.pf-v5-theme-dark {
+  --lm-bg: #0f1020;
+  --lm-surface: #1a1c2e;
+  --lm-surface-muted: #24263a;
+  --lm-text: #ecedf7;
+  --lm-text-muted: #a3a7c2;
+  --lm-border: #2e3148;
+  --lm-primary-text: #a5b4fc;
+  --lm-danger: #fda29b;
+  --lm-danger-soft: #3d1715;
+  --lm-shadow: 0 10px 30px rgb(0 0 0 / 0.45);
+}
+
+/* ---- Branchement sur les variables de PatternFly (le kit graphique de Keycloak) */
+:root,
+:root.pf-v5-theme-dark {
+  --pf-v5-global--FontFamily--text: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --pf-v5-global--FontFamily--heading: var(--pf-v5-global--FontFamily--text);
+  --pf-v5-global--primary-color--100: var(--lm-primary);
+  --pf-v5-global--primary-color--200: var(--lm-primary-hover);
+  --pf-v5-global--link--Color: var(--lm-primary-text);
+  --pf-v5-global--link--Color--hover: var(--lm-primary-text);
+  --pf-v5-global--Color--100: var(--lm-text);
+  --pf-v5-global--Color--200: var(--lm-text-muted);
+  --pf-v5-global--BackgroundColor--100: var(--lm-surface);
+  --pf-v5-global--BorderColor--100: var(--lm-border);
+  --pf-v5-global--danger-color--100: var(--lm-danger);
+  --pf-v5-c-button--BorderRadius: 14px;
+  --keycloak-card-top-color: transparent;
+}
+
+/* ---- Fond et carte */
+.login-pf body {
+  background: var(--lm-bg);
+  color: var(--lm-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.pf-v5-c-login__main {
+  background: var(--lm-surface);
+  border-radius: 24px;
+  box-shadow: var(--lm-shadow);
+  overflow: hidden;
+}
+
+.pf-v5-c-login__main-header {
+  border-top: none;
+}
+
+#kc-page-title {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* ---- En-tête : logo de l'application au-dessus de son nom (PatternFly l'écrit en blanc) */
+.login-pf #kc-header {
+  color: var(--lm-text);
+}
+
+/* Le thème parent force cette couleur en !important : on change la variable qu'il utilise. */
+#kc-header-wrapper {
+  --pf-v5-global--Color--light-100: var(--lm-text);
+}
+
+#kc-header-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--lm-text);
+  text-transform: none;
+}
+
+#kc-header-wrapper::before {
+  content: '';
+  width: 72px;
+  height: 72px;
+  background: url('../img/logo.svg') no-repeat center / contain;
+  border-radius: 18px;
+  box-shadow: var(--lm-shadow);
+}
+
+/* ---- Champs */
+.pf-v5-c-form-control {
+  border-radius: 14px;
+  min-height: 46px;
+  background: var(--lm-surface);
+}
+
+/* PatternFly dessine la bordure dans deux pseudo-éléments : bordure fine partout, couleur principale au focus. */
+.pf-v5-c-form-control::before,
+.pf-v5-c-form-control::after {
+  border-radius: 14px;
+}
+
+.pf-v5-c-form-control::before {
+  border: 1px solid var(--lm-border);
+}
+
+.pf-v5-c-form-control::after {
+  border: none;
+}
+
+.pf-v5-c-form-control:focus-within::after {
+  border: 2px solid var(--lm-primary);
+}
+
+/* Le cadre ci-dessus suffit à montrer le focus : pas de second contour du navigateur. */
+.pf-v5-c-form-control > input:focus,
+.pf-v5-c-form-control > select:focus {
+  outline: none;
+}
+
+.pf-v5-c-form-control.pf-m-error::after {
+  border: 1px solid var(--lm-danger);
+}
+
+/* Bouton « afficher le mot de passe » accolé au champ */
+.pf-v5-c-input-group .pf-v5-c-button.pf-m-control {
+  border-radius: 14px;
+}
+
+.pf-v5-c-form__label-text {
+  font-weight: 700;
+  color: var(--lm-text-muted);
+}
+
+/* ---- Boutons */
+.pf-v5-c-button.pf-m-primary {
+  --pf-v5-c-button--m-primary--BackgroundColor: var(--lm-primary);
+  --pf-v5-c-button--m-primary--hover--BackgroundColor: var(--lm-primary-hover);
+  --pf-v5-c-button--m-primary--focus--BackgroundColor: var(--lm-primary-hover);
+  --pf-v5-c-button--m-primary--active--BackgroundColor: var(--lm-primary-hover);
+  --pf-v5-c-button--m-primary--Color: #ffffff;
+  min-height: 52px;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+/* ---- Message d'erreur */
+.pf-v5-c-alert.pf-m-danger,
+.pf-v5-c-alert.pf-m-error {
+  border-radius: 14px;
+  background: var(--lm-danger-soft);
+}
+
+/* ---- Mobile : la carte occupe l'écran, sans marges perdues */
+@media (max-width: 576px) {
+  .pf-v5-c-login__main {
+    border-radius: 20px;
+    margin: 0 12px;
+  }
+}

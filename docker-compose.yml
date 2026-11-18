@@ -42,6 +42,8 @@ services:
       - "8180:8180"
     volumes:
       - ./infra/keycloak:/opt/keycloak/data/import:ro
+      # Thème de la page de connexion (rechargé à chaud en mode start-dev).
+      - ./infra/keycloak/themes:/opt/keycloak/themes:ro
     depends_on:
       postgres:
         condition: service_healthy
