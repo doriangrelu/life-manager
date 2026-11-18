@@ -114,10 +114,48 @@
   box-shadow: var(--lm-shadow);
 }
 
-/* ---- Champs */
+/* ---- Champs : le texte occupe toute la hauteur du cadre, donc il est centré verticalement */
 .pf-v5-c-form-control {
   border-radius: 14px;
   min-height: 46px;
+  align-items: center;
+  background: var(--lm-surface);
+}
+
+.pf-v5-c-form-control > input,
+.pf-v5-c-form-control > select {
+  height: 46px;
+  padding-block: 0;
+  padding-inline: 14px;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 46px;
+  color: var(--lm-text);
+  background: transparent;
+}
+
+/* Sélecteur de langue : flèche de l'application à droite, comme les listes de la PWA */
+.pf-v5-c-form-control > select {
+  appearance: none;
+  padding-inline-end: 44px;
+  font-weight: 600;
+  cursor: pointer;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b5f78' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right 14px center / 18px;
+}
+
+:root.pf-v5-theme-dark .pf-v5-c-form-control > select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3a7c2' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* La flèche de PatternFly fait doublon avec la nôtre. */
+.pf-v5-c-form-control:has(> select) .pf-v5-c-form-control__utilities {
+  display: none;
+}
+
+.pf-v5-c-form-control > select option {
+  color: var(--lm-text);
   background: var(--lm-surface);
 }
 
@@ -149,9 +187,27 @@
   border: 1px solid var(--lm-danger);
 }
 
-/* Bouton « afficher le mot de passe » accolé au champ */
+/* Mot de passe : le champ et le bouton « afficher » forment un seul bloc arrondi */
+.pf-v5-c-input-group > .pf-v5-c-input-group__item:first-child .pf-v5-c-form-control,
+.pf-v5-c-input-group > .pf-v5-c-input-group__item:first-child .pf-v5-c-form-control::before,
+.pf-v5-c-input-group > .pf-v5-c-input-group__item:first-child .pf-v5-c-form-control::after {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
 .pf-v5-c-input-group .pf-v5-c-button.pf-m-control {
-  border-radius: 14px;
+  height: 46px;
+  min-width: 52px;
+  padding-inline: 16px;
+  color: var(--lm-text-muted);
+  background: var(--lm-surface);
+  border-radius: 0 14px 14px 0;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button.pf-m-control::after {
+  border: 1px solid var(--lm-border);
+  border-inline-start: none;
+  border-radius: 0 14px 14px 0;
 }
 
 .pf-v5-c-form__label-text {
