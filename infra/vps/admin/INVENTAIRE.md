@@ -23,7 +23,7 @@ Internet → Caddy (`infra-caddy-1`, ports 80/443, certificats automatiques) →
 |---|---|---|---|
 | maison.dorian-grelu.fr | `~/infra/conf.d/life-manager.caddy` | `life-manager-api` (API), `life-manager-web` (application web) | Life Manager |
 | thierrylacassin-auteur.fr (+ www), leblogdethierry.fr (+ www) | `~/infra/conf.d/mybook.caddy` | `mybook-app-1` | mybook |
-| docker.dorian-grelu.fr (à venir) | `~/infra/conf.d/docker.caddy` | `dozzle-oauth2-proxy` → `dozzle` (réseau privé) | interface Docker |
+| docker.dorian-grelu.fr | `~/infra/conf.d/docker.caddy` | `dozzle-oauth2-proxy` → `dozzle` (réseau privé) | interface Docker |
 | iabilis.fr | `~/infra/conf.d/keycloak.caddy` | `keycloak-keycloak-1` | Keycloak (connexion de tous les sites) |
 
 `~/infra/Caddyfile` importe `conf.d/*.caddy`.

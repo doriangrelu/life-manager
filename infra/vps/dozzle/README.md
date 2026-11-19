@@ -13,6 +13,8 @@ Adresse : **https://docker.dorian-grelu.fr**. Installé dans `~/dozzle` sur le V
 
 Chez le gestionnaire du domaine `dorian-grelu.fr` (là où est `maison`) : enregistrement **A**, nom `docker`, valeur `152.228.237.190`.
 
+> Mise en service du 2026-11-19 : le realm a été **importé** depuis un JSON généré par Claude (secret aléatoire écrit en même temps dans `~/dozzle/.env`, adresse dans `emails-autorises.txt`) ; l'étape 3 n'a donc pas servi. Dorian a ensuite activé *Always use lightweight access token* et durci le realm. Les étapes manuelles ci-dessous restent valables pour une réinstallation.
+
 ### 2. Keycloak — Dorian (console https://iabilis.fr/admin, compte administrateur)
 
 Aucun redémarrage de Keycloak n'est nécessaire.

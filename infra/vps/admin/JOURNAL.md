@@ -49,6 +49,12 @@ Choix de Dorian : Dozzle (léger) plutôt que Portainer. `~/dozzle` : Dozzle v11
 **En attente de Dorian** : DNS `docker.dorian-grelu.fr`, realm `infra` + client + compte avec OTP, puis `~/dozzle/configurer-acces.sh`. Ensuite : démarrage d'oauth2-proxy et route Caddy (README `infra/vps/dozzle`).
 Retour arrière : `cd ~/dozzle && docker compose down`, retirer `dozzle` de la ligne `infra keycloak dozzle` de `backup.sh`.
 
+## 2026-11-19 14:30 — Claude + Dorian — interface web Docker en service
+
+DNS `docker.dorian-grelu.fr` créé par Dorian. Realm `infra` importé par Dorian depuis un JSON généré par Claude (client `oauth2-proxy` avec secret aléatoire jamais affiché, aussi écrit dans `~/dozzle/.env` ; mapper d'audience ; utilisateur `dorian` avec OTP requis, mot de passe défini par Dorian) ; Dorian a ensuite durci le realm et activé *Always use lightweight access token*. oauth2-proxy démarré (proxys de confiance limités au réseau `socle`, 172.19.0.0/16), route `~/infra/conf.d/docker.caddy` ajoutée, Caddy rechargé sans coupure, certificat obtenu. Vérifié : redirection vers Keycloak `infra`, autres sites OK.
+**À vérifier** : première connexion complète de Dorian (OTP, puis Dozzle affiche son adresse).
+Couper l'interface : `cd ~/dozzle && docker compose stop`, supprimer `~/infra/conf.d/docker.caddy`, recharger Caddy.
+
 ## Points ouverts (à décider avec Dorian)
 
 - Supprimer `~/portainer` (préparation remplacée par `~/dozzle`).
