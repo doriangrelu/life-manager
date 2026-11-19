@@ -47,7 +47,7 @@ class GetHouseholdUseCase implements GetHousehold {
         // Le code d'invitation n'est montré qu'au propriétaire : lui seul invite.
         var invitation = household.isOwner(requester) ? activeInvitation(household).orElse(null) : null;
         return new HouseholdDetails(household.id().value(), household.name().value(), household.owner().value(),
-                namedMembers(household), invitation);
+                household.incomeTracking(), namedMembers(household), invitation);
     }
 
     private List<MemberDetails> namedMembers(Household household) {

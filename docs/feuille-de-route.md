@@ -129,7 +129,12 @@ Placé avant les graphiques (choix de Dorian) : ils pourront ainsi montrer à la
 
 ## Idées à ranger
 
-(vide)
+### Petites corrections à traiter (signalées par Dorian le 2026-11-19)
+
+- **Console « Mon compte » (Keycloak)** : le logo (maison) en haut à gauche mène à la console du realm `master` au lieu de revenir à la PWA. Piste : propriété `logoUrl` du thème `account` (`infra/keycloak/themes/life-manager/account/theme.properties`) pointant vers https://maison.dorian-grelu.fr.
+- **Console « Mon compte »** : le survol des entrées du menu latéral reste gris comme le thème d'origine. Piste : surcharger le survol de `.pf-v5-c-nav__link` (variables `--pf-v5-c-nav__link--hover--BackgroundColor`) dans `account/resources/css/life-manager.css`.
+- **Carnet d'entretien (véhicules)** : quand on choisit le type d'opération « Autre », on ne peut pas préciser de quoi il s'agit, contrairement au reste de l'application (catégorie « Autre » des dépenses). Ajouter une précision libre, affichée à la place de « Autre ».
+- Les deux points Keycloak demandent un redémarrage de Keycloak en prod (environ 1 min de coupure pour tous les sites) : à grouper avec une autre intervention.
 
 ## Questions pour Dorian
 

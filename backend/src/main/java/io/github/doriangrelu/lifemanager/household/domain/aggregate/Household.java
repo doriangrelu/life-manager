@@ -33,6 +33,8 @@ public final class Household extends AggregateRoot<HouseholdId> {
     private HouseholdName name;
     private final Instant createdAt;
     private MemberId owner;
+    // Suivi des rentrées (bilan) : réglage du foyer, désactivé par défaut, changé par le propriétaire.
+    private boolean incomeTracking;
     // Ordre d'adhésion conservé pour l'affichage.
     private final Map<MemberId, Membership> members = new LinkedHashMap<>();
 
@@ -62,6 +64,25 @@ public final class Household extends AggregateRoot<HouseholdId> {
     public static Household restore(HouseholdId id, HouseholdName name, Instant createdAt, MemberId owner,
                                     Collection<Membership> members) {
         return new Household(id, name, createdAt, owner, members);
+    }
+
+    /** Recharge un foyer existant avec ses réglages (aucun événement produit). */
+    @SuppressWarnings("checkstyle:ParameterNumber") // un paramètre par donnée stockée
+    public static Household restore(HouseholdId id, HouseholdName name, Instant createdAt, MemberId owner,
+                                    Collection<Membership> members, boolean incomeTracking) {
+        var household = new Household(id, name, createdAt, owner, members);
+        household.incomeTracking = incomeTracking;
+        return household;
+    }
+
+    /** Le propriétaire active ou désactive le suivi des rentrées (bilan) ; aucune donnée n'est supprimée. */
+    public void trackIncome(MemberId by, boolean enabled) {
+        requireOwner(by);
+        incomeTracking = enabled;
+    }
+
+    public boolean incomeTracking() {
+        return incomeTracking;
     }
 
     /** Ajoute un membre au foyer ; refusé s'il en fait déjà partie. */

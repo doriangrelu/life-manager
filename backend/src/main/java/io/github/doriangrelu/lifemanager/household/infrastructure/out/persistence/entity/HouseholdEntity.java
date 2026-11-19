@@ -6,7 +6,11 @@ import io.micronaut.data.annotation.MappedEntity;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Ligne de la table {@code household.household}. */
+/**
+ * Ligne de la table {@code household.household}.
+ *
+ * @param incomeTracking réglage « suivre les rentrées (bilan) »
+ */
 @MappedEntity("household")
-public record HouseholdEntity(@Id UUID id, String name, Instant createdAt, UUID ownerId) {
+public record HouseholdEntity(@Id UUID id, String name, Instant createdAt, UUID ownerId, boolean incomeTracking) {
 }

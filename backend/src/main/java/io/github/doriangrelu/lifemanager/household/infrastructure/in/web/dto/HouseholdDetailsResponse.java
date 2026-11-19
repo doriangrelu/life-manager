@@ -10,15 +10,16 @@ import java.util.UUID;
 /**
  * Détail d'un foyer.
  *
- * @param ownerId          propriétaire du foyer (lui seul renomme, invite, retire, supprime)
+ * @param ownerId          propriétaire du foyer (lui seul renomme, invite, retire, supprime, règle)
+ * @param incomeTracking   suivi des rentrées (bilan) activé : la PWA montre rentrées, résultat et bilan
  * @param activeInvitation code encore utilisable, {@code null} s'il n'y en a pas ou pour un non-propriétaire
  */
 @Serdeable
-public record HouseholdDetailsResponse(UUID id, String name, UUID ownerId, List<MemberResponse> members,
-                                       @Nullable InvitationResponse activeInvitation) {
+public record HouseholdDetailsResponse(UUID id, String name, UUID ownerId, boolean incomeTracking,
+                                       List<MemberResponse> members, @Nullable InvitationResponse activeInvitation) {
 
     public static HouseholdDetailsResponse from(HouseholdDetails details) {
-        return new HouseholdDetailsResponse(details.id(), details.name(), details.ownerId(),
+        return new HouseholdDetailsResponse(details.id(), details.name(), details.ownerId(), details.incomeTracking(),
                 details.members().stream().map(MemberResponse::from).toList(),
                 details.optionalActiveInvitation().map(InvitationResponse::from).orElse(null));
     }
