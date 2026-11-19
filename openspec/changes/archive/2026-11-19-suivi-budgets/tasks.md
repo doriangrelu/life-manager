@@ -11,4 +11,4 @@
 ## 3. Vérification et livraison
 
 - [x] 3.1 [frontend] Vérification au navigateur : mobile et bureau, clair et sombre
-- [ ] 3.2 [infra/vps] Version v0.9.0 publiée et déployée
+- [x] 3.2 [infra/vps] Version v0.9.0 publiée et déployée

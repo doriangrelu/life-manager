@@ -9,7 +9,7 @@
 - [x] 2.2 [frontend/charges] Récurrent et crédit : nom, montants, assurance, dates, catégorie ; « i » sur « Fixe / Variable », l'assurance et la dernière mensualité
 - [x] 2.3 [frontend/budget + charges] Budget prévu et confirmation d'un montant ; « i » sur « Tous les mois / Ce mois seulement »
 - [x] 2.4 [frontend] Vérification au navigateur
-- [ ] 2.5 [infra/vps] Version v0.9.0 publiée et déployée
+- [x] 2.5 [infra/vps] Version v0.9.0 publiée et déployée
 
 ## 3. Autres formulaires (version suivante)
 
