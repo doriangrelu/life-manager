@@ -16,6 +16,17 @@ else
   echo "==> Accès OneDrive enregistré."
 fi
 
+# rclone 1.60 choisit parfois un lecteur caché de Microsoft : on force « OneDrive (personal) ».
+if ! rclone lsf onedrive: --max-depth 1 >/dev/null 2>&1; then
+  Q=$(rclone config update onedrive config_refresh_token=false config_type=onedrive --non-interactive)
+  ID=$(echo "$Q" | grep -B1 '"Help": "OneDrive (personal)"' | sed -n 's/.*"Value": "\(.*\)",/\1/p' | head -1)
+  [ -n "$ID" ] || { echo "ERREUR : lecteur « OneDrive (personal) » introuvable"; exit 1; }
+  rclone config update onedrive config_refresh_token=false config_type=onedrive --non-interactive \
+    --continue --state driveid_final --result "$ID" >/dev/null
+  rclone config update onedrive --non-interactive --continue --state driveid_final_end --result true >/dev/null
+  rclone lsf onedrive: --max-depth 1 >/dev/null && echo "==> Lecteur OneDrive personnel sélectionné."
+fi
+
 if rclone listremotes | grep -qx 'onedrive-chiffre:'; then
   echo "==> Chiffrement déjà configuré."
 else
