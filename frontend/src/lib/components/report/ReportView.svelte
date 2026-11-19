@@ -24,6 +24,7 @@
   import Segmented from '../../ui/molecules/Segmented.svelte'
   import BudgetAdherence from './BudgetAdherence.svelte'
   import ExpectedList from './ExpectedList.svelte'
+  import EvolutionView from './EvolutionView.svelte'
   import MonthBars from './MonthBars.svelte'
   import ReportBreakdown from './ReportBreakdown.svelte'
   import ReportHero from './ReportHero.svelte'
@@ -38,7 +39,7 @@
   let members = $state<Member[]>([])
   let categories = $state<Category[]>([])
   // Deux vues : le résultat de la période, ou le respect des budgets prévus.
-  let view = $state<'result' | 'budgets'>('result')
+  let view = $state<'result' | 'budgets' | 'evolution'>('result')
   let loading = $state(false)
   let error = $state<string | null>(null)
 
@@ -49,7 +50,13 @@
   const rest = $derived(report ? restToLive(report, expected) : null)
   // Respect des budgets : une ligne par catégorie prévue sur la période (vide = onglet masqué).
   const adherence = $derived(report ? budgetAdherence(report, categories, currentMonth()) : [])
-  const shownView = $derived(adherence.length > 0 ? view : 'result')
+  // Onglets proposés : « Budgets » s'il y a des budgets prévus, « Évolution » sur plusieurs mois.
+  const views = $derived([
+    { value: 'result', label: 'Résultat' },
+    ...(adherence.length > 0 ? [{ value: 'budgets', label: 'Budgets' }] : []),
+    ...(report && report.from !== report.to ? [{ value: 'evolution', label: 'Évolution' }] : []),
+  ])
+  const shownView = $derived(views.some((v) => v.value === view) ? view : 'result')
 
   onMount(async () => {
     try {
@@ -119,19 +126,13 @@
 
   {#if report}
     <div class="stack" class:reloading={loading} aria-busy={loading}>
-      {#if adherence.length > 0}
-        <Segmented
-          label="Vue du bilan"
-          hideLabel
-          options={[
-            { value: 'result', label: 'Résultat' },
-            { value: 'budgets', label: 'Budgets' },
-          ]}
-          bind:value={view}
-        />
+      {#if views.length > 1}
+        <Segmented label="Vue du bilan" hideLabel options={views} bind:value={view} />
       {/if}
       {#if shownView === 'budgets'}
         <BudgetAdherence lines={adherence} />
+      {:else if shownView === 'evolution'}
+        <EvolutionView {report} {categories} currentMonth={currentMonth()} />
       {:else}
       <ReportHero {report} projected={forecastTotals} {rest} />
       {#if forecastTotals}
