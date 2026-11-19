@@ -25,6 +25,12 @@ jobs:
           java-version: '25'
           distribution: graalvm-community
           cache: maven
+      # Garde Maven lui-même (téléchargé par mvnw) d'un run à l'autre : Maven Central
+      # répond parfois 429 (trop de requêtes) et fait échouer le job.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/wrapper
+          key: maven-wrapper-${{ hashFiles('backend/.mvn/wrapper/maven-wrapper.properties') }}
       # Testcontainers utilise le Docker fourni par le runner.
       - run: ./mvnw -B verify -Dtest.postgres.image=${{ matrix.postgres }}
 
