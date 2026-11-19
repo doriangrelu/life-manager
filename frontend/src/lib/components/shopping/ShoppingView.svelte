@@ -15,9 +15,9 @@
   import { rememberedShoppingListId, rememberShoppingListId } from '../../preferences'
   import { pickList, REFRESH_MS, toggled } from '../../shopping'
   import { displayName } from '../../text'
-  import Chip from '../../ui/Chip.svelte'
-  import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
-  import Skeleton from '../../ui/Skeleton.svelte'
+  import Chip from '../../ui/atoms/Chip.svelte'
+  import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
+  import Skeleton from '../../ui/atoms/Skeleton.svelte'
   import PurchaseHistoryDialog from './PurchaseHistoryDialog.svelte'
   import ShoppingListsManager from './ShoppingListsManager.svelte'
 

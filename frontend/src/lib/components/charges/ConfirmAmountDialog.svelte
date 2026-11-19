@@ -3,8 +3,8 @@
   import type { Occurrence } from '../../api/types'
   import { formatDay } from '../../dates'
   import { centsToInput, parseAmountToCents } from '../../money'
-  import AmountInput from '../../ui/AmountInput.svelte'
-  import Modal from '../../ui/Modal.svelte'
+  import AmountInput from '../../ui/atoms/AmountInput.svelte'
+  import Modal from '../../ui/molecules/Modal.svelte'
 
   // Montant réel d'une échéance (facture reçue) : prérempli avec le montant prévu.
   let {

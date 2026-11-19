@@ -5,7 +5,7 @@
   import type { HouseholdDetails } from '../api/types'
   import { formatDay } from '../dates'
   import { displayName } from '../text'
-  import Skeleton from '../ui/Skeleton.svelte'
+  import Skeleton from '../ui/atoms/Skeleton.svelte'
   import InvitationCard from './InvitationCard.svelte'
 
   // Onglet Foyer : ses membres, le code pour inviter quelqu'un, et l'accès aux autres foyers.

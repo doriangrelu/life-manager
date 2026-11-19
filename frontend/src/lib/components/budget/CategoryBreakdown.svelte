@@ -3,7 +3,7 @@
   import type { MonthlyBudget } from '../../api/types'
   import { categoryStyle } from '../../categoryStyle'
   import { formatCents } from '../../money'
-  import ProgressBar from '../../ui/ProgressBar.svelte'
+  import ProgressBar from '../../ui/atoms/ProgressBar.svelte'
 
   // Répartition du mois : par catégorie (barres proportionnelles à la plus grosse), puis pour qui.
   let {

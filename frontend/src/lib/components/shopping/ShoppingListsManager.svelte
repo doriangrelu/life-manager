@@ -3,9 +3,9 @@
   import { Pencil, Plus, Trash2 } from '@lucide/svelte'
   import { addShoppingList, deleteShoppingList, renameShoppingList } from '../../api/shoppingApi'
   import type { ShoppingList } from '../../api/types'
-  import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
-  import Modal from '../../ui/Modal.svelte'
-  import TextDialog from '../../ui/TextDialog.svelte'
+  import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
+  import Modal from '../../ui/molecules/Modal.svelte'
+  import TextDialog from '../../ui/molecules/TextDialog.svelte'
 
   // Gestion des sous-listes du foyer : ajout, renommage, suppression (avec confirmation).
   let {

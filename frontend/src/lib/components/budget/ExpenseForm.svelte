@@ -5,12 +5,14 @@
   import { correctExpense, recordExpense } from '../../api/budgetApi'
   import type { Category, Expense, ExpenseInput, Member } from '../../api/types'
   import { isOther } from '../../categories'
+  import { beneficiaryOptions, payerOptions } from '../../members'
   import { centsToInput, formatCents, parseAmountToCents } from '../../money'
+  import { scrollToTop } from '../../scroll'
   import { today } from '../../month'
   import { rememberedKeepAdding, rememberKeepAdding } from '../../preferences'
-  import AmountInput from '../../ui/AmountInput.svelte'
-  import Chip from '../../ui/Chip.svelte'
-  import Segmented from '../../ui/Segmented.svelte'
+  import AmountInput from '../../ui/atoms/AmountInput.svelte'
+  import Chip from '../../ui/atoms/Chip.svelte'
+  import Segmented from '../../ui/molecules/Segmented.svelte'
 
   // Saisie rapide (ou correction) d'une dépense, affichée dans une modale :
   // montant au clavier numérique, catégorie en un geste, le reste pré-rempli.
@@ -54,8 +56,8 @@
   // Catégories proposées : les actives, plus la catégorie actuelle si elle a été archivée depuis.
   const choices = $derived(categories.filter((c) => !c.archived || c.id === initial.expense?.categoryId))
   const otherChosen = $derived(isOther(categories.find((c) => c.id === categoryId)?.name ?? ''))
-  const payers = $derived(members.map((m) => ({ value: m.memberId, label: m.displayName })))
-  const beneficiaries = $derived([{ value: '', label: 'Commun' }, ...payers])
+  const payers = $derived(payerOptions(members))
+  const beneficiaries = $derived(beneficiaryOptions(members))
 
   // Sous « Autre », une précision remplace la catégorie choisie par une catégorie de ce nom.
   function input(amountCents: number): ExpenseInput {
@@ -116,7 +118,9 @@
     label = ''
     precision = ''
     categoryId = ''
-    amountField?.focus()
+    // Le formulaire repart en haut, montant prêt à la saisie (le clavier ne doit pas faire défiler).
+    scrollToTop(amountField)
+    amountField?.focus({ preventScroll: true })
   }
 </script>
 

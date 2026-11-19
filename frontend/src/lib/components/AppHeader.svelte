@@ -3,7 +3,7 @@
   import { Check, ChevronDown, House, LogOut, Plus, UserCog } from '@lucide/svelte'
   import { accountConsoleUrl, logout } from '../auth/auth'
   import type { HouseholdSummary, UserProfile } from '../api/types'
-  import Modal from '../ui/Modal.svelte'
+  import Modal from '../ui/molecules/Modal.svelte'
 
   // En-tête : foyer affiché (changement de foyer dans une modale) et profil (déconnexion).
   let {

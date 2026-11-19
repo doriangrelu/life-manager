@@ -1,17 +1,19 @@
 <script lang="ts">
-  import { rise } from '../../motion'
-  import { ChevronLeft, ChevronRight } from '@lucide/svelte'
+  import { ms, rise } from '../../motion'
+  import { CalendarCheck, ChevronLeft, ChevronRight } from '@lucide/svelte'
+  import { scale } from 'svelte/transition'
   import { onMount } from 'svelte'
   import { deleteExpense, listCategories, monthlyBudget } from '../../api/budgetApi'
   import { getHousehold } from '../../api/householdApi'
   import type { Category, Expense, Member, MonthlyBudget, UserProfile } from '../../api/types'
+  import { memberName as nameOf } from '../../members'
   import { formatCents } from '../../money'
   import { currentMonth, monthLabel, shiftMonth } from '../../month'
   import { navigate, route } from '../../route'
-  import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
-  import Fab from '../../ui/Fab.svelte'
-  import Modal from '../../ui/Modal.svelte'
-  import Skeleton from '../../ui/Skeleton.svelte'
+  import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
+  import Fab from '../../ui/molecules/Fab.svelte'
+  import Modal from '../../ui/molecules/Modal.svelte'
+  import Skeleton from '../../ui/atoms/Skeleton.svelte'
   import CategoryBreakdown from './CategoryBreakdown.svelte'
   import CategoryManager from './CategoryManager.svelte'
   import ExpenseForm from './ExpenseForm.svelte'
@@ -108,19 +110,21 @@
   }
 
   /** Nom d'un membre ; null désigne le foyer entier (« Commun »). */
-  function memberName(memberId: string | null): string {
-    if (memberId === null) {
-      return 'Commun'
-    }
-    return members.find((m) => m.memberId === memberId)?.displayName ?? 'Membre'
-  }
+  const memberName = (memberId: string | null) => nameOf(members, memberId)
 </script>
 
 <div class="month-nav">
   <button class="ghost icon" aria-label="Mois précédent" onclick={() => changeMonth(-1)}>
     <ChevronLeft size={20} strokeWidth={2.4} />
   </button>
-  <h1>{monthLabel(month)}</h1>
+  <div class="month-title">
+    <h1>{monthLabel(month)}</h1>
+    {#if month !== currentMonth()}
+      <button class="today soft" transition:scale={{ duration: ms(150), start: 0.8 }} onclick={() => navigate({ section: 'budget' })}>
+        <CalendarCheck size={15} strokeWidth={2.4} /> Aujourd'hui
+      </button>
+    {/if}
+  </div>
   <button class="ghost icon" aria-label="Mois suivant" onclick={() => changeMonth(1)}>
     <ChevronRight size={20} strokeWidth={2.4} />
   </button>
@@ -182,6 +186,23 @@
   .month-nav h1 {
     font-size: 1.1rem;
     text-transform: capitalize;
+  }
+  /* Titre du mois, et dessous le retour au mois en cours quand on consulte un autre mois. */
+  .month-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .today {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 800;
   }
   .manage {
     justify-self: center;

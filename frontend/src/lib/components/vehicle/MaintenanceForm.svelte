@@ -10,8 +10,8 @@
     nextDueLabel,
     setsDeadline,
   } from '../../vehicles'
-  import Chip from '../../ui/Chip.svelte'
-  import Segmented from '../../ui/Segmented.svelte'
+  import Chip from '../../ui/atoms/Chip.svelte'
+  import Segmented from '../../ui/molecules/Segmented.svelte'
 
   // Nouvelle opération du carnet (dans une modale) : date et type pré-remplis, le reste facultatif.
   // Un contrôle technique ou une révision fixe aussi la prochaine échéance du véhicule.

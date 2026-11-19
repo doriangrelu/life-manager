@@ -7,8 +7,8 @@
   import type { PurchaseHistoryEntry, ShoppingList } from '../../api/types'
   import { purchaseSummary } from '../../shopping'
   import { displayName } from '../../text'
-  import Modal from '../../ui/Modal.svelte'
-  import Skeleton from '../../ui/Skeleton.svelte'
+  import Modal from '../../ui/molecules/Modal.svelte'
+  import Skeleton from '../../ui/atoms/Skeleton.svelte'
 
   // Historique des achats d'une sous-liste : on coche ce qu'il faut racheter et on le remet en liste d'un coup.
   let {

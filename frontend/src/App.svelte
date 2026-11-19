@@ -10,8 +10,8 @@
   import AppHeader from './lib/components/AppHeader.svelte'
   import CreateOrJoin from './lib/components/CreateOrJoin.svelte'
   import HouseholdTabs from './lib/components/HouseholdTabs.svelte'
-  import Modal from './lib/ui/Modal.svelte'
-  import Skeleton from './lib/ui/Skeleton.svelte'
+  import Modal from './lib/ui/molecules/Modal.svelte'
+  import Skeleton from './lib/ui/atoms/Skeleton.svelte'
 
   let profile = $state<UserProfile | null>(null)
   let households = $state<HouseholdSummary[]>([])

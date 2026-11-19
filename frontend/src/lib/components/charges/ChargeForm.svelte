@@ -3,12 +3,13 @@
   import type { AmountKind, Category, Charge, ChargeInput, Frequency, Member } from '../../api/types'
   import { sortCategories } from '../../categories'
   import { FREQUENCIES } from '../../charges'
+  import { beneficiaryOptions, payerOptions } from '../../members'
   import { centsToInput, parseAmountToCents } from '../../money'
   import { today } from '../../month'
   import { displayName } from '../../text'
-  import AmountInput from '../../ui/AmountInput.svelte'
-  import Chip from '../../ui/Chip.svelte'
-  import Segmented from '../../ui/Segmented.svelte'
+  import AmountInput from '../../ui/atoms/AmountInput.svelte'
+  import Chip from '../../ui/atoms/Chip.svelte'
+  import Segmented from '../../ui/molecules/Segmented.svelte'
 
   // Saisie ou modification d'une charge récurrente (dans une modale).
   let {
@@ -40,8 +41,8 @@
   let error = $state<string | null>(null)
 
   const choices = $derived(sortCategories(categories.filter((c) => !c.archived || c.id === categoryId)))
-  const payers = $derived(members.map((m) => ({ value: m.memberId, label: m.displayName })))
-  const beneficiaries = $derived([{ value: '', label: 'Commun' }, ...payers])
+  const payers = $derived(payerOptions(members))
+  const beneficiaries = $derived(beneficiaryOptions(members))
   // Une charge existante garde sa première échéance, même passée ; une nouvelle commence aujourd'hui ou plus tard.
   const minFirstDueOn = $derived(initial.charge && firstDueOn === initial.charge.firstDueOn ? undefined : today())
 

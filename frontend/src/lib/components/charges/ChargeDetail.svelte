@@ -17,12 +17,13 @@
   import { attachmentCountLabel } from '../../attachments'
   import { frequencyLabel, occurrenceCents, statusLabel } from '../../charges'
   import { formatDay } from '../../dates'
+  import { memberName } from '../../members'
   import { formatCents } from '../../money'
   import { listMove, rise } from '../../motion'
   import { displayName } from '../../text'
-  import ConfirmDialog from '../../ui/ConfirmDialog.svelte'
-  import Modal from '../../ui/Modal.svelte'
-  import Skeleton from '../../ui/Skeleton.svelte'
+  import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
+  import Modal from '../../ui/molecules/Modal.svelte'
+  import Skeleton from '../../ui/atoms/Skeleton.svelte'
   import AttachmentsDialog from '../AttachmentsDialog.svelte'
   import ChargeForm from './ChargeForm.svelte'
   import ConfirmAmountDialog from './ConfirmAmountDialog.svelte'
@@ -58,12 +59,8 @@
 
   const name = $derived(displayName(charge.name))
   const category = $derived(categories.find((c) => c.id === charge.budgetCategoryId)?.name ?? 'autre')
-  const payer = $derived(members.find((m) => m.memberId === charge.payerId)?.displayName ?? 'Membre')
-  const beneficiary = $derived(
-    charge.beneficiaryId === null
-      ? 'Commun'
-      : (members.find((m) => m.memberId === charge.beneficiaryId)?.displayName ?? 'Membre'),
-  )
+  const payer = $derived(memberName(members, charge.payerId))
+  const beneficiary = $derived(memberName(members, charge.beneficiaryId))
 
   onMount(() => run(load))
 

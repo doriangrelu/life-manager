@@ -5,7 +5,7 @@
   import type { Category } from '../../api/types'
   import { sortCategories } from '../../categories'
   import { categoryStyle } from '../../categoryStyle'
-  import TextDialog from '../../ui/TextDialog.svelte'
+  import TextDialog from '../../ui/molecules/TextDialog.svelte'
 
   // Gestion des catégories du foyer (dans une modale) : ajout, renommage, archivage, réactivation.
   let { householdId, categories = $bindable() }: { householdId: string; categories: Category[] } = $props()

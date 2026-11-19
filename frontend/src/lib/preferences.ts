@@ -57,6 +57,25 @@ export function rememberHouseholdId(householdId: string): void {
   }
 }
 
+const SPACE_SECTION_KEY = 'life-manager.space-section.'
+
+/** Dernier écran consulté dans un espace de navigation (Argent, Maison…), sur cet appareil. */
+export function rememberedSpaceSection(space: string): string | null {
+  try {
+    return localStorage.getItem(SPACE_SECTION_KEY + space)
+  } catch {
+    return null
+  }
+}
+
+export function rememberSpaceSection(space: string, section: string): void {
+  try {
+    localStorage.setItem(SPACE_SECTION_KEY + space, section)
+  } catch {
+    // Sans stockage, l'espace s'ouvrira simplement sur son premier écran.
+  }
+}
+
 /** Dernière sous-liste de courses consultée dans ce foyer, sur cet appareil. */
 export function rememberedShoppingListId(householdId: string): string | null {
   try {

@@ -1,8 +1,12 @@
 <script lang="ts">
   import type { UserProfile } from '../api/types'
   import { rise } from '../motion'
-  import { navigate, route } from '../route'
-  import MainNav from '../ui/MainNav.svelte'
+  import { spaceOf } from '../navigation'
+  import { rememberSpaceSection } from '../preferences'
+  import { navigate, route, type Section } from '../route'
+  import { scrollToTop } from '../scroll'
+  import SpaceTabs from '../ui/molecules/SpaceTabs.svelte'
+  import MainNav from '../ui/organisms/MainNav.svelte'
   import BudgetView from './budget/BudgetView.svelte'
   import ChargesView from './charges/ChargesView.svelte'
   import HouseholdView from './HouseholdView.svelte'
@@ -10,20 +14,30 @@
   import ShoppingView from './shopping/ShoppingView.svelte'
   import VehiclesView from './vehicle/VehiclesView.svelte'
 
-  // Le foyer sélectionné : ses quatre sections et la navigation entre elles.
+  // Le foyer sélectionné : ses écrans, regroupés par espaces (Argent, Courses, Maison, Foyer).
   let {
     householdId,
     profile,
     onaddhousehold,
   }: { householdId: string; profile: UserProfile; onaddhousehold: () => void } = $props()
 
-  // La section vient de l'adresse.
+  // L'écran vient de l'adresse.
   const section = $derived($route.section)
+
+  // Chaque écran s'ouvre en haut, et devient le dernier consulté de son espace.
+  $effect(() => {
+    rememberSpaceSection(spaceOf(section).id, section)
+    scrollToTop()
+  })
+
+  const open = (next: Section) => navigate({ section: next })
 </script>
 
 <RemindersBanner {householdId} refreshKey={section} />
 
-<!-- Changement de section : le nouvel écran apparaît en fondu (l'ancien disparaît aussitôt). -->
+<SpaceTabs active={section} onselect={open} />
+
+<!-- Changement d'écran : le nouveau apparaît en fondu (l'ancien disparaît aussitôt). -->
 {#key section}
   <div class="stack" in:rise>
     {#if section === 'budget'}
@@ -40,4 +54,4 @@
   </div>
 {/key}
 
-<MainNav active={section} onselect={(next) => navigate({ section: next })} />
+<MainNav active={section} onselect={open} />

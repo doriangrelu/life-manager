@@ -2,8 +2,8 @@
   import { FileText, Image, Paperclip, X } from '@lucide/svelte'
   import type { Attachment } from '../api/types'
   import { ACCEPTED_TYPES, formatSize, rejectionOf, remainingSlots, type AttachmentApi } from '../attachments'
-  import ConfirmDialog from '../ui/ConfirmDialog.svelte'
-  import Modal from '../ui/Modal.svelte'
+  import ConfirmDialog from '../ui/molecules/ConfirmDialog.svelte'
+  import Modal from '../ui/molecules/Modal.svelte'
 
   // Pièces jointes (factures, photos) d'une opération du carnet ou d'une échéance de charge :
   // ajoutées, ouvertes ou supprimées. « files » fait les appels à l'API du bon domaine.
