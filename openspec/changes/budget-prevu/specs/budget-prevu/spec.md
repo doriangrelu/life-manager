@@ -26,12 +26,12 @@ Le système SHALL permettre à un membre de fixer, pour une catégorie de dépen
 
 #### Scenario: Valeur refusée
 
-- **WHEN** un membre fixe un montant nul, négatif ou supérieur à 1 000 000 €, ou vise une catégorie de rentrées ou archivée
+- **WHEN** un membre fixe un montant nul, négatif ou supérieur à 1 000 000 €, ou vise une catégorie archivée
 - **THEN** la demande est refusée avec une erreur `400 Bad Request`
 
 #### Scenario: Catégorie d'un autre foyer
 
-- **WHEN** un membre vise une catégorie inconnue ou d'un autre foyer
+- **WHEN** un membre vise une catégorie inconnue, d'un autre foyer, ou une catégorie de rentrées
 - **THEN** l'API répond `404 Not Found`
 
 ### Requirement: Prévu dans la vue du mois

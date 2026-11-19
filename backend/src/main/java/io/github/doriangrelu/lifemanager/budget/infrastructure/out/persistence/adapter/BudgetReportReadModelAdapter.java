@@ -47,6 +47,11 @@ class BudgetReportReadModelAdapter implements BudgetReportReadModel {
     }
 
     @Override
+    public long recurringExpenseCents(HouseholdId householdId, LocalDate firstDay, LocalDate lastDay) {
+        return expenses.recurringTotal(householdId.value(), firstDay, lastDay);
+    }
+
+    @Override
     public List<MonthResult> months(HouseholdId householdId, LocalDate firstDay, LocalDate lastDay) {
         return incomes.monthlyTotals(householdId.value(), firstDay, lastDay).stream()
                 .map(row -> new MonthResult(YearMonth.parse(row.month()), row.incomeCents(), row.expenseCents()))

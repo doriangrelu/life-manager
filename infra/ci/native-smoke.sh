@@ -91,6 +91,11 @@ eventually 10 call "$ALICE" POST "/households/$HOUSEHOLD/expenses" 201 \
   "{\"amountCents\":1234,\"categoryId\":\"$CATEGORY\",\"newCategoryName\":null,\"spentOn\":\"$TODAY\",\"paidBy\":\"$ALICE_ID\",\"beneficiary\":null,\"label\":\"Essai\"}"
 call "$ALICE" GET "/households/$HOUSEHOLD/budget/$MONTH" 200
 [ "$(body "['totalCents']")" = "1234" ] || fail "total du mois inattendu : $(head -c 400 "$WORK/body")"
+# Budget prévu : fixé pour tous les mois, relu dans la vue du mois.
+call "$ALICE" PUT "/households/$HOUSEHOLD/expense-categories/$CATEGORY/budget" 204 \
+  "{\"month\":\"$MONTH\",\"scope\":\"FROM_MONTH\",\"plannedCents\":40000}"
+call "$ALICE" GET "/households/$HOUSEHOLD/budget/$MONTH" 200
+[ "$(body "['plans'][0]['plannedCents']")" = "40000" ] || fail "budget prévu absent : $(head -c 400 "$WORK/body")"
 
 echo "== Courses"
 eventually 10 call "$BOB" GET "/households/$HOUSEHOLD/shopping-lists" 200

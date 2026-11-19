@@ -3,13 +3,26 @@
   import { CalendarCheck, ChevronLeft, ChevronRight } from '@lucide/svelte'
   import { scale } from 'svelte/transition'
   import { onMount } from 'svelte'
-  import { deleteExpense, deleteIncome, listCategories, monthlyBudget } from '../../api/budgetApi'
+  import { forecast as loadForecast } from '../../api/billsApi'
+  import { deleteExpense, deleteIncome, listCategories, monthlyBudget, setCategoryPlan } from '../../api/budgetApi'
   import { getHousehold } from '../../api/householdApi'
-  import type { Category, Expense, FlowDirection, Income, Member, MonthlyBudget, UserProfile } from '../../api/types'
+  import type {
+    Category,
+    CategoryPlanInput,
+    Expense,
+    FlowDirection,
+    ForecastItem,
+    Income,
+    Member,
+    MonthlyBudget,
+    UserProfile,
+  } from '../../api/types'
   import { incomeTracking } from '../../householdSettings'
   import { memberName as nameOf, receiverName as receiverOf } from '../../members'
   import { formatCents } from '../../money'
   import { currentMonth, monthLabel, shiftMonth } from '../../month'
+  import { categoryProgress, restToLive, type CategoryProgress } from '../../plan'
+  import { periodDays } from '../../report'
   import { navigate, route } from '../../route'
   import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
   import Fab from '../../ui/molecules/Fab.svelte'
@@ -24,6 +37,7 @@
   import OperationList from './OperationList.svelte'
   import IncomeTrackingPromo from '../IncomeTrackingPromo.svelte'
   import MonthHero from './MonthHero.svelte'
+  import PlanDialog from './PlanDialog.svelte'
 
   // Onglet Budget : la vue du mois, d'où l'on saisit, corrige ou supprime des dépenses.
   let { householdId, profile }: { householdId: string; profile: UserProfile } = $props()
@@ -31,6 +45,11 @@
   // Le mois vient de l'adresse ; mois courant par défaut.
   const month = $derived($route.month ?? currentMonth())
   let budget = $state<MonthlyBudget | null>(null)
+  // Dépenses et rentrées récurrentes encore attendues ce mois (aucune pour un mois passé).
+  let upcoming = $state<ForecastItem[]>([])
+  // Catégorie dont on règle le budget prévu.
+  let planning = $state<CategoryProgress | null>(null)
+  let planOpen = $state(false)
   let categories = $state<Category[]>([])
   let members = $state<Member[]>([])
   // Propriétaire : lui seul peut activer « Rentrées et bilan » depuis la carte de mise en avant.
@@ -84,15 +103,54 @@
   async function loadMonth(shown: string = month) {
     loadingMonth = true
     try {
-      const loaded = await monthlyBudget(householdId, shown)
+      const days = periodDays({ from: shown, to: shown })
+      const [loaded, expected] = await Promise.all([
+        monthlyBudget(householdId, shown),
+        shown >= currentMonth() ? upcomingOf(days) : Promise.resolve([]),
+      ])
       // Réponse d'un mois quitté entre-temps : ignorée.
       if (shown === month) {
         budget = loaded
+        upcoming = expected
       }
     } finally {
       if (shown === month) {
         loadingMonth = false
       }
+    }
+  }
+
+  // Les échéances à venir ne servent qu'au prévu : sans elles (erreur des récurrents), le Budget reste affiché.
+  async function upcomingOf(days: { from: string; to: string }): Promise<ForecastItem[]> {
+    try {
+      return await loadForecast(householdId, days.from, days.to)
+    } catch {
+      return []
+    }
+  }
+
+  const progress = $derived(budget ? categoryProgress(budget, categories, upcoming) : [])
+  // Reste à vivre : seulement si le foyer suit ses rentrées.
+  const rest = $derived(
+    budget && $incomeTracking
+      ? restToLive({ incomeCents: budget.incomeCents, expenseCents: budget.totalCents, recurringExpenseCents: budget.recurringExpenseCents }, upcoming)
+      : null,
+  )
+
+  function openPlan(line: CategoryProgress) {
+    planning = line
+    planOpen = true
+  }
+
+  async function savePlan(categoryId: string, plan: CategoryPlanInput): Promise<boolean> {
+    error = null
+    try {
+      await setCategoryPlan(householdId, categoryId, plan)
+      await loadMonth()
+      return true
+    } catch (e) {
+      error = e instanceof Error ? e.message : String(e)
+      return false
     }
   }
 
@@ -197,12 +255,12 @@
 
 {#if budget}
   <div class="stack" class:reloading={loadingMonth} aria-busy={loadingMonth} in:rise>
-    <MonthHero {budget} {memberName} incomeTracking={$incomeTracking === true} />
+    <MonthHero {budget} {memberName} incomeTracking={$incomeTracking === true} {rest} />
     {#if ownerId}
       <IncomeTrackingPromo {householdId} isOwner={ownerId === profile.userId} />
     {/if}
-    {#if budget.expenses.length > 0}
-      <CategoryBreakdown {budget} {memberName} onmanage={() => (managingCategories = true)} />
+    {#if progress.length > 0}
+      <CategoryBreakdown {budget} {progress} {memberName} onmanage={() => (managingCategories = true)} onplan={openPlan} />
     {/if}
     {#if $incomeTracking}
       <OperationList
@@ -218,7 +276,7 @@
     {:else}
       <ExpenseList expenses={budget.expenses} {categories} {memberName} onopen={openEditor} />
     {/if}
-    {#if budget.expenses.length === 0}
+    {#if progress.length === 0}
       <button class="link manage" onclick={() => (managingCategories = true)}>Gérer les catégories</button>
     {/if}
   </div>
@@ -274,6 +332,8 @@
   message={deletingIncome ? `La rentrée de ${formatCents(deletingIncome.amountCents)} sera définitivement supprimée.` : ''}
   onconfirm={removeIncome}
 />
+
+<PlanDialog bind:open={planOpen} line={planning} {month} onsave={savePlan} />
 
 <Modal bind:open={managingCategories} title="Catégories">
   {#if $incomeTracking}

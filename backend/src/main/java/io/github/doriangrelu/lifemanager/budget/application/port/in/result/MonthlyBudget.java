@@ -9,11 +9,14 @@ import java.util.List;
  *
  * @param totalCents  total des dépenses
  * @param incomeCents total des rentrées
+ * @param plans       budget prévu des catégories qui en ont un ce mois-là
+ * @param recurringExpenseCents part des dépenses née d'une dépense récurrente
  */
 public record MonthlyBudget(YearMonth month, long totalCents, List<CategoryTotal> byCategory,
                             List<PayerTotal> byPayer, List<BeneficiaryTotal> byBeneficiary,
                             List<ExpenseView> expenses, long incomeCents, List<CategoryTotal> incomeByCategory,
-                            List<IncomeView> incomes) {
+                            List<IncomeView> incomes, List<CategoryPlan> plans,
+                            long recurringExpenseCents) {
 
     /** Rentrées moins dépenses : positif = argent mis de côté, négatif = mois dans le rouge. */
     public long resultCents() {

@@ -45,4 +45,11 @@ public interface MonthlyTotalsJdbcRepository extends GenericRepository<ExpenseEn
             GROUP BY beneficiary
             ORDER BY total_cents DESC""")
     List<MemberTotalRow> totalsByBeneficiary(UUID householdId, LocalDate firstDay, LocalDate lastDay);
+
+    /** Total des dépenses nées d'une dépense récurrente (liées à une échéance de charge). */
+    @Query("""
+            SELECT COALESCE(SUM(e.amount_cents), 0)::bigint
+            FROM expense e JOIN charge_expense link ON link.expense_id = e.id
+            WHERE e.household_id = :householdId AND e.spent_on BETWEEN :firstDay AND :lastDay""")
+    long recurringTotal(UUID householdId, LocalDate firstDay, LocalDate lastDay);
 }

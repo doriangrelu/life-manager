@@ -1,5 +1,5 @@
 import { apiRequest } from './http'
-import type { BudgetReport, Category, Expense, ExpenseInput, FlowDirection, Income, IncomeInput, MonthlyBudget } from './types'
+import type { BudgetReport, Category, CategoryPlanInput, Expense, ExpenseInput, FlowDirection, Income, IncomeInput, MonthlyBudget } from './types'
 
 const base = (householdId: string) => `/households/${householdId}`
 
@@ -35,6 +35,11 @@ export function reactivateCategory(
   kind: FlowDirection = 'EXPENSE',
 ): Promise<Category> {
   return apiRequest('POST', `${categoriesOf(householdId, kind)}/${categoryId}/reactivate`)
+}
+
+/** Fixe ou retire le budget prévu d'une catégorie de dépenses. */
+export function setCategoryPlan(householdId: string, categoryId: string, plan: CategoryPlanInput): Promise<void> {
+  return apiRequest('PUT', `${categoriesOf(householdId, 'EXPENSE')}/${categoryId}/budget`, plan)
 }
 
 export function recordExpense(householdId: string, expense: ExpenseInput): Promise<Expense> {

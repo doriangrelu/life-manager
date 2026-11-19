@@ -31,7 +31,7 @@ Invariants : catégorie de dépenses du foyer, non archivée ; montant entre 0,0
 
 ### API (domaine `budget`)
 
-- `PUT /api/households/{h}/categories/{c}/budget` avec `{ "month": "2026-11", "plannedCents": 40000, "scope": "FROM_MONTH" }` (`plannedCents` absent = retirer le prévu) → `204`. Accès contrôlé par le service `…Access` du domaine, comme les autres use cases.
+- `PUT /api/households/{h}/expense-categories/{c}/budget` avec `{ "month": "2026-11", "plannedCents": 40000, "scope": "FROM_MONTH" }` (`plannedCents` absent = retirer le prévu) → `204`. Accès contrôlé par le service `…Access` du domaine, comme les autres use cases.
 - Vue du mois (`GET …/budget?month=`) : ajout de `plans` (`categoryId`, `plannedCents`, `scope` de la règle appliquée) et de `recurringExpenseCents` (total des dépenses du mois nées d'une charge récurrente, via `charge_expense`).
 - Bilan (`GET …/report`) : ajout de `recurringExpenseCents` sur la période.
 

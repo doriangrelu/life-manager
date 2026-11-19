@@ -13,12 +13,20 @@ import java.util.UUID;
  * @param totalCents  total des dépenses
  * @param incomeCents total des rentrées (0 sans suivi des rentrées)
  * @param resultCents rentrées moins dépenses, négatif possible
+ * @param plans       budget prévu des catégories qui en ont un ce mois-là
+ * @param recurringExpenseCents part des dépenses née d'une dépense récurrente (pour le reste à vivre)
  */
 @Serdeable
 public record MonthlyBudgetResponse(String month, long totalCents, List<CategoryTotal> byCategory,
                                     List<MemberTotal> byPayer, List<MemberTotal> byBeneficiary,
                                     List<ExpenseResponse> expenses, long incomeCents, long resultCents,
-                                    List<CategoryTotal> incomeByCategory, List<IncomeResponse> incomes) {
+                                    List<CategoryTotal> incomeByCategory, List<IncomeResponse> incomes,
+                                    List<Plan> plans, long recurringExpenseCents) {
+
+    /** Budget prévu d'une catégorie ; {@code scope} : FROM_MONTH (tous les mois) ou MONTH_ONLY (ce mois seulement). */
+    @Serdeable
+    public record Plan(UUID categoryId, long plannedCents, String scope) {
+    }
 
     /** Total d'une catégorie. */
     @Serdeable
@@ -41,7 +49,9 @@ public record MonthlyBudgetResponse(String month, long totalCents, List<Category
                 budget.incomeCents(),
                 budget.resultCents(),
                 categories(budget.incomeByCategory()),
-                budget.incomes().stream().map(IncomeResponse::from).toList());
+                budget.incomes().stream().map(IncomeResponse::from).toList(),
+                budget.plans().stream().map(p -> new Plan(p.categoryId(), p.plannedCents(), p.scope())).toList(),
+                budget.recurringExpenseCents());
     }
 
     static List<CategoryTotal> categories(

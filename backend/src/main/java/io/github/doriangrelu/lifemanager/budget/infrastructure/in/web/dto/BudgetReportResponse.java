@@ -11,11 +11,13 @@ import java.util.List;
  * Bilan réalisé d'une période. Montants en centimes d'euro.
  *
  * @param resultCents rentrées moins dépenses : positif = épargne, négatif = dans le rouge
+ * @param recurringExpenseCents part des dépenses née d'une dépense récurrente (pour le reste à vivre)
  */
 @Serdeable
 public record BudgetReportResponse(String from, String to, long incomeCents, long expenseCents, long resultCents,
                                    List<CategoryTotal> incomeByCategory, List<MemberTotal> incomeByReceiver,
-                                   List<CategoryTotal> expenseByCategory, List<Month> months) {
+                                   List<CategoryTotal> expenseByCategory, List<Month> months,
+                                   long recurringExpenseCents) {
 
     /** Un mois de la période (seuls les mois qui ont des mouvements). */
     @Serdeable
@@ -34,6 +36,7 @@ public record BudgetReportResponse(String from, String to, long incomeCents, lon
                 MonthlyBudgetResponse.categories(report.expenseByCategory()),
                 report.months().stream()
                         .map(m -> new Month(m.month().toString(), m.incomeCents(), m.expenseCents(), m.resultCents()))
-                        .toList());
+                        .toList(),
+                report.recurringExpenseCents());
     }
 }

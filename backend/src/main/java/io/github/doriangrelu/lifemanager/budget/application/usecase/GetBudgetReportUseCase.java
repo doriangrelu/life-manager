@@ -31,6 +31,7 @@ class GetBudgetReportUseCase implements GetBudgetReport {
                 report.incomeByCategory(household, firstDay, lastDay),
                 report.incomeByReceiver(household, firstDay, lastDay),
                 report.expenseByCategory(household, firstDay, lastDay),
-                report.months(household, firstDay, lastDay));
+                report.months(household, firstDay, lastDay),
+                report.recurringExpenseCents(household, firstDay, lastDay));
     }
 }

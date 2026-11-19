@@ -12,6 +12,7 @@ const report = (incomeCents: number, expenseCents: number): BudgetReport => ({
   incomeByReceiver: [],
   expenseByCategory: [],
   months: [{ month: '2026-11', incomeCents, expenseCents, resultCents: incomeCents - expenseCents }],
+  recurringExpenseCents: 0,
 })
 
 const item = (direction: ForecastItem['direction'], expectedCents: number): ForecastItem => ({

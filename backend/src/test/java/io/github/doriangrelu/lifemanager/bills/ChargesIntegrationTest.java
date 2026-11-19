@@ -68,6 +68,15 @@ class ChargesIntegrationTest extends IntegrationTestSupport {
         assertThat(expenses(home)).containsExactly(Map.entry("internet", 3999));
         assertThat(occurrences(home, internet.id())).extracting(OccurrenceResponse::status)
                 .containsExactly("UPCOMING", "PAID");
+        // Le budget sait quelle part des dépenses vient des récurrents (pour le reste à vivre).
+        assertThat(recurringCents(home, "/budget/" + MONTH)).isEqualTo(3999);
+        assertThat(recurringCents(home, "/report?from=" + MONTH + "&to=" + MONTH)).isEqualTo(3999);
+    }
+
+    private int recurringCents(Home home, String path) {
+        Map<String, Object> view = http.retrieve(HttpRequest.GET("/api/households/" + home.household + path)
+                .bearerAuth(home.owner), Argument.mapOf(String.class, Object.class));
+        return (Integer) view.get("recurringExpenseCents");
     }
 
     @Test

@@ -20,6 +20,9 @@ public interface BudgetReportReadModel {
     /** Dépenses par catégorie, de la plus grosse à la plus petite. */
     List<CategoryTotal> expenseByCategory(HouseholdId householdId, LocalDate firstDay, LocalDate lastDay);
 
+    /** Total des dépenses nées d'une dépense récurrente (charge payée), en centimes. */
+    long recurringExpenseCents(HouseholdId householdId, LocalDate firstDay, LocalDate lastDay);
+
     /** Rentrées et dépenses mois par mois (seuls les mois qui en ont). */
     List<MonthResult> months(HouseholdId householdId, LocalDate firstDay, LocalDate lastDay);
 }

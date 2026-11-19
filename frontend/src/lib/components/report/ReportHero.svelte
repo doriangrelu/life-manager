@@ -2,11 +2,18 @@
   import { PiggyBank, TrendingDown } from '@lucide/svelte'
   import type { BudgetReport } from '../../api/types'
   import { formatCents } from '../../money'
+  import type { RestToLive } from '../../plan'
   import type { Totals } from '../../report'
+  import RestToLiveLine from '../budget/RestToLiveLine.svelte'
 
   // Résultat de la période (rentré − dépensé) : positif = mis de côté, négatif = dans le rouge.
   // À côté du réalisé, le prévu en fin de période quand elle n'est pas finie.
-  let { report, projected }: { report: BudgetReport; projected: Totals | null } = $props()
+  // rest : reste à vivre de la période, quand des rentrées y sont prévues.
+  let {
+    report,
+    projected,
+    rest = null,
+  }: { report: BudgetReport; projected: Totals | null; rest?: RestToLive | null } = $props()
 
   const positive = $derived(report.resultCents >= 0)
   const signed = (cents: number) => `${cents >= 0 ? '+' : '−'}${formatCents(Math.abs(cents))}`
@@ -51,6 +58,9 @@
       </tr>
     </tbody>
   </table>
+  {#if rest}
+    <RestToLiveLine {rest} />
+  {/if}
 </section>
 
 <style>

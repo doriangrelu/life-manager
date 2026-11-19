@@ -9,6 +9,7 @@
   import { receiverName } from '../../members'
   import { currentMonth } from '../../month'
   import { ms, rise } from '../../motion'
+  import { restToLive } from '../../plan'
   import {
     PERIOD_KINDS,
     hasFuture,
@@ -40,6 +41,8 @@
   const period = $derived(periodOf(kind, anchor))
   const withForecast = $derived(hasFuture(period, currentMonth()))
   const forecastTotals = $derived(report && withForecast ? projected(report, expected) : null)
+  // Reste à vivre de la période : rentrées prévues moins dépenses récurrentes (payées et à venir).
+  const rest = $derived(report ? restToLive(report, expected) : null)
 
   onMount(async () => {
     try {
@@ -107,7 +110,7 @@
 
   {#if report}
     <div class="stack" class:reloading={loading} aria-busy={loading}>
-      <ReportHero {report} projected={forecastTotals} />
+      <ReportHero {report} projected={forecastTotals} {rest} />
       {#if forecastTotals}
         <ExpectedList items={expected} />
       {/if}

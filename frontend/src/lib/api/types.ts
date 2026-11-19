@@ -95,6 +95,26 @@ export interface MonthlyBudget {
   resultCents: number
   incomeByCategory: CategoryTotal[]
   incomes: Income[]
+  /** Budget prévu des catégories qui en ont un ce mois-là. */
+  plans: CategoryPlan[]
+  /** Part des dépenses née d'une dépense récurrente (charge payée) : sert au reste à vivre. */
+  recurringExpenseCents: number
+}
+
+/** Portée d'un budget prévu : ce mois et les suivants, ou ce mois seulement. */
+export type PlanScope = 'FROM_MONTH' | 'MONTH_ONLY'
+
+export interface CategoryPlan {
+  categoryId: string
+  plannedCents: number
+  scope: PlanScope
+}
+
+/** Réglage d'un budget prévu ; plannedCents = null retire le prévu. */
+export interface CategoryPlanInput {
+  month: string
+  scope: PlanScope
+  plannedCents: number | null
 }
 
 /** Bilan réalisé d'une période de mois entiers (from et to : « 2026-10 »). */
@@ -110,6 +130,8 @@ export interface BudgetReport {
   expenseByCategory: CategoryTotal[]
   /** Seuls les mois qui ont des mouvements. */
   months: { month: string; incomeCents: number; expenseCents: number; resultCents: number }[]
+  /** Part des dépenses née d'une dépense récurrente : sert au reste à vivre. */
+  recurringExpenseCents: number
 }
 
 // ---- Véhicules : dates au format « 2027-03-01 », coût en centimes d'euro, null = non renseigné.

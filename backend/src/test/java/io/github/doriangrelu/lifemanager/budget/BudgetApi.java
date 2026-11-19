@@ -1,6 +1,7 @@
 package io.github.doriangrelu.lifemanager.budget;
 
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.BudgetReportResponse;
+import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.CategoryBudgetRequest;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.CategoryResponse;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.ExpenseRequest;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.ExpenseResponse;
@@ -80,6 +81,11 @@ record BudgetApi(BlockingHttpClient http) {
     BudgetReportResponse report(String token, UUID household, String from, String to) {
         return http.retrieve(HttpRequest.GET(base(household) + "/report?from=" + from + "&to=" + to)
                 .bearerAuth(token), BudgetReportResponse.class);
+    }
+
+    void setBudget(String token, UUID household, UUID category, CategoryBudgetRequest request) {
+        http.exchange(HttpRequest.PUT(base(household) + "/expense-categories/" + category + "/budget", request)
+                .bearerAuth(token));
     }
 
     private static String base(UUID household) {

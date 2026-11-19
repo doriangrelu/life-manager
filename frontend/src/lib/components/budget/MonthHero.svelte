@@ -2,14 +2,23 @@
   import { TrendingDown, TrendingUp } from '@lucide/svelte'
   import type { MonthlyBudget } from '../../api/types'
   import { formatCents } from '../../money'
+  import type { RestToLive } from '../../plan'
+  import RestToLiveLine from './RestToLiveLine.svelte'
 
   // Carte principale du mois : le total dépensé et ce que chacun a payé.
-  // Avec le suivi des rentrées : le résultat du mois (rentré − dépensé) en premier, positif ou négatif.
+  // Avec le suivi des rentrées : le résultat du mois (rentré − dépensé) en premier, positif ou négatif,
+  // puis le reste à vivre quand des rentrées sont prévues.
   let {
     budget,
     memberName,
     incomeTracking = false,
-  }: { budget: MonthlyBudget; memberName: (id: string | null) => string; incomeTracking?: boolean } = $props()
+    rest = null,
+  }: {
+    budget: MonthlyBudget
+    memberName: (id: string | null) => string
+    incomeTracking?: boolean
+    rest?: RestToLive | null
+  } = $props()
 
   const positive = $derived(budget.resultCents >= 0)
 </script>
@@ -33,6 +42,9 @@
         <span class="amount">{formatCents(budget.totalCents)}</span>
       </div>
     </div>
+    {#if rest}
+      <RestToLiveLine {rest} />
+    {/if}
   {:else}
     <span class="caption">Dépensé ce mois-ci</span>
     <span class="total amount">{formatCents(budget.totalCents)}</span>
