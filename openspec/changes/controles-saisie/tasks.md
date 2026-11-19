@@ -11,8 +11,10 @@
 - [x] 2.4 [frontend] Vérification au navigateur
 - [x] 2.5 [infra/vps] Version v0.9.0 publiée et déployée
 
-## 3. Autres formulaires (version suivante)
+## 3. Autres formulaires (v0.9.1)
 
-- [ ] 3.1 [frontend/vehicle] Véhicule et opération d'entretien (kilométrage, coût, dates) ; « i » sur la prochaine échéance
-- [ ] 3.2 [frontend] Catégories, listes de courses, création d'un foyer, code d'invitation, renommages
-- [ ] 3.3 [frontend/household] « i » sur l'option « Rentrées et bilan »
+- [x] 3.1 [frontend/vehicle] Véhicule et opération d'entretien (nom, kilométrage, coût, dates) ; « i » sur les prochaines échéances
+- [x] 3.2 [frontend] Création d'un foyer, code d'invitation (8 caractères), renommages, suppression du foyer (nom qui ne correspond pas). Les ajouts en une ligne (catégorie, sous-liste, article) ne changent pas : leur bouton reste inactif tant que le champ est vide
+- [x] 3.3 [frontend/household] « i » sur l'option « Rentrées et bilan »
+- [x] 3.4 [frontend] Vérification au navigateur
+- [ ] 3.5 [infra/vps] Version v0.9.1 publiée et déployée

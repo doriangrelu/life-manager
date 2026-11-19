@@ -1,6 +1,8 @@
 <script lang="ts">
-  import { untrack } from 'svelte'
+  import { tick, untrack } from 'svelte'
   import type { Vehicle, VehicleInput } from '../../api/types'
+  import Field from '../../ui/molecules/Field.svelte'
+  import { check, focusFirstInvalid, required } from '../../validation'
 
   // Véhicule à créer ou modifier (dans une modale) : nom, immatriculation et prochaines échéances.
   let { vehicle, onsave }: { vehicle: Vehicle | null; onsave: (input: VehicleInput) => Promise<void> } = $props()
@@ -12,9 +14,18 @@
   let technicalInspectionDue = $state(initial?.technicalInspectionDue ?? '')
   let serviceDue = $state(initial?.serviceDue ?? '')
   let busy = $state(false)
+  let revealed = $state(false)
+  const nameError = $derived(check(name, required('Donnez un nom au véhicule')))
 
   async function submit(event: SubmitEvent) {
     event.preventDefault()
+    if (nameError) {
+      const form = event.currentTarget as HTMLFormElement
+      revealed = true
+      await tick()
+      focusFirstInvalid(form)
+      return
+    }
     busy = true
     try {
       await onsave({
@@ -31,26 +42,35 @@
 
 <form class="stack" onsubmit={submit}>
   <div class="form-row">
-    <label>
-      Nom
-      <input bind:value={name} maxlength="40" placeholder="Ex. : Clio" required data-autofocus />
-    </label>
+    <Field label="Nom" error={nameError} reveal={revealed}>
+      {#snippet children(id)}
+        <input {id} bind:value={name} maxlength="40" placeholder="Ex. : Clio" data-autofocus />
+      {/snippet}
+    </Field>
     <label>
       Immatriculation
       <input class="plate" bind:value={licensePlate} maxlength="12" placeholder="Facultatif" autocapitalize="characters" />
     </label>
   </div>
   <div class="form-row">
-    <label>
-      Prochain contrôle technique
-      <input type="date" bind:value={technicalInspectionDue} />
-    </label>
-    <label>
-      Prochaine révision
-      <input type="date" bind:value={serviceDue} />
-    </label>
+    <Field
+      label="Prochain contrôle technique"
+      info="Facultatif. Un rappel apparaît à l'approche de cette date. Elle se met à jour toute seule quand vous notez un contrôle technique dans le carnet."
+    >
+      {#snippet children(id)}
+        <input {id} type="date" bind:value={technicalInspectionDue} />
+      {/snippet}
+    </Field>
+    <Field
+      label="Prochaine révision"
+      info="Facultatif. Un rappel apparaît à l'approche de cette date. Elle se met à jour toute seule quand vous notez une révision dans le carnet."
+    >
+      {#snippet children(id)}
+        <input {id} type="date" bind:value={serviceDue} />
+      {/snippet}
+    </Field>
   </div>
-  <button class="large" disabled={busy || !name.trim()} aria-busy={busy}>Enregistrer</button>
+  <button class="large" disabled={busy} aria-busy={busy}>Enregistrer</button>
 </form>
 
 <style>

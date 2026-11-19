@@ -69,6 +69,8 @@
     display: grid;
     gap: 6px;
     min-width: 0;
+    /* Côte à côte, deux champs restent alignés en haut même si un seul affiche une erreur. */
+    align-content: start;
   }
   /* La bulle de l'icône « i » se place sous cette ligne. */
   .head {

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ChartColumnBig } from '@lucide/svelte'
   import { INCOME_OPTION_TEXT, INCOME_OPTION_TITLE } from '../householdSettings'
+  import InfoTip from '../ui/atoms/InfoTip.svelte'
 
   // Réglage du foyer « Rentrées et bilan » : le propriétaire l'active, les autres membres le voient.
   let {
@@ -24,7 +25,13 @@
 <section class="card setting">
   <span class="bubble" aria-hidden="true"><ChartColumnBig size={20} /></span>
   <div class="text">
-    <strong id="income-tracking-title">{INCOME_OPTION_TITLE}</strong>
+    <span class="title">
+      <strong id="income-tracking-title">{INCOME_OPTION_TITLE}</strong>
+      <InfoTip
+        label="À quoi sert « {INCOME_OPTION_TITLE} »"
+        text="Activée : vous notez aussi vos rentrées, et l'application affiche le résultat du mois, le reste à vivre et l'écran Bilan. Désactivée : elle ne montre que les dépenses. Vos saisies sont conservées dans les deux cas."
+      />
+    </span>
     <span class="muted">{INCOME_OPTION_TEXT}</span>
     {#if !isOwner}
       <span class="muted owner-only">Seul le propriétaire du foyer peut changer ce réglage.</span>
@@ -44,6 +51,13 @@
 </section>
 
 <style>
+  /* La bulle de l'icône « i » se place sous le titre. */
+  .title {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
   .setting {
     display: flex;
     align-items: flex-start;

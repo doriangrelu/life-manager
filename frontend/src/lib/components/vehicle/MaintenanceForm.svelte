@@ -11,7 +11,10 @@
     setsDeadline,
   } from '../../vehicles'
   import Chip from '../../ui/atoms/Chip.svelte'
+  import { tick } from 'svelte'
+  import Field from '../../ui/molecules/Field.svelte'
   import Segmented from '../../ui/molecules/Segmented.svelte'
+  import { allValid, check, focusFirstInvalid, notAfter, optionalAmount, optionalInteger, required } from '../../validation'
 
   // Nouvelle opération du carnet (dans une modale) : date et type pré-remplis, le reste facultatif.
   // Un contrôle technique ou une révision fixe aussi la prochaine échéance du véhicule.
@@ -29,9 +32,27 @@
   let busy = $state(false)
   const withDeadline = $derived(setsDeadline(kind))
   const automatic = $derived(automaticNextDue(kind, performedOn))
+  // Contrôles en direct ; après un envoi refusé, toutes les erreurs se montrent.
+  let revealed = $state(false)
+  const errors = $derived({
+    performedOn: check(performedOn, required('Choisissez une date'), notAfter(today(), 'La date ne peut pas être dans le futur')),
+    mileage: check(mileage, optionalInteger('45000', 2_000_000)),
+    cost: check(cost, optionalAmount('189,90')),
+    nextDue:
+      withDeadline && nextMode === 'precise' && !(preciseNextDue > performedOn)
+        ? 'La prochaine échéance doit suivre la date de l\'opération'
+        : null,
+  })
 
   async function submit(event: SubmitEvent) {
     event.preventDefault()
+    if (!allValid(errors)) {
+      const form = event.currentTarget as HTMLFormElement
+      revealed = true
+      await tick()
+      focusFirstInvalid(form)
+      return
+    }
     const input = toInput()
     if (input) {
       busy = true
@@ -81,19 +102,22 @@
     {/if}
   </fieldset>
   <div class="form-row">
-    <label>
-      Date
-      <input type="date" bind:value={performedOn} max={today()} required />
-    </label>
-    <label>
-      Kilométrage
-      <input bind:value={mileage} inputmode="numeric" placeholder="Facultatif" autocomplete="off" />
-    </label>
+    <Field label="Date" error={errors.performedOn} reveal={revealed}>
+      {#snippet children(id)}
+        <input {id} type="date" bind:value={performedOn} max={today()} />
+      {/snippet}
+    </Field>
+    <Field label="Kilométrage" error={errors.mileage} reveal={revealed}>
+      {#snippet children(id)}
+        <input {id} bind:value={mileage} inputmode="numeric" placeholder="Facultatif" autocomplete="off" />
+      {/snippet}
+    </Field>
   </div>
   {#if withDeadline}
     <div class="next stack">
       <Segmented
         label={nextDueLabel(kind)}
+        info="Automatique : la date est calculée depuis celle de l'opération (2 ans pour un contrôle technique, 1 an pour une révision). Date précise : vous indiquez celle du garage ou du procès-verbal."
         options={[
           { value: 'auto', label: 'Automatique' },
           { value: 'precise', label: 'Date précise' },
@@ -106,18 +130,20 @@
           <span class="hint">({kind === 'SERVICE' ? '+ 1 an' : '+ 2 ans'})</span>
         </p>
       {:else}
-        <label>
-          <span>Date <span class="visually-hidden">de la {nextDueLabel(kind).toLowerCase()}</span></span>
-          <input type="date" bind:value={preciseNextDue} min={performedOn ? dayAfter(performedOn) : undefined} required />
-        </label>
+        <Field label="Date de la {nextDueLabel(kind).toLowerCase()}" error={errors.nextDue} reveal={revealed}>
+          {#snippet children(id)}
+            <input {id} type="date" bind:value={preciseNextDue} min={performedOn ? dayAfter(performedOn) : undefined} />
+          {/snippet}
+        </Field>
       {/if}
     </div>
   {/if}
   <div class="form-row">
-    <label>
-      Coût en €
-      <input bind:value={cost} inputmode="decimal" placeholder="Facultatif" autocomplete="off" />
-    </label>
+    <Field label="Coût en €" error={errors.cost} reveal={revealed}>
+      {#snippet children(id)}
+        <input {id} bind:value={cost} inputmode="decimal" placeholder="Facultatif" autocomplete="off" />
+      {/snippet}
+    </Field>
     <label>
       Note
       <input bind:value={note} maxlength="140" placeholder="Garage, pièces…" />
