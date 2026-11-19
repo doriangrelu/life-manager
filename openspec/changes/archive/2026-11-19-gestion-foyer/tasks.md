@@ -26,4 +26,4 @@
 
 - [x] 4.1 [ci] Parcours natif étendu (retrait d'un membre, suppression d'un foyer)
 - [x] 4.2 [doc] Architecture (événements, cloisonnement) et feuille de route
-- [ ] 4.3 [infra/vps] Version publiée et déployée
+- [x] 4.3 [infra/vps] Version publiée et déployée (v0.5.0, 2026-11-19)
