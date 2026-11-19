@@ -86,6 +86,17 @@ Découpé en deux à la demande de Dorian (2026-11-19) :
   - **e-mails de Keycloak aux couleurs de l'application** (mot de passe oublié, vérification), envoyés par Brevo ;
   - prérequis technique : réparer le HTTPS sortant de l'exécutable natif (voir dette).
 
+### Lot 6c — Données personnelles et historique des rappels (en cadrage, avant le lot 7)
+
+Demandé par Dorian le 2026-11-19. Deux changes OpenSpec, propositions en attente de ses réponses :
+
+- **`historique-rappels`** : trace de chaque « C'est fait » (titre, date prévue, date faite, qui), section « Historique » dans l'écran Rappels, ligne retirable.
+- **`donnees-personnelles`** :
+  - **CGU** et **politique de confidentialité (RGPD)**, lisibles sans être connecté, acceptation des CGU dans l'application ;
+  - **télécharger mes données** en JSON (périmètre à valider : rien de secret, ni e-mails des autres, ni codes d'invitation, ni contenu des fichiers) ;
+  - **supprimer mon compte** (foyers quittés ou supprimés, profil effacé, compte Keycloak supprimé) ;
+  - **pied de page** avec la version déployée et les liens CGU / confidentialité.
+
 ### Lot 7 — Comptes entre membres
 
 - **Qui doit quoi** : dépenses et abonnements partagés, part de chacun, solde entre membres, remboursement enregistré.
