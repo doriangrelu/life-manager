@@ -29,7 +29,8 @@ class BillsContractEventRelay {
         var beneficiary = charge.beneficiary();
         outbox.record(new ChargePaidV1(event.occurrenceId().value(), event.householdId().value(),
                 charge.name().value(), event.paid().cents(), event.paidOn(), charge.budgetCategoryId(),
-                charge.payer().value(), beneficiary == null ? null : beneficiary.value(), event.occurredAt()));
+                charge.payer().value(), beneficiary == null ? null : beneficiary.value(), event.occurredAt(),
+                charge.direction().name()));
     }
 
     @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.BEFORE_COMMIT,

@@ -11,11 +11,11 @@ import java.util.UUID;
 @Serdeable
 public record ChargeResponse(UUID id, String name, long amountCents, String amountKind, String frequency,
                              LocalDate firstDueOn, UUID budgetCategoryId, UUID payerId, @Nullable UUID beneficiaryId,
-                             boolean active, @Nullable OccurrenceResponse next) {
+                             boolean active, @Nullable OccurrenceResponse next, String direction) {
 
     public static ChargeResponse from(ChargeView view) {
         return new ChargeResponse(view.id(), view.name(), view.amountCents(), view.amountKind(), view.frequency(),
                 view.firstDueOn(), view.budgetCategoryId(), view.payerId(), view.beneficiaryId(), view.active(),
-                view.next() == null ? null : OccurrenceResponse.from(view.next()));
+                view.next() == null ? null : OccurrenceResponse.from(view.next()), view.direction());
     }
 }

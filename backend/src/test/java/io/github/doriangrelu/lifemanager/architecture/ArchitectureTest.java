@@ -98,7 +98,8 @@ class ArchitectureTest {
      */
     private static final Set<String> USE_CASES_WITHOUT_HOUSEHOLD_CHECK = Set.of(
             "AdvanceChargeSchedulesUseCase", "RegisterHouseholdMemberUseCase", "CreateDefaultCategoriesUseCase",
-            "CreateDefaultShoppingListsUseCase", "RecordChargeExpenseUseCase", "CreateHouseholdUseCase",
+            "CreateDefaultShoppingListsUseCase", "RecordChargeExpenseUseCase", "RecordChargeIncomeUseCase",
+            "CreateHouseholdUseCase",
             "JoinHouseholdUseCase", "ListMembershipsUseCase", "ListMyHouseholdsUseCase", "UpdateMemberProfileUseCase",
             "GetCurrentUserUseCase", "SyncUserAccountUseCase", "ForgetVehicleDeadlinesUseCase",
             "TrackChargeDeadlineUseCase", "TrackVehicleDeadlinesUseCase",

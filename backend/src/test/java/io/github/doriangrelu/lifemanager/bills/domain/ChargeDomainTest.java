@@ -12,6 +12,7 @@ import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeDetails;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeId;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeName;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeSchedule;
+import io.github.doriangrelu.lifemanager.bills.domain.valueobject.FlowDirection;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.Frequency;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.MemberId;
@@ -123,7 +124,7 @@ class ChargeDomainTest {
 
     private static RecurringCharge charge(AmountKind kind, LocalDate firstDueOn) {
         var details = new ChargeDetails(new ChargeName("Internet"), Amount.ofCents(3999), kind, UUID.randomUUID(),
-                new MemberId(UUID.randomUUID()), null);
+                new MemberId(UUID.randomUUID()), null, FlowDirection.EXPENSE);
         return RecurringCharge.create(ChargeId.newId(), HOUSEHOLD, details,
                 new ChargeSchedule(firstDueOn, Frequency.MONTHLY), CLOCK);
     }

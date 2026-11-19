@@ -81,7 +81,7 @@ class OutboxIntegrationTest extends IntegrationTestSupport {
         var household = households.create(owner, "Maison").id();
         // État laissé par un arrêt brutal : l'événement est enregistré mais n'a jamais été distribué.
         var paid = new ChargePaidV1(UUID.randomUUID(), household, "internet", 3999, TODAY, UUID.randomUUID(),
-                ownerId, null, Instant.now());
+                ownerId, null, Instant.now(), null);
         var payload = json.writeValueAsString(paid);
         transactions.executeWrite(status -> table.save(OutboxEntity.pending(ChargePaidV1.class.getName(),
                 payload, Instant.now())));

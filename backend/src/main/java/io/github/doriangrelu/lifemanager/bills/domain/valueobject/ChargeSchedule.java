@@ -3,6 +3,8 @@ package io.github.doriangrelu.lifemanager.bills.domain.valueobject;
 import io.github.doriangrelu.lifemanager.kernel.domain.validation.Require;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Calendrier d'une charge : première échéance et fréquence.
@@ -19,5 +21,16 @@ public record ChargeSchedule(LocalDate firstDueOn, Frequency frequency) {
     /** Date de l'échéance numéro {@code index} (0 = la première). */
     public LocalDate dueOn(int index) {
         return firstDueOn.plusMonths((long) frequency.months() * index);
+    }
+
+    /** Dates d'échéance comprises entre deux jours inclus, dans l'ordre (au plus 100 ans parcourus). */
+    public List<LocalDate> dueDatesBetween(LocalDate from, LocalDate to) {
+        var dates = new ArrayList<LocalDate>();
+        for (int index = 0; index < 1200 && !dueOn(index).isAfter(to); index++) {
+            if (!dueOn(index).isBefore(from)) {
+                dates.add(dueOn(index));
+            }
+        }
+        return dates;
     }
 }

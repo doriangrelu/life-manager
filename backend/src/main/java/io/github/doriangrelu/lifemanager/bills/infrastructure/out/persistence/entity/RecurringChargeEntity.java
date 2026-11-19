@@ -11,5 +11,5 @@ import java.util.UUID;
 @MappedEntity("recurring_charge")
 public record RecurringChargeEntity(@Id UUID id, UUID householdId, String name, long amountCents, String amountKind,
                                     String frequency, LocalDate firstDueOn, UUID budgetCategoryId, UUID payerId,
-                                    @Nullable UUID beneficiaryId, boolean active) {
+                                    @Nullable UUID beneficiaryId, boolean active, String direction) {
 }

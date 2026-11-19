@@ -151,7 +151,7 @@ class ChargesIntegrationTest extends IntegrationTestSupport {
         assertThat(failure(() -> add(home, request(home, "Internet", 3999, "FIXED", TODAY.minusDays(1)))).code())
                 .isEqualTo(400);
         var foreignPayer = new ChargeRequest("Internet", 3999, "FIXED", "MONTHLY", TODAY, home.category,
-                UUID.randomUUID(), null);
+                UUID.randomUUID(), null, null);
         assertThat(failure(() -> add(home, foreignPayer)).code()).isEqualTo(400);
         assertThat(failure(() -> http.retrieve(HttpRequest.GET(charges(home)).bearerAuth(stranger))).code())
                 .isEqualTo(404);
@@ -173,7 +173,7 @@ class ChargesIntegrationTest extends IntegrationTestSupport {
     }
 
     private static ChargeRequest request(Home home, String name, long cents, String kind, LocalDate firstDueOn) {
-        return new ChargeRequest(name, cents, kind, "MONTHLY", firstDueOn, home.category, home.ownerId, null);
+        return new ChargeRequest(name, cents, kind, "MONTHLY", firstDueOn, home.category, home.ownerId, null, null);
     }
 
     private ChargeResponse add(Home home, ChargeRequest request) {

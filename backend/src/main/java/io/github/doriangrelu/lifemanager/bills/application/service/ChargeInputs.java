@@ -8,6 +8,7 @@ import io.github.doriangrelu.lifemanager.bills.domain.valueobject.AmountKind;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeDetails;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeName;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeSchedule;
+import io.github.doriangrelu.lifemanager.bills.domain.valueobject.FlowDirection;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.Frequency;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.MemberId;
@@ -32,7 +33,8 @@ public class ChargeInputs {
             ensureMember(householdId, beneficiary);
         }
         return new ChargeDetails(new ChargeName(input.name()), Amount.ofCents(input.amountCents()),
-                AmountKind.of(input.amountKind()), input.budgetCategoryId(), payer, beneficiary);
+                AmountKind.of(input.amountKind()), input.budgetCategoryId(), payer, beneficiary,
+                FlowDirection.of(input.direction()));
     }
 
     public static ChargeSchedule schedule(ChargeInput input) {

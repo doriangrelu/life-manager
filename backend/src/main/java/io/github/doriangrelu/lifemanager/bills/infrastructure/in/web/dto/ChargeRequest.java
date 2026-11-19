@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/** Corps d'ajout ou de modification d'une charge ; montant en centimes. */
+/** Corps d'ajout ou de modification d'une charge ; montant en centimes ; sens absent = dépense. */
 @Serdeable
 public record ChargeRequest(@NotBlank @Size(max = 60) String name,
                             long amountCents,
@@ -19,10 +19,11 @@ public record ChargeRequest(@NotBlank @Size(max = 60) String name,
                             @NotNull LocalDate firstDueOn,
                             @NotNull UUID budgetCategoryId,
                             @NotNull UUID payerId,
-                            @Nullable UUID beneficiaryId) {
+                            @Nullable UUID beneficiaryId,
+                            @Nullable String direction) {
 
     public ChargeInput toInput() {
         return new ChargeInput(name, amountCents, amountKind, frequency, firstDueOn, budgetCategoryId, payerId,
-                beneficiaryId);
+                beneficiaryId, direction);
     }
 }
