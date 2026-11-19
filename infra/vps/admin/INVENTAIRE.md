@@ -8,8 +8,9 @@
 |---|---|
 | Hébergeur | OVH, VPS 2 cœurs, 3,7 Go de mémoire, **pas de swap**, disque 38 Go |
 | Système | Ubuntu 26.04 LTS, horloge UTC |
-| Accès | `ssh ubuntu@152.228.237.190`, **par clé uniquement** ; secours : console KVM de l'espace client OVH |
-| Utilisateur | `ubuntu` : `sudo` sans mot de passe, membre du groupe `docker` |
+| Accès | SSH sur 152.228.237.190, **par clé uniquement** ; secours : console KVM ou mode rescue de l'espace client OVH |
+| Utilisateur `ubuntu` | propriétaire de tous les fichiers ; `sudo` sans mot de passe, groupe `docker`. Clés : Dorian (PC Windows et WSL), `claude-deploy-mybook` (session Claude de mybook, en double) |
+| Utilisateur `ia` | réservé à l'IA (créé le 2026-11-19) : `sudo` sans mot de passe (`/etc/sudoers.d/90-ia`), groupes `docker` et `ubuntu`, pas de mot de passe. Clé : `claude-code-life-manager`. Couper l'accès de l'IA : `sudo usermod -L -e 1 ia` ou vider `/home/ia/.ssh/authorized_keys` |
 | Pare-feu | `ufw` : entrée refusée sauf 22, 80, 443 |
 | fail2ban | une prison `sshd` |
 | Réglages ajoutés | `/etc/ssh/sshd_config.d/00-cles-uniquement.conf` ; `/etc/docker/daemon.json` (journaux 3 × 10 Mo, pour les conteneurs créés après un redémarrage de Docker) |
@@ -77,4 +78,4 @@ Sources de la maintenance : `life-manager/infra/vps/` (installation : `infra/vps
 
 ## Ce qui manque (connu)
 
-Pas de swap ; pas de supervision ni d'alerte (personne n'est prévenu si un site tombe) ; `~/infra` et `~/keycloak` non versionnés ; pas d'utilisateur dédié à l'IA (elle agit en `ubuntu`, donc avec tous les droits).
+Pas de swap ; pas de supervision ni d'alerte (personne n'est prévenu si un site tombe) ; `~/infra` et `~/keycloak` non versionnés ; l'utilisateur `ia` a tous les droits (choix de Dorian : séparé mais complet, les limites sont des consignes).

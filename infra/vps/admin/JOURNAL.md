@@ -29,11 +29,16 @@ rclone installé ; `~/infra/onedrive/send-backup.sh` chaque nuit à 3 h 30 (cron
 
 Installation de `~/AGENTS.md`, `~/CLAUDE.md` et `~/admin/` (inventaire, procédures, journal, `etat.sh`).
 
+## 2026-11-19 13:55 — Claude — utilisateur dédié à l'IA
+
+Choix de Dorian : « séparé mais complet ». Utilisateur `ia` : `sudo` sans mot de passe (`/etc/sudoers.d/90-ia`), groupes `docker` et `ubuntu`, pas de mot de passe, clé `claude-code-life-manager`, `/home/ia/CLAUDE.md` qui renvoie vers `~ubuntu/AGENTS.md`. La clé `claude-code-life-manager` est **retirée d'`ubuntu`** (copie : `~/.ssh/authorized_keys.avant-ia`) ; refus vérifié. Les scripts de l'IA se connectent en `ia` et travaillent en `ubuntu` par `sudo -iu ubuntu`.
+Retour arrière : `sudo userdel -r ia ; sudo rm /etc/sudoers.d/90-ia` et remettre la clé dans `~ubuntu/.ssh/authorized_keys`.
+
 ## Points ouverts (à décider avec Dorian)
 
 - Swap de 2 Go.
 - Supervision et alerte (un site qui tombe ne prévient personne).
-- Utilisateur dédié à l'IA, avec `sudo` limité à une liste de commandes.
+- La session Claude de mybook utilise encore `ubuntu` (clé `claude-deploy-mybook`, en double) : la basculer aussi sur `ia` ?
 - Versionner `~/infra`, `~/keycloak`, `~/portainer` dans un dépôt privé.
 - Ménage du dossier personnel : `%{redirect_url}n`, `get-docker.sh`, `test-newsletter-brevo.sh`, `conteneurs-avant-reboot.txt`, `~/mybook/backups` (arrêté en août), `~/backups` (vide), clé SSH `claude-deploy-mybook` en double.
 - Le rôle PostgreSQL `site` (mybook) est superutilisateur.

@@ -76,9 +76,17 @@ Si la clé est refusée : Dorian passe par l'espace client OVH, soit la console 
 
 ## 11. Mettre à jour cette documentation
 
-Source : dépôt `life-manager`, dossier `infra/vps/admin/`. Après modification et commit, depuis le poste de Dorian :
+Source : dépôt `life-manager`, dossier `infra/vps/admin/`. Après modification et commit, depuis le dépôt (Dorian, en `ubuntu`) :
 ```bash
 scp infra/vps/admin/{AGENTS.md,CLAUDE.md} ubuntu@<serveur>:
 scp infra/vps/admin/{INVENTAIRE.md,PROCEDURES.md,etat.sh} ubuntu@<serveur>:admin/
+```
+En `ia`, qui ne peut pas écrire dans `/home/ubuntu` : `ssh ia@<serveur> "sudo -u ubuntu tee /home/ubuntu/admin/<fichier> >/dev/null" < infra/vps/admin/<fichier>`.
+
+## 12. Couper ou rétablir l'accès de l'IA — Dorian
+
+```bash
+sudo usermod -L -e 1 ia         # couper (compte verrouillé et expiré)
+sudo usermod -U -e '' ia        # rétablir
 ```
 `JOURNAL.md` vit **sur le serveur** (ne pas l'écraser) ; sa copie de départ est dans le dépôt.
