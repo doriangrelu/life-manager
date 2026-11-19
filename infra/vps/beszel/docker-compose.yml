@@ -48,7 +48,9 @@ services:
     environment:
       APP_URL: https://metrics.dorian-grelu.fr
       # Identité = e-mail transmis par oauth2-proxy, accepté seulement depuis son adresse fixe
-      TRUSTED_AUTH_HEADER: X-Forwarded-Email
+      # X-Forwarded-User contient l'e-mail (PREFER_EMAIL_TO_USER d'oauth2-proxy) ;
+      # X-Forwarded-Email n'est pas transmis dans cette configuration (constaté le 2026-11-19)
+      TRUSTED_AUTH_HEADER: X-Forwarded-User
       TRUSTED_PROXY_IPS: 10.89.0.10
       DISABLE_PASSWORD_AUTH: "true"
       # Premier utilisateur (administrateur) ; mot de passe aléatoire jamais utilisé

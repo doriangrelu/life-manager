@@ -75,6 +75,10 @@ Piège : `docker compose exec` dans `backup.sh` lit l'entrée standard et « ava
 **En attente de Dorian** : adresse de retour `https://metrics.dorian-grelu.fr/oauth2/callback` sur le client Keycloak, puis *Add System* (`/beszel_socket/beszel.sock`).
 Retour arrière : `cd ~/beszel && docker compose down`, supprimer `~/infra/conf.d/metrics.caddy` + recharger Caddy, remettre `backup.sh.avant-beszel`.
 
+## 2026-11-19 14:55 — Claude — Beszel : connexion corrigée
+
+Page de connexion vide : oauth2-proxy (avec `PREFER_EMAIL_TO_USER`) transmet l'e-mail dans `X-Forwarded-User` mais pas `X-Forwarded-Email`. `TRUSTED_AUTH_HEADER=X-Forwarded-User`, Beszel recréé. Testé depuis l'adresse d'oauth2-proxy : sans en-tête 401, bonne adresse 200, autre adresse 401.
+
 ## Points ouverts (à décider avec Dorian)
 
 - Versionner `~/infra`, `~/keycloak`, `~/dozzle`, `~/beszel` dans un dépôt privé.
