@@ -13,4 +13,4 @@
 
 ## 3. Livraison
 
-- [ ] 3.1 [infra/vps] Version v0.11.0 publiée et déployée
+- [x] 3.1 [infra/vps] Version v0.11.0 publiée et déployée
