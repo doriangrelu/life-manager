@@ -1,9 +1,9 @@
-> Proposition à relire par Dorian (voir « Open Questions » du design) avant toute implémentation.
+> Relu par Dorian le 2026-11-19 : réponses dans « Open Questions » du design (invitations réservées au propriétaire, renommage ajouté).
 
 ## 1. Domaine `household`
 
-- [ ] 1.1 [household/domain] Propriétaire dans `Household` : transmission, retrait, départ, suppression, invariants (+ tests)
-- [ ] 1.2 [household/domain] Annulation d'une invitation (+ tests)
+- [ ] 1.1 [household/domain] Propriétaire dans `Household` : transmission, retrait, départ, renommage, suppression, invariants (+ tests)
+- [ ] 1.2 [household/application] Invitations réservées au propriétaire (génération, annulation, code visible du seul propriétaire) (+ tests)
 - [ ] 1.3 [household/infrastructure] Migration V4 `owner_id` (reprise : plus ancien membre), dépôts, effacement d'un foyer (+ test de migration)
 - [ ] 1.4 [household/application + infrastructure/in] Use cases et routes : propriétaire, retrait, départ, annulation, suppression ; `ownerId` dans la consultation (+ tests d'intégration, 403 / 404)
 - [ ] 1.5 [household/contract + infrastructure/out] Événements `MemberLeftV1` et `HouseholdDeletedV1` par la boîte d'envoi

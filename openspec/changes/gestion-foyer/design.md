@@ -14,14 +14,16 @@
 
 - `Household` gagne `owner` (`MemberId`). Invariants : le propriétaire est membre ; il ne peut ni se retirer ni quitter le foyer.
 - Méthodes : `transferOwnership(by, to)`, `removeMember(by, member)` (seul le propriétaire, pas lui-même), `leave(member)` (pas le propriétaire), `delete(by)` (seul le propriétaire : produit `HouseholdDeleted`).
-- `Invitation` : `cancel(by)` par tout membre (comme la génération). Le statut passe à « annulée » ; le code n'est plus accepté.
+- `Invitation` : génération et `cancel()` réservées au propriétaire (vérifié par le use case via le foyer). Le statut passe à « annulée » ; le code n'est plus accepté. La consultation ne renvoie le code actif qu'au propriétaire.
+- `Household.rename(by, name)` : réservé au propriétaire.
 - Migration `household` V4 : colonne `owner_id`, remplie avec le plus ancien membre de chaque foyer ; `NOT NULL`.
 - Suppression : le foyer, ses appartenances et ses invitations sont effacés (suppression définitive en base).
 - Routes (toutes contrôlées par `HouseholdAccess`, 404 pour un non-membre, 403 pour un membre sans le droit) :
   - `PUT /api/households/{h}/owner` `{ memberId }` ;
   - `DELETE /api/households/{h}/members/{memberId}` (retrait) ;
   - `POST /api/households/{h}/leave` ;
-  - `DELETE /api/households/{h}/invitations` (annule le code actif) ;
+  - `POST /api/households/{h}/invitations` (existante, désormais réservée au propriétaire) et `DELETE /api/households/{h}/invitations` (annule le code actif) ;
+  - `PUT /api/households/{h}` `{ name }` (renommage) ;
   - `DELETE /api/households/{h}` avec `{ confirmName }` égal au nom du foyer.
 - La consultation renvoie `ownerId` ; la PWA en déduit les actions permises.
 
@@ -62,10 +64,10 @@
 
 Migration `household` V4 (colonne `owner_id`, remplie). Aucune autre migration. Retour arrière : version précédente, la colonne est ignorée.
 
-## Open Questions (à trancher par Dorian)
+## Open Questions — tranchées par Dorian le 2026-11-19
 
-1. **Quitter un foyer** : ajouté en plus de ta demande (un membre doit pouvoir partir seul). D'accord ?
-2. **Charges d'un membre retiré** : elles passent au propriétaire (payeur) et à « Commun » (bénéficiaire). Ou bien tu préfères les résilier ?
-3. **Suppression** : immédiate et définitive après avoir retapé le nom. Ou un délai de grâce de quelques jours ?
-4. **Annuler un code** : par n'importe quel membre (comme la génération), ou par le propriétaire seulement ?
-5. **Renommer le foyer** (par le propriétaire) : on l'ajoute au passage ?
+1. **Quitter un foyer** : oui.
+2. **Charges d'un membre retiré** : pas de résiliation ; payeur transféré au propriétaire, bénéficiaire passé à « Commun ».
+3. **Suppression** : immédiate et définitive.
+4. **Invitations** : **seul le propriétaire** génère, copie et annule le code d'invitation (changement par rapport à aujourd'hui, où tout membre peut inviter). Les autres membres ne voient pas le code.
+5. **Renommer le foyer** : oui, par le propriétaire (`PUT /api/households/{h}` `{ name }`, mêmes règles de nom qu'à la création).

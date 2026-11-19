@@ -7,7 +7,8 @@ Aujourd'hui, une fois entré dans un foyer, on y reste : personne ne peut retire
 - **Propriétaire du foyer** : le créateur au départ (les foyers existants reçoivent leur plus ancien membre). Il peut **transmettre** ce rôle à un autre membre. Il est signalé dans la liste des membres.
 - **Retirer un membre** : réservé au propriétaire. Le membre retiré perd aussitôt l'accès au foyer et à toutes ses données.
 - **Quitter un foyer** : tout membre sauf le propriétaire, qui doit d'abord transmettre le rôle ou supprimer le foyer.
-- **Annuler le code d'invitation** en cours : il n'est plus accepté.
+- **Invitations réservées au propriétaire** : lui seul génère, voit et **annule** le code d'invitation (choix de Dorian).
+- **Renommer le foyer** : par le propriétaire.
 - **Supprimer un foyer** : réservé au propriétaire, avec une confirmation forte (retaper le nom). **Toutes** les données du foyer sont effacées dans chaque domaine (dépenses, catégories, charges et factures, véhicules et pièces jointes, courses, rappels).
 - **PWA** : écran Foyer enrichi (propriétaire, retrait, départ, annulation du code, zone « Supprimer le foyer ») ; quand le foyer affiché n'est plus accessible, la PWA bascule sur un autre foyer ou sur « Créer ou rejoindre ».
 
@@ -29,6 +30,6 @@ Aucune.
 
 ## Hors périmètre
 
-- Renommer un foyer, plusieurs propriétaires ou rôles plus fins (lecture seule…).
+- Plusieurs propriétaires ou rôles plus fins (lecture seule…).
 - Corbeille ou délai de grâce avant suppression (la suppression est immédiate et définitive ; seules les sauvegardes nocturnes en gardent une trace 14 jours).
 - Limites et comptes VIP (lot 11).
