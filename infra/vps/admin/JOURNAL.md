@@ -77,7 +77,7 @@ Retour arrière : `cd ~/beszel && docker compose down`, supprimer `~/infra/conf.
 
 ## 2026-11-19 14:55 — Claude — Beszel : connexion corrigée
 
-Page de connexion vide : oauth2-proxy (avec `PREFER_EMAIL_TO_USER`) transmet l'e-mail dans `X-Forwarded-User` mais pas `X-Forwarded-Email`. `TRUSTED_AUTH_HEADER=X-Forwarded-User`, Beszel recréé. Testé depuis l'adresse d'oauth2-proxy : sans en-tête 401, bonne adresse 200, autre adresse 401.
+Page de connexion vide : oauth2-proxy (avec `PREFER_EMAIL_TO_USER`) transmet l'e-mail dans `X-Forwarded-User` mais pas `X-Forwarded-Email`. `TRUSTED_AUTH_HEADER=X-Forwarded-User`, Beszel recréé. Testé depuis l'adresse d'oauth2-proxy : sans en-tête 401, bonne adresse 200, autre adresse 401. Système `VPS` ajouté par Dorian (`/beszel_socket/beszel.sock`) : **courbes visibles, mise en service validée**.
 
 ## Points ouverts (à décider avec Dorian)
 
