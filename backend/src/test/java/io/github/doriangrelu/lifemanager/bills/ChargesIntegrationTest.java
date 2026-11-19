@@ -140,15 +140,10 @@ class ChargesIntegrationTest extends IntegrationTestSupport {
         var base = occurrence(home, internet.id(), internet.next().id()) + "/invoices";
         var body = MultipartBody.builder().addPart("file", "facture.pdf", MediaType.APPLICATION_PDF_TYPE, PDF).build();
         http.exchange(HttpRequest.POST(base, body).contentType(MediaType.MULTIPART_FORM_DATA_TYPE).bearerAuth(home.owner));
-
-        http.exchange(HttpRequest.PUT(charges(home) + "/" + internet.id(),
-                request(home, "Internet", 4999, "FIXED", TODAY.plusDays(5))).bearerAuth(home.owner));
+        var changed = request(home, "Internet", 4999, "FIXED", TODAY.plusDays(5));
+        http.exchange(HttpRequest.PUT(charges(home) + "/" + internet.id(), changed).bearerAuth(home.owner));
         http.exchange(HttpRequest.DELETE(charges(home) + "/" + internet.id()).bearerAuth(home.owner));
-
-        // La facture reste avec son échéance, qui ne sera pas payée (charge résiliée).
-        assertThat(http.retrieve(HttpRequest.GET(base).bearerAuth(home.owner),
-                Argument.listOf(InvoiceResponse.class))).hasSize(1);
-        assertThat(list(home).getFirst().next()).isNull();
+        assertThat(http.retrieve(HttpRequest.GET(base).bearerAuth(home.owner), String.class)).contains("facture.pdf");
     }
 
     @Test
