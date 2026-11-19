@@ -53,7 +53,9 @@ jobs:
         with:
           context: frontend
           push: true
-          build-args: VITE_OIDC_AUTHORITY=${{ env.OIDC_AUTHORITY }}
+          build-args: |
+            VITE_OIDC_AUTHORITY=${{ env.OIDC_AUTHORITY }}
+            VITE_APP_VERSION=${{ github.ref_name }}
           tags: ${{ env.REGISTRY }}/life-manager-web:${{ github.ref_name }}
           labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
           cache-from: type=gha,scope=life-manager-web

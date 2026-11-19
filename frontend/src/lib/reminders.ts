@@ -1,7 +1,11 @@
 // Rappels : textes affichés et choix des notifications à montrer (une fois par jour et par rappel, par appareil).
 
+import { writable } from 'svelte/store'
 import type { Reminder } from './api/types'
 import { displayName } from './text'
+
+/** Compteur augmenté à chaque changement des rappels saisis : le bandeau se recharge aussitôt. */
+export const remindersChanged = writable(0)
 
 const KIND_LABELS: Record<Reminder['kind'], string> = {
   TECHNICAL_INSPECTION: 'Contrôle technique',

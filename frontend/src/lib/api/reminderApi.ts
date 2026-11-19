@@ -1,5 +1,8 @@
 import { apiRequest } from './http'
-import type { PersonalReminder, PersonalReminderInput, Reminder } from './types'
+import type { PersonalReminder, PersonalReminderInput, Reminder, ReminderDone } from './types'
+
+/** Taille d'une page d'historique : une page pleine laisse supposer qu'il y en a d'autres. */
+export const HISTORY_PAGE_SIZE = 20
 
 const personal = (householdId: string) => `/households/${householdId}/personal-reminders`
 
@@ -32,4 +35,13 @@ export function deletePersonalReminder(householdId: string, reminderId: string):
 /** « C'est fait » : un rappel ponctuel disparaît, un rappel récurrent passe à sa date suivante. */
 export function completePersonalReminder(householdId: string, reminderId: string): Promise<void> {
   return apiRequest('POST', `${personal(householdId)}/${reminderId}/done`)
+}
+
+/** Une page de l'historique des rappels faits, du plus récent au plus ancien, après `offset` lignes. */
+export function listReminderHistory(householdId: string, offset = 0): Promise<ReminderDone[]> {
+  return apiRequest('GET', `/households/${householdId}/reminder-history?offset=${offset}`)
+}
+
+export function removeReminderDone(householdId: string, entryId: string): Promise<void> {
+  return apiRequest('DELETE', `/households/${householdId}/reminder-history/${entryId}`)
 }

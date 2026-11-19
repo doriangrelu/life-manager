@@ -126,6 +126,8 @@ flyway:
 # Fuseau des utilisateurs : sert à savoir quel jour on est (ex. refuser une dépense datée de demain).
 life-manager:
   time-zone: Europe/Paris
+  # Version déployée (tag Git), fournie par le déploiement ; affichée dans le pied de page de la PWA.
+  version: ${LM_VERSION:dev}
   # Dossier des fichiers envoyés (un sous-dossier par domaine). En production : un volume sauvegardé.
   storage:
     root: ${STORAGE_ROOT:./data/files}

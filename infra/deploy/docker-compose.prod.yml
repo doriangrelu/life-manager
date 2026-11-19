@@ -17,6 +17,8 @@ services:
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_API_CLIENT_SECRET: ${KEYCLOAK_API_CLIENT_SECRET:?}
       STORAGE_ROOT: /data/files
+      # Version affichée dans le pied de page de la PWA : le tag déployé.
+      LM_VERSION: ${LIFE_MANAGER_TAG}
       # « db » : le PostgreSQL du socle, sur le réseau partagé.
       IDENTITY_DB_URL: &url jdbc:postgresql://db:5432/lifemanager
       IDENTITY_DB_PASSWORD: ${IDENTITY_DB_PASSWORD:?}

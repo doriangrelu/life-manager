@@ -103,7 +103,7 @@ class ArchitectureTest {
             "JoinHouseholdUseCase", "ListMembershipsUseCase", "ListMyHouseholdsUseCase", "UpdateMemberProfileUseCase",
             "GetCurrentUserUseCase", "SyncUserAccountUseCase", "ForgetVehicleDeadlinesUseCase",
             "TrackChargeDeadlineUseCase", "TrackVehicleDeadlinesUseCase",
-            "ForgetHouseholdMemberUseCase", "ForgetHouseholdUseCase");
+            "ForgetHouseholdMemberUseCase", "ForgetHouseholdUseCase", "PurgeReminderHistoryUseCase");
 
     @Test
     void use_cases_check_household_membership() {

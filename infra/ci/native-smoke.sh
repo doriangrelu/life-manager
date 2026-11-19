@@ -171,6 +171,17 @@ call "$ALICE" POST "/households/$HOUSEHOLD/charges" 201 \
 
 echo "== Rappels"
 eventually 10 call "$ALICE" GET "/households/$HOUSEHOLD/reminders" 200
+# Rappel saisi, « c'est fait », puis la ligne d'historique (lisible, retirable).
+call "$ALICE" POST "/households/$HOUSEHOLD/personal-reminders" 201 \
+  "{\"title\":\"Ramonage\",\"note\":null,\"dueOn\":\"$TODAY\",\"recurrence\":\"YEARLY\",\"notice\":\"ONE_WEEK\"}"
+REMINDER=$(body "['id']")
+call "$ALICE" POST "/households/$HOUSEHOLD/personal-reminders/$REMINDER/done" 204
+call "$ALICE" GET "/households/$HOUSEHOLD/reminder-history" 200
+[ "$(body "[0]['title']")" = "Ramonage" ] || fail "historique des rappels inattendu : $(head -c 400 "$WORK/body")"
+call "$ALICE" DELETE "/households/$HOUSEHOLD/reminder-history/$(body "[0]['id']")" 204
+
+echo "== Version (publique, sans jeton)"
+curl -sSf -m 20 "$API/api/version" | grep -q '"version"' || fail "version de l'API absente"
 
 echo "== Gestion du foyer : retrait d'un membre, suppression d'un foyer"
 call "$ALICE" DELETE "/households/$HOUSEHOLD/members/$BOB_ID" 204

@@ -216,6 +216,16 @@ export interface PersonalReminder extends PersonalReminderInput {
   id: string
 }
 
+/** Ligne de l'historique : un « c'est fait » (titre recopié, date prévue, moment et membre). */
+export interface ReminderDone {
+  id: string
+  title: string
+  dueOn: string
+  /** Instant ISO. */
+  doneAt: string
+  doneBy: string
+}
+
 // ---- Courses
 
 export interface ShoppingItem {

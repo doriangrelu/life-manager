@@ -16,6 +16,7 @@
   import { formatDay } from '../dates'
   import { incomeTracking } from '../householdSettings'
   import { displayName } from '../text'
+  import AppVersion from '../ui/atoms/AppVersion.svelte'
   import Skeleton from '../ui/atoms/Skeleton.svelte'
   import ConfirmDialog from '../ui/molecules/ConfirmDialog.svelte'
   import TextDialog from '../ui/molecules/TextDialog.svelte'
@@ -212,6 +213,9 @@
     {/if}
   </section>
 
+  <!-- Mobile : version en bas de l'écran Foyer (sur grand écran, elle est dans le menu latéral). -->
+  <div class="mobile-version"><AppVersion /></div>
+
   <TextDialog bind:open={renaming} title="Renommer le foyer" label="Nom" initial={displayName(household.name)} maxlength={100} onsubmit={rename} />
 
   <ConfirmDialog
@@ -300,6 +304,11 @@
   .hint {
     font-size: 0.9rem;
     margin: 0;
+  }
+  @media (min-width: 900px) {
+    .mobile-version {
+      display: none;
+    }
   }
   .danger-zone {
     border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);

@@ -6,7 +6,7 @@
   import { today } from '../month'
   import { askPermission, notificationState, notify, type NotificationState } from '../notifications'
   import { notifiedMemo, rememberNotified } from '../preferences'
-  import { reminderDelay, reminderTitle, toNotify } from '../reminders'
+  import { reminderDelay, reminderTitle, remindersChanged, toNotify } from '../reminders'
 
   // Bandeau des rappels du foyer, visible sur tous les onglets ; notifie aussi l'appareil si autorisé.
   // refreshKey : change quand il faut recharger (ex. changement d'onglet après une modification de véhicule).
@@ -23,6 +23,7 @@
 
   $effect(() => {
     void refreshKey
+    void $remindersChanged
     load()
   })
 

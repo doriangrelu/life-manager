@@ -3,6 +3,7 @@
   import { SPACES, sectionToOpen, spaceOf, visibleEntries, type Space } from '../../navigation'
   import { rememberedSpaceSection } from '../../preferences'
   import type { Section } from '../../route'
+  import AppVersion from '../atoms/AppVersion.svelte'
 
   // Navigation principale par espaces (voir lib/navigation.ts).
   // Mobile : barre fixée en bas, une entrée par espace. À partir de 900 px : menu latéral, espaces et tous leurs écrans.
@@ -53,6 +54,9 @@
       </div>
     {/each}
   </div>
+
+  <!-- Grand écran : version en bas du menu (sur mobile, elle est en bas de l'écran Foyer). -->
+  <div class="version"><AppVersion /></div>
 </nav>
 
 <style>
@@ -69,7 +73,8 @@
     border-top: 1px solid var(--color-border);
   }
   .brand,
-  .side {
+  .side,
+  .version {
     display: none;
   }
   .bar {
@@ -150,6 +155,13 @@
       display: flex;
       flex-direction: column;
       gap: 18px;
+    }
+    .version {
+      display: block;
+      margin-top: auto;
+    }
+    .version :global(.app-version) {
+      text-align: left;
     }
     .group {
       display: flex;

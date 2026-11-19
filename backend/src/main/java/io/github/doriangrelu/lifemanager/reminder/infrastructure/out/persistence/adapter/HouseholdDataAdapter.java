@@ -29,6 +29,7 @@ class HouseholdDataAdapter implements HouseholdData {
         var id = householdId.value();
         table.erase1(id);
         table.erasePersonalReminders(id);
+        table.eraseHistory(id);
         table.deleteMembers(id);
         return List.of();
     }

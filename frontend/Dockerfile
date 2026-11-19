@@ -9,6 +9,8 @@ RUN bun install --frozen-lockfile
 COPY . .
 ARG VITE_OIDC_AUTHORITY
 ARG VITE_OIDC_CLIENT_ID=life-manager-pwa
+# Version affichée dans le pied de page (tag Git, fourni par release.yml).
+ARG VITE_APP_VERSION=dev
 RUN test -n "$VITE_OIDC_AUTHORITY" || (echo "VITE_OIDC_AUTHORITY est obligatoire" && exit 1)
 RUN bun run build
 

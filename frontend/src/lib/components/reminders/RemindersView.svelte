@@ -13,13 +13,14 @@
   import { formatDay } from '../../dates'
   import { today } from '../../month'
   import { daysUntil, recurrenceText, whenText } from '../../personalReminders'
-  import { reminderTitle } from '../../reminders'
+  import { reminderTitle, remindersChanged } from '../../reminders'
   import { displayName } from '../../text'
   import Skeleton from '../../ui/atoms/Skeleton.svelte'
   import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
   import Fab from '../../ui/molecules/Fab.svelte'
   import Modal from '../../ui/molecules/Modal.svelte'
   import PersonalReminderForm from './PersonalReminderForm.svelte'
+  import ReminderHistory from './ReminderHistory.svelte'
 
   // Écran Rappels de l'espace Maison : ce qui arrive bientôt (rappels saisis et automatiques),
   // puis tous les rappels saisis par les membres, à modifier, supprimer ou marquer « c'est fait ».
@@ -33,6 +34,8 @@
   let editing = $state<PersonalReminder | null>(null)
   let deleting = $state<PersonalReminder | null>(null)
   let confirmOpen = $state(false)
+  // Change après un « c'est fait » : l'historique se recharge.
+  let historyKey = $state(0)
 
   onMount(() => run(load))
 
@@ -41,6 +44,12 @@
     upcoming = loadedUpcoming
     saved = loadedSaved
     loaded = true
+  }
+
+  // Après un changement : l'écran et le bandeau du haut se rechargent.
+  async function reload() {
+    await load()
+    remindersChanged.update((n) => n + 1)
   }
 
   async function run(action: () => Promise<void>) {
@@ -64,13 +73,14 @@
       await addPersonalReminder(householdId, input)
     }
     editorOpen = false
-    await load()
+    await reload()
   }
 
   function done(id: string) {
     run(async () => {
       await completePersonalReminder(householdId, id)
-      await load()
+      await reload()
+      historyKey++
     })
   }
 
@@ -84,7 +94,7 @@
     if (target) {
       run(async () => {
         await deletePersonalReminder(householdId, target.id)
-        await load()
+        await reload()
       })
     }
   }
@@ -163,6 +173,8 @@
         </ul>
       {/if}
     </section>
+
+    <ReminderHistory {householdId} refreshKey={historyKey} />
   {/if}
 
   <Fab label="Ajouter un rappel" onclick={() => openEditor(null)} />
