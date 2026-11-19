@@ -90,6 +90,8 @@ Toute route `/api/households/{householdId}/…` reçoit un foyer choisi par le c
 
 - Chaque domaine a un service `application/service/…Access` (copie locale des membres) : un use case commence par lui, avant toute lecture, écriture ou fichier. Foyer d'un autre, ou ressource d'un autre foyer : **404** (on ne révèle pas son existence).
 - **ArchUnit** (`use_cases_check_household_membership`) : tout use case dépend d'un `…Access` (ou d'un `…Recorder` qui l'appelle d'abord), sauf une liste explicite de use cases internes (événements, tâches planifiées, compte du demandeur). Un nouveau use case sans contrôle fait échouer le build.
+- **Départ d'un membre et suppression d'un foyer** : le domaine foyer publie `MemberLeftV1` et `HouseholdDeletedV1`. Chaque domaine a un port `HouseholdData` (copie des membres, effacement de toutes ses données) et deux use cases internes `ForgetHouseholdMember` / `ForgetHousehold` ; les fichiers sont supprimés **après** la validation en base. Un nouveau domaine qui garde des données par foyer DOIT implémenter les deux.
+- **Propriétaire** : seul lui renomme, invite, retire, transmet ou supprime (`Household.requireOwner`, 403 sinon).
 - **Balayage des routes** (`HouseholdIsolationTest`) : chaque route de foyer, y compris une route ajoutée demain, est appelée par un non-membre. Aucune ne doit réussir ni renvoyer une donnée du foyer.
 
 ## Use cases et services applicatifs

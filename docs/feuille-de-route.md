@@ -39,7 +39,9 @@ En plus : cloisonnement des foyers vérifié automatiquement sur toutes les rout
 - **Navigation par espaces** : les onglets regroupés par thème (Argent, Maison, Foyer…), pour que la barre du bas reste courte quand les fonctions d'argent vont se multiplier (prévisionnel, comptes entre membres, projets…).
 - Front : composants communs rangés façon **Atomic Design** (atomes, molécules, organismes), au fil des écrans touchés, pour ne plus dupliquer.
 
-### Lot 3 — Gestion du foyer
+### Lot 3 — Gestion du foyer ✅ (livré le 2026-11-19, v0.5.0, en recette)
+
+En plus : renommage du foyer ; invitations réservées au propriétaire (choix de Dorian).
 
 - **Propriétaire** du foyer (le créateur au départ, transmissible).
 - Le propriétaire peut **retirer un membre**.

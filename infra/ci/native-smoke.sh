@@ -70,6 +70,7 @@ echo "== Identité et foyer"
 # Comme la PWA au démarrage : le premier appel crée la fiche de l'utilisateur, transmise aux autres domaines par événement.
 # Keycloak peut finir de démarrer après l'API : l'introspection des jetons répond alors 503 quelques secondes.
 eventually 30 call "$BOB" GET /whoami 200
+BOB_ID=$(body "['userId']")
 eventually 30 call "$ALICE" GET /whoami 200
 ALICE_ID=$(body "['userId']")
 eventually 10 call "$ALICE" POST /households 201 '{"name":"  Foyer   NATIF "}'
@@ -143,5 +144,15 @@ echo "ok $STEP : facture d'échéance → 201"
 
 echo "== Rappels"
 eventually 10 call "$ALICE" GET "/households/$HOUSEHOLD/reminders" 200
+
+echo "== Gestion du foyer : retrait d'un membre, suppression d'un foyer"
+call "$ALICE" DELETE "/households/$HOUSEHOLD/members/$BOB_ID" 204
+# Le retrait atteint chaque domaine par la boîte d'envoi : Bob n'y a plus accès.
+eventually 10 call "$BOB" GET "/households/$HOUSEHOLD/shopping-lists" 404
+call "$ALICE" POST /households 201 '{"name":"Foyer jetable"}'
+SPARE=$(body "['id']")
+call "$ALICE" DELETE "/households/$SPARE" 400 '{"confirmName":"autre nom"}'
+call "$ALICE" DELETE "/households/$SPARE" 204 '{"confirmName":"foyer jetable"}'
+call "$ALICE" GET "/households/$SPARE" 404
 
 echo "== Parcours natif réussi ($STEP étapes)"
