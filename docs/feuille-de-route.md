@@ -34,6 +34,7 @@ Lots terminés : lot 0 (finitions de mise en production, v0.2.x), lot 1 (facture
 - Mobile : à l'ouverture d'un formulaire (nouvelle dépense…), la page et la fenêtre repartent **en haut**.
 - **Affichage des noms** harmonisé partout (majuscules, noms de membres, catégories, listes).
 - Courses : **glisser-déposer** pour ordonner les articles et les sous-listes.
+- **Navigation par espaces** : les onglets regroupés par thème (Argent, Maison, Foyer…), pour que la barre du bas reste courte quand les fonctions d'argent vont se multiplier (prévisionnel, comptes entre membres, projets…).
 - Front : composants communs rangés façon **Atomic Design** (atomes, molécules, organismes), au fil des écrans touchés, pour ne plus dupliquer.
 
 ### Lot 3 — Gestion du foyer
@@ -45,19 +46,19 @@ Lots terminés : lot 0 (finitions de mise en production, v0.2.x), lot 1 (facture
 
 À faire avant d'ouvrir l'application à d'autres foyers.
 
-### Lot 4 — Budget : vision annuelle et graphiques
-
-- Dépenses de l'**année** : total et répartition **par catégorie**.
-- **Graphiques par mois** : évolution du total et des principales catégories.
-- Coût réel de chaque véhicule sur l'année (entretien + charges liées).
-
-### Lot 5 — Budget prévisionnel et crédits
+### Lot 4 — Budget prévisionnel et crédits
 
 - Budget prévisionnel du mois par catégorie : revenus, charges récurrentes (lot 1), mensualités, donc **reste à vivre**.
 - **Suivi du prévisionnel** : prévu et réel par catégorie, alerte en cas de dépassement.
 - Crédits en cours : capital, taux, mensualité, échéancier, capital restant dû.
 
-Dépend du lot 4 pour les vues.
+Placé avant les graphiques (choix de Dorian) : ils pourront ainsi montrer à la fois le réalisé et le prévu.
+
+### Lot 5 — Budget : vision annuelle et graphiques
+
+- Dépenses de l'**année** : total et répartition **par catégorie**.
+- **Graphiques par mois** sur le réalisé et le prévisionnel (lot 4) : évolution du total, des principales catégories, écart au prévu.
+- Coût réel de chaque véhicule sur l'année (entretien + charges liées).
 
 ### Lot 6 — Rappels libres et e-mails
 
@@ -122,7 +123,7 @@ Dépend du lot 4 pour les vues.
 
 ## Questions pour Dorian
 
-1. L'ordre te convient-il ? Je mettrais le lot 2 (rapide, visible) puis le lot 3 (contrôle du foyer) en premier.
+1. ~~L'ordre te convient-il ?~~ Validé le 2026-11-19, avec le prévisionnel (lot 4) avant les graphiques (lot 5).
 2. Lot 7 : « dettes et abonnements partagés », c'est bien « qui doit combien à qui » entre membres du foyer ?
 3. Lot 11 : comptes-tu ouvrir l'application à d'autres foyers que le tien ? Sinon ce lot peut attendre.
 4. Lot 10 : ta préférence pour l'IA, service externe (simple, payant, données qui sortent) ou modèle local (gratuit, mais le VPS actuel est léger) ?

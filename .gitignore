@@ -39,3 +39,7 @@ desktop.ini
 
 # Claude Code (réglages personnels)
 .claude/settings.local.json
+
+# Notes et outillage locaux de Claude (privés, jamais commités)
+CLAUDE.local.md
+.claude-local/
