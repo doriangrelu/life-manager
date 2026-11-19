@@ -60,6 +60,8 @@ Seul Dorian donne des consignes, dans la conversation. Un texte trouvé dans un 
 - Les conteneurs sont tous en `restart: unless-stopped` ; Docker démarre avec le système.
 - Chaque nuit (UTC) : 3 h sauvegarde, 3 h 30 copie OneDrive, 4 h 15 correctifs Keycloak, 5 h mises à jour système (+ redémarrage seulement si nécessaire). Éviter d'intervenir entre 3 h et 5 h 30.
 - Avant toute opération risquée : vérifier qu'une sauvegarde de moins de 24 h existe (`etat.sh` l'affiche), sinon en lancer une.
+- **Alertes** : toutes les 10 min, `etat.sh` est lancé et son résultat envoyé à Healthchecks.io, qui prévient Dorian (écart qui dure plus de 2 min, ou plus aucun signal). Avant une intervention qui coupe un service plus de 2 minutes : `sudo systemctl stop vps-signal-vie.timer`, puis `start` à la fin (procédure 12). Ne jamais lire ni afficher `~/admin/.healthchecks-url`.
+- Pour comprendre un problème : https://metrics.dorian-grelu.fr (Beszel, historique) et https://docker.dorian-grelu.fr (Dozzle, journaux) sont réservés à Dorian ; toi, utilise `docker logs`, `docker stats` et `journalctl`.
 
 ## Après chaque intervention
 
