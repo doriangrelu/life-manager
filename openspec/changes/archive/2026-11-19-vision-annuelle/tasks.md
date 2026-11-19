@@ -4,4 +4,4 @@
 - [x] 1.2 [frontend/ui] Graphique SVG `MonthChart` : barres, courbe, repères du prévu, valeurs négatives, mois sélectionnable au toucher et au clavier
 - [x] 1.3 [frontend/report] Onglet « Évolution » du Bilan (sur plusieurs mois) avec ses deux graphiques et le choix de la catégorie
 - [x] 1.4 [frontend] Vérification au navigateur : mobile et bureau, clair et sombre
-- [ ] 1.5 [infra/vps] Version v0.10.0 publiée et déployée
+- [x] 1.5 [infra/vps] Version v0.10.0 publiée et déployée
