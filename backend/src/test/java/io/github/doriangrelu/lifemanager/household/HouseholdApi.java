@@ -42,6 +42,33 @@ public record HouseholdApi(BlockingHttpClient http) {
                 HouseholdSummaryResponse.class);
     }
 
+    public void cancelInvitation(String token, UUID householdId) {
+        http.exchange(HttpRequest.DELETE("/api/households/" + householdId + "/invitations").bearerAuth(token));
+    }
+
+    public HouseholdDetailsResponse rename(String token, UUID householdId, String name) {
+        return http.retrieve(HttpRequest.PUT("/api/households/" + householdId, Map.of("name", name)).bearerAuth(token),
+                HouseholdDetailsResponse.class);
+    }
+
+    public void transferOwnership(String token, UUID householdId, UUID memberId) {
+        http.exchange(HttpRequest.PUT("/api/households/" + householdId + "/owner", Map.of("memberId", memberId))
+                .bearerAuth(token));
+    }
+
+    public void removeMember(String token, UUID householdId, UUID memberId) {
+        http.exchange(HttpRequest.DELETE("/api/households/" + householdId + "/members/" + memberId).bearerAuth(token));
+    }
+
+    public void leave(String token, UUID householdId) {
+        http.exchange(HttpRequest.POST("/api/households/" + householdId + "/leave", "").bearerAuth(token));
+    }
+
+    public void delete(String token, UUID householdId, String confirmName) {
+        http.exchange(HttpRequest.DELETE("/api/households/" + householdId, Map.of("confirmName", confirmName))
+                .bearerAuth(token));
+    }
+
     /** Exécute l'appel, qui doit échouer, et retourne l'erreur HTTP obtenue. */
     public static HttpClientResponseException failure(Runnable call) {
         return catchThrowableOfType(HttpClientResponseException.class, call::run);
