@@ -37,6 +37,9 @@ services:
       # Identité transmise à Dozzle : l'adresse e-mail plutôt que l'identifiant Keycloak
       OAUTH2_PROXY_PREFER_EMAIL_TO_USER: "true"
       OAUTH2_PROXY_PASS_USER_HEADERS: "true"
+      # Tout vient du jeton d'identité : pas d'appel à « userinfo » (refusé en 401 avec le
+      # jeton d'accès allégé du realm). Les groupes ne servent pas : l'accès passe par la liste d'adresses.
+      OAUTH2_PROXY_SKIP_CLAIMS_FROM_PROFILE_URL: "true"
     volumes:
       - ./emails-autorises.txt:/etc/oauth2-proxy/emails-autorises.txt:ro
     deploy:

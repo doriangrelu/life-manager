@@ -55,6 +55,10 @@ DNS `docker.dorian-grelu.fr` créé par Dorian. Realm `infra` importé par Doria
 **À vérifier** : première connexion complète de Dorian (OTP, puis Dozzle affiche son adresse).
 Couper l'interface : `cd ~/dozzle && docker compose stop`, supprimer `~/infra/conf.d/docker.caddy`, recharger Caddy.
 
+## 2026-11-19 14:30 — Claude — erreur 500 à la connexion corrigée
+
+Au retour de Keycloak, oauth2-proxy cherchait le champ `groups` absent du jeton et appelait `userinfo`, refusé en 401 (jeton d'accès allégé du realm). Ajout de `OAUTH2_PROXY_SKIP_CLAIMS_FROM_PROFILE_URL=true` (les groupes ne servent pas). oauth2-proxy recréé.
+
 ## Points ouverts (à décider avec Dorian)
 
 - Supprimer `~/portainer` (préparation remplacée par `~/dozzle`).
