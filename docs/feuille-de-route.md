@@ -52,7 +52,7 @@ En plus : renommage du foyer ; invitations réservées au propriétaire (choix d
 
 ### Lot 4 — Rentrées d'argent, budget prévisionnel et crédits
 
-Découpé en deux changes : **4a « Rentrées et bilan »** (`openspec/changes/rentrees-epargne`, implémenté, cible v0.6.0), puis **4b « Prévisionnel et crédits »**.
+Découpé en deux changes : **4a « Rentrées et bilan »** ✅ (livré le 2026-11-19, v0.6.0, en recette), puis **4b « Prévisionnel et crédits »**.
 
 4a, tel que livré : réglage du foyer « Suivre les rentrées » (propriétaire, désactivé par défaut : rien ne change sans lui) ; rentrées saisies comme les dépenses (catégories libres, suggestions Salaire, Prime, Remboursement, Aides, Autre ; qui reçoit) ; bandeau du mois Rentré / Dépensé / Résultat ; Charges en deux panneaux Dépenses fixes / Rentrées fixes ; écran **Bilan** (mois, trimestre, année, 12 derniers mois ; réalisé et prévu en fin de période ; épargne = résultat positif). Comptes, livrets et solde de départ abandonnés à la demande de Dorian.
 

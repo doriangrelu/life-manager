@@ -31,4 +31,4 @@
 
 - [x] 5.1 [ci] Parcours natif étendu (réglage, rentrée, rentrée récurrente, bilan)
 - [x] 5.2 [doc] Architecture et feuille de route
-- [ ] 5.3 [infra/vps] Version publiée et déployée
+- [x] 5.3 [infra/vps] Version publiée et déployée
