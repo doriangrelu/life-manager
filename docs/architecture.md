@@ -84,6 +84,14 @@ Vérifiées automatiquement par des tests **ArchUnit**.
 - Un domaine ne voit d'un autre domaine **que son package `contract`**, et seulement depuis `infrastructure.in.event`.
 - `kernel` et `platform` ne dépendent d'aucun domaine.
 
+## Cloisonnement des foyers (sécurité)
+
+Toute route `/api/households/{householdId}/…` reçoit un foyer choisi par le client : il **doit** appartenir au demandeur.
+
+- Chaque domaine a un service `application/service/…Access` (copie locale des membres) : un use case commence par lui, avant toute lecture, écriture ou fichier. Foyer d'un autre, ou ressource d'un autre foyer : **404** (on ne révèle pas son existence).
+- **ArchUnit** (`use_cases_check_household_membership`) : tout use case dépend d'un `…Access` (ou d'un `…Recorder` qui l'appelle d'abord), sauf une liste explicite de use cases internes (événements, tâches planifiées, compte du demandeur). Un nouveau use case sans contrôle fait échouer le build.
+- **Balayage des routes** (`HouseholdIsolationTest`) : chaque route de foyer, y compris une route ajoutée demain, est appelée par un non-membre. Aucune ne doit réussir ni renvoyer une donnée du foyer.
+
 ## Use cases et services applicatifs
 
 - **Un use case = une seule action** (`CreateHousehold`, `JoinHousehold`…). Interface dans `port/in`, implémentation `…UseCase` dans `usecase`.
@@ -157,3 +165,20 @@ Vérifiées automatiquement par des tests **ArchUnit**.
 | Tests | JUnit 5, AssertJ, Testcontainers |
 | Règles d'architecture | ArchUnit |
 | Qualité / complexité | Checkstyle |
+
+## PWA (frontend)
+
+Svelte 5 (runes), TypeScript, Vite, Bun. Organisation de `frontend/src/lib` :
+
+| Dossier | Contenu |
+|---|---|
+| `api/` | appels de l'API, un fichier par domaine ; mise en forme des données reçues si besoin (ex. noms de personnes) |
+| `ui/atoms/` | briques visuelles sans logique métier : `Chip`, `Skeleton`, `ProgressBar`, `AmountInput`, `DragHandle` |
+| `ui/molecules/` | assemblages réutilisables : `Modal`, `ConfirmDialog`, `TextDialog`, `Segmented`, `Fab`, `SpaceTabs` |
+| `ui/organisms/` | blocs complets d'écran : `MainNav` |
+| `components/<section>/` | écrans et blocs propres à une section (budget, charges, courses…) |
+| `*.ts` à la racine | logique pure et testée (`money`, `dates`, `members`, `navigation`, `reorder`, `scroll`…) |
+
+- **Pas de doublon** (Atomic Design) : une logique utilisée deux fois part dans un `lib/*.ts` testé ; un élément visuel utilisé deux fois part dans `ui/`.
+- **Navigation par espaces** (`lib/navigation.ts`, seule source) : Argent, Courses, Maison, Foyer. Un nouvel écran rejoint un espace existant en une ligne ; la barre du bas ne grossit pas.
+- **Glisser-déposer** : `svelte-dnd-action`, toujours avec une poignée (`DragHandle`) pour ne pas gêner le défilement au doigt ; réglages et pièges (signal tardif au clavier) dans `lib/reorder.ts`.

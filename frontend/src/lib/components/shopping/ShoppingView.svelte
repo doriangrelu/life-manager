@@ -9,8 +9,13 @@
     listShoppingItems,
     listShoppingLists,
     removeShoppingItem,
+    reorderShoppingItems,
     setChecked,
   } from '../../api/shoppingApi'
+  import { flip } from 'svelte/animate'
+  import { dragHandleZone, type DndEvent } from 'svelte-dnd-action'
+  import { dndItems, dndOptions, idsOf, isAfterDrop, isShadow } from '../../reorder'
+  import DragHandle from '../../ui/atoms/DragHandle.svelte'
   import type { ShoppingItem, ShoppingList } from '../../api/types'
   import { rememberedShoppingListId, rememberShoppingListId } from '../../preferences'
   import { pickList, REFRESH_MS, toggled } from '../../shopping'
@@ -41,6 +46,30 @@
   const current = $derived(lists.find((l) => l.id === currentId) ?? null)
   const toBuy = $derived(items.filter((i) => !i.checked))
   const inCart = $derived(items.filter((i) => i.checked))
+  // Pendant un glisser : l'ordre suit le doigt, et la synchro automatique attend (pending).
+  let dragged = $state<ShoppingItem[] | null>(null)
+  const shownToBuy = $derived(dragged ?? toBuy)
+
+  function consider(event: CustomEvent<DndEvent<ShoppingItem>>) {
+    if (isAfterDrop(event)) {
+      return
+    }
+    if (dragged === null) {
+      pending++
+    }
+    dragged = event.detail.items
+  }
+
+  // Chaque dépôt est enregistré (au clavier, chaque flèche dépose déjà) ; renvoyer le même ordre est sans effet.
+  function finalize(event: CustomEvent<DndEvent<ShoppingItem>>, listId: string) {
+    const ordered = dndItems(event)
+    items = [...ordered, ...inCart]
+    if (dragged !== null) {
+      dragged = null
+      pending--
+    }
+    act(() => reorderShoppingItems(householdId, listId, idsOf(ordered)))
+  }
 
   onMount(() => {
     refresh()
@@ -191,10 +220,26 @@
     </div>
   {/if}
 
-  {#if toBuy.length > 0}
-    <ul class="list" aria-label="À acheter">
-      {#each toBuy as item (item.id)}
-        {@render row(item, listId)}
+  {#if shownToBuy.length > 0}
+    <!-- À acheter : rangés à la main avec la poignée (glisser-déposer), ordre partagé par le foyer. -->
+    <ul
+      class="list"
+      aria-label="À acheter"
+      use:dragHandleZone={dndOptions(shownToBuy, 'shopping-items-' + listId)}
+      onconsider={consider}
+      onfinalize={(event) => finalize(event, listId)}
+    >
+      {#each shownToBuy as item (item.id)}
+        <li class:shadow={isShadow(item)} animate:flip={{ duration: ms(180) }}>
+          <DragHandle label="Déplacer {displayName(item.label)}" />
+          <label>
+            <input type="checkbox" checked={item.checked} onchange={() => toggle(item, listId)} />
+            <span>{displayName(item.label)}</span>
+          </label>
+          <button class="link icon" aria-label="Supprimer {displayName(item.label)}" onclick={() => remove(item, listId)}>
+            <X size={18} />
+          </button>
+        </li>
       {/each}
     </ul>
   {/if}
@@ -325,6 +370,11 @@
     font-weight: 600;
     color: var(--color-text);
     cursor: pointer;
+  }
+  /* Emplacement où l'article tombera. */
+  .list li.shadow {
+    opacity: 0.45;
+    background: var(--color-primary-soft);
   }
   .checked span {
     text-decoration: line-through;

@@ -7,7 +7,7 @@ const history = (householdId: string, listId: string) => `${lists(householdId)}/
 
 // --- Sous-listes ---
 
-/** Sous-listes du foyer, triées par nom, avec leur nombre d'articles à acheter. */
+/** Sous-listes du foyer, dans l'ordre choisi par le foyer, avec leur nombre d'articles à acheter. */
 export function listShoppingLists(householdId: string): Promise<ShoppingList[]> {
   return apiRequest('GET', lists(householdId))
 }
@@ -23,6 +23,16 @@ export function renameShoppingList(householdId: string, listId: string, name: st
 /** Supprime la sous-liste avec ses articles et son historique. */
 export function deleteShoppingList(householdId: string, listId: string): Promise<void> {
   return apiRequest('DELETE', `${lists(householdId)}/${listId}`)
+}
+
+/** Nouvel ordre des sous-listes du foyer (glisser-déposer), vu par tous les membres. */
+export function reorderShoppingLists(householdId: string, ids: string[]): Promise<void> {
+  return apiRequest('PUT', `${lists(householdId)}/order`, { ids })
+}
+
+/** Nouvel ordre des articles à acheter d'une sous-liste (glisser-déposer), vu par tous les membres. */
+export function reorderShoppingItems(householdId: string, listId: string, ids: string[]): Promise<void> {
+  return apiRequest('PUT', `${items(householdId, listId)}/order`, { ids })
 }
 
 /** Retire les articles cochés et les inscrit à l'historique de la sous-liste. */

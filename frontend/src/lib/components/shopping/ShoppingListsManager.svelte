@@ -1,13 +1,18 @@
 <script lang="ts">
   import { displayName } from '../../text'
   import { Pencil, Plus, Trash2 } from '@lucide/svelte'
-  import { addShoppingList, deleteShoppingList, renameShoppingList } from '../../api/shoppingApi'
+  import { flip } from 'svelte/animate'
+  import { dragHandleZone, type DndEvent } from 'svelte-dnd-action'
+  import { addShoppingList, deleteShoppingList, renameShoppingList, reorderShoppingLists } from '../../api/shoppingApi'
   import type { ShoppingList } from '../../api/types'
+  import { ms } from '../../motion'
+  import { dndItems, dndOptions, idsOf, isAfterDrop, isShadow } from '../../reorder'
+  import DragHandle from '../../ui/atoms/DragHandle.svelte'
   import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
   import Modal from '../../ui/molecules/Modal.svelte'
   import TextDialog from '../../ui/molecules/TextDialog.svelte'
 
-  // Gestion des sous-listes du foyer : ajout, renommage, suppression (avec confirmation).
+  // Gestion des sous-listes du foyer : ordre (glisser-déposer), ajout, renommage, suppression (avec confirmation).
   let {
     open = $bindable(false),
     householdId,
@@ -45,6 +50,35 @@
     }
   }
 
+  // Ordre affiché : celui reçu, sauf pendant un glisser où il suit le doigt.
+  let ordered = $state<ShoppingList[]>([])
+  let dragging = false
+  $effect(() => {
+    const latest = lists
+    if (!dragging) {
+      ordered = latest
+    }
+  })
+
+  function consider(event: CustomEvent<DndEvent<ShoppingList>>) {
+    if (isAfterDrop(event)) {
+      return
+    }
+    dragging = true
+    ordered = event.detail.items
+  }
+
+  // Chaque dépôt est enregistré (au clavier, chaque flèche dépose déjà) ; renvoyer le même ordre est sans effet.
+  function finalize(event: CustomEvent<DndEvent<ShoppingList>>) {
+    ordered = dndItems(event)
+    dragging = false
+    const ids = idsOf(ordered)
+    run(async () => {
+      await reorderShoppingLists(householdId, ids)
+      return undefined
+    })
+  }
+
   function askRename(list: ShoppingList) {
     renaming = list
     renameOpen = true
@@ -61,9 +95,10 @@
     <p class="error" role="alert">{error}</p>
   {/if}
 
-  <ul class="lists">
-    {#each lists as list (list.id)}
-      <li>
+  <ul class="lists" use:dragHandleZone={dndOptions(ordered, 'shopping-lists')} onconsider={consider} onfinalize={finalize}>
+    {#each ordered as list (list.id)}
+      <li class:shadow={isShadow(list)} animate:flip={{ duration: ms(180) }}>
+        <DragHandle label="Déplacer {displayName(list.name)}" />
         <span class="name">{displayName(list.name)}</span>
         <span class="muted count">{list.pendingCount} à acheter</span>
         <button class="icon ghost" aria-label="Renommer {displayName(list.name)}" onclick={() => askRename(list)}>
@@ -118,6 +153,12 @@
     padding: 0 4px 0 14px;
     border-radius: var(--radius-md);
     background: var(--color-surface-muted);
+  }
+  /* Emplacement où l'élément tombera. */
+  .lists li.shadow {
+    opacity: 0.45;
+    outline: 2px dashed var(--color-primary);
+    outline-offset: -2px;
   }
   .name {
     flex: 1;
