@@ -14,4 +14,4 @@
 - [x] 3.1 [frontend] Vérification au navigateur : mobile et bureau, clair et sombre
 - [x] 3.2 [infra/ci] Parcours natif étendu (ajout d'un crédit)
 - [x] 3.3 [doc] Feuille de route à jour
-- [ ] 3.4 [infra/vps] Version v0.8.0 publiée et déployée
+- [x] 3.4 [infra/vps] Version v0.8.0 publiée et déployée

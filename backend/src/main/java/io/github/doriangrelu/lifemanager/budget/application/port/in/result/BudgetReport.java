@@ -11,10 +11,13 @@ import java.util.List;
  * @param incomeByReceiver rentrées par personne ({@code null} = foyer entier)
  * @param months           rentrées et dépenses de chaque mois qui en a
  * @param recurringExpenseCents part des dépenses née d'une dépense récurrente
+ * @param monthPlans       budget prévu de chaque catégorie, mois par mois
+ * @param monthExpenses    dépenses de chaque catégorie, mois par mois
  */
 public record BudgetReport(YearMonth from, YearMonth to, List<CategoryTotal> incomeByCategory,
                            List<BeneficiaryTotal> incomeByReceiver, List<CategoryTotal> expenseByCategory,
-                           List<MonthResult> months, long recurringExpenseCents) {
+                           List<MonthResult> months, long recurringExpenseCents,
+                           List<MonthCategoryAmount> monthPlans, List<MonthCategoryAmount> monthExpenses) {
 
     public long incomeCents() {
         return CategoryTotal.sum(incomeByCategory);

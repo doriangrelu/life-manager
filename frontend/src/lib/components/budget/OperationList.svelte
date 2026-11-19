@@ -76,7 +76,7 @@
                   {name} · {dayLabel(expense.spentOn)} · {memberName(expense.paidBy)} → {memberName(expense.beneficiary)}
                 </span>
               </span>
-              <span class="amount">{formatCents(expense.amountCents)}</span>
+              <span class="amount negative"><span class="sr-only">Dépense de </span>−{formatCents(expense.amountCents)}</span>
             </button>
           {/if}
         </li>
@@ -138,6 +138,9 @@
   }
   .positive {
     color: var(--color-on-success-soft);
+  }
+  .negative {
+    color: var(--color-danger);
   }
   .empty {
     margin: 0;

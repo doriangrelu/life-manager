@@ -1,6 +1,7 @@
 package io.github.doriangrelu.lifemanager.budget;
 
 import io.github.doriangrelu.lifemanager.budget.BudgetTestUsers.TestUser;
+import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.BudgetReportResponse.MonthAmount;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.CategoryBudgetRequest;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.ExpenseRequest;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.MonthlyBudgetResponse.Plan;
@@ -100,6 +101,23 @@ class CategoryBudgetIntegrationTest extends IntegrationTestSupport {
         assertThat(month.plans()).containsExactly(new Plan(leisure, 15_000, FROM_MONTH));
         assertThat(month.totalCents()).isEqualTo(3000);
         assertThat(month.recurringExpenseCents()).isZero();
+    }
+
+    @Test
+    void the_report_gives_plans_and_expenses_month_by_month() {
+        set(groceries, "2026-10", FROM_MONTH, 40_000L);
+        set(groceries, "2026-11", MONTH_ONLY, 60_000L);
+        budget.record(alice.token(), household,
+                new ExpenseRequest(38_000L, groceries, null, LocalDate.of(2026, 10, 3), alice.id(), null, null));
+        budget.record(alice.token(), household,
+                new ExpenseRequest(45_000L, groceries, null, LocalDate.of(2026, 11, 3), alice.id(), null, null));
+
+        var report = budget.report(alice.token(), household, "2026-09", "2026-11");
+
+        assertThat(report.monthPlans()).containsExactly(
+                new MonthAmount("2026-10", groceries, 40_000), new MonthAmount("2026-11", groceries, 60_000));
+        assertThat(report.monthExpenses()).containsExactly(
+                new MonthAmount("2026-10", groceries, 38_000), new MonthAmount("2026-11", groceries, 45_000));
     }
 
     @Test

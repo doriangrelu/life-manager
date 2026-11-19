@@ -6,7 +6,9 @@
   import type { CategoryProgress } from '../../plan'
   import { displayName } from '../../text'
   import AmountInput from '../../ui/atoms/AmountInput.svelte'
+  import Field from '../../ui/molecules/Field.svelte'
   import Modal from '../../ui/molecules/Modal.svelte'
+  import { amount as amountRule, check } from '../../validation'
   import Segmented from '../../ui/molecules/Segmented.svelte'
 
   // Réglage du budget prévu d'une catégorie : un montant, pour tous les mois (à partir du mois affiché)
@@ -27,6 +29,8 @@
   let scope = $state<PlanScope>('FROM_MONTH')
   let error = $state<string | null>(null)
   let busy = $state(false)
+  let revealed = $state(false)
+  const amountError = $derived(check(amount, amountRule('400')))
 
   // À chaque ouverture : le prévu actuel de la catégorie, et « Tous les mois » par défaut.
   $effect(() => {
@@ -35,6 +39,7 @@
         amount = line?.plannedCents ? centsToInput(line.plannedCents) : ''
         scope = 'FROM_MONTH'
         error = null
+        revealed = false
       })
     }
   })
@@ -58,7 +63,7 @@
     event.preventDefault()
     const cents = parseAmountToCents(amount)
     if (cents === null) {
-      error = 'Montant invalide (exemple : 400)'
+      revealed = true
       return
     }
     error = null
@@ -69,10 +74,14 @@
 <Modal bind:open title="Budget prévu · {line ? displayName(line.name) : ''}">
   {#if line}
     <form class="stack" onsubmit={submit}>
-      <AmountInput bind:value={amount} label="Montant prévu par mois" />
+      <Field error={amountError} reveal={revealed}>
+        {#snippet children()}
+          <AmountInput bind:value={amount} label="Montant prévu par mois" />
+        {/snippet}
+      </Field>
       <Segmented
         label="Pour quels mois"
-        hideLabel
+        info="« Tous les mois » : le montant vaut à partir du mois affiché, jusqu'au prochain changement. « Ce mois seulement » : un ajustement ponctuel, sans toucher aux autres mois."
         options={[
           { value: 'FROM_MONTH', label: 'Tous les mois' },
           { value: 'MONTH_ONLY', label: 'Ce mois seulement' },

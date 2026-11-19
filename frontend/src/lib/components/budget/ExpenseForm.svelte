@@ -1,7 +1,7 @@
 <script lang="ts">
   import { displayName } from '../../text'
   import { Trash2 } from '@lucide/svelte'
-  import { untrack } from 'svelte'
+  import { tick, untrack } from 'svelte'
   import { correctExpense, recordExpense } from '../../api/budgetApi'
   import type { Category, Expense, ExpenseInput, Member } from '../../api/types'
   import { isOther } from '../../categories'
@@ -12,7 +12,9 @@
   import { rememberedKeepAdding, rememberKeepAdding } from '../../preferences'
   import AmountInput from '../../ui/atoms/AmountInput.svelte'
   import Chip from '../../ui/atoms/Chip.svelte'
+  import Field from '../../ui/molecules/Field.svelte'
   import Segmented from '../../ui/molecules/Segmented.svelte'
+  import { allValid, amount as amountRule, check, focusFirstInvalid, notAfter, required } from '../../validation'
 
   // Saisie rapide (ou correction) d'une dépense, affichée dans une modale :
   // montant au clavier numérique, catégorie en un geste, le reste pré-rempli.
@@ -50,6 +52,15 @@
   let error = $state<string | null>(null)
   let confirmation = $state<string | null>(null)
   let amountField: HTMLInputElement | undefined = $state()
+  // Contrôles en direct : chaque champ dit ce qui ne va pas ; après un envoi refusé, tout se montre.
+  let revealed = $state(false)
+  // Change à chaque nouvelle saisie enchaînée : les champs repartent sans erreur affichée.
+  let round = $state(0)
+  const errors = $derived({
+    amount: check(amount, amountRule('12,50')),
+    category: categoryId ? null : 'Choisissez une catégorie',
+    spentOn: check(spentOn, required('Choisissez une date'), notAfter(today(), 'La date ne peut pas être dans le futur')),
+  })
   // Nouvelle dépense : enchaîner sur une autre (fenêtre gardée) ou refermer après l'enregistrement.
   let keepAdding = $state(rememberedKeepAdding())
 
@@ -75,13 +86,12 @@
 
   async function submit(event: SubmitEvent) {
     event.preventDefault()
+    const form = event.currentTarget as HTMLFormElement
     const amountCents = parseAmountToCents(amount)
-    if (amountCents === null) {
-      error = 'Montant invalide (exemple : 12,50)'
-      return
-    }
-    if (!categoryId) {
-      error = 'Choisissez une catégorie'
+    if (!allValid(errors) || amountCents === null) {
+      revealed = true
+      await tick()
+      focusFirstInvalid(form)
       return
     }
     await save(amountCents)
@@ -112,12 +122,15 @@
   }
 
   // Après une saisie : confirmation, puis formulaire prêt pour la suivante.
-  function readyForNext(amountCents: number) {
+  async function readyForNext(amountCents: number) {
     confirmation = `Dépense de ${formatCents(amountCents)} enregistrée`
     amount = ''
     label = ''
     precision = ''
     categoryId = ''
+    revealed = false
+    round += 1
+    await tick()
     // Le formulaire repart en haut, montant prêt à la saisie (le clavier ne doit pas faire défiler).
     scrollToTop(amountField)
     amountField?.focus({ preventScroll: true })
@@ -125,7 +138,13 @@
 </script>
 
 <form class="stack" onsubmit={submit}>
-  <AmountInput bind:value={amount} bind:field={amountField} />
+  {#key round}
+    <Field error={errors.amount} reveal={revealed}>
+      {#snippet children()}
+        <AmountInput bind:value={amount} bind:field={amountField} />
+      {/snippet}
+    </Field>
+  {/key}
 
   <fieldset class="categories">
     <legend>Catégorie</legend>
@@ -134,6 +153,9 @@
         <Chip selected={categoryId === category.id} onclick={() => (categoryId = category.id)}>{displayName(category.name)}</Chip>
       {/each}
     </div>
+    {#if revealed && errors.category}
+      <span class="field-error" role="alert">{errors.category}</span>
+    {/if}
     {#if otherChosen}
       <label class="precision">
         Préciser (facultatif) — crée la catégorie
@@ -144,14 +166,20 @@
 
   <div class="form-row">
     <Segmented label="Payé par" options={payers} bind:value={paidBy} />
-    <Segmented label="Pour" options={beneficiaries} bind:value={beneficiary} />
+    <Segmented
+      label="Pour"
+      options={beneficiaries}
+      bind:value={beneficiary}
+      info="À qui profite la dépense : à tout le foyer (Commun) ou à une seule personne. Sert à la répartition « Pour qui » du mois."
+    />
   </div>
 
   <div class="form-row">
-    <label>
-      Date
-      <input type="date" bind:value={spentOn} max={today()} required />
-    </label>
+    <Field label="Date" error={errors.spentOn} reveal={revealed}>
+      {#snippet children(id)}
+        <input {id} type="date" bind:value={spentOn} max={today()} />
+      {/snippet}
+    </Field>
     <label>
       Libellé
       <input bind:value={label} maxlength="140" placeholder="Facultatif" />

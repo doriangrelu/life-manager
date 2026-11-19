@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Category, ForecastItem, MonthlyBudget } from './api/types'
-import { categoryProgress, planBadge, planStatus, restToLive } from './plan'
+import type { BudgetReport, Category, ForecastItem, MonthlyBudget } from './api/types'
+import { adherenceTotals, budgetAdherence, categoryProgress, planBadge, planStatus, planTotals, restToLive } from './plan'
 
 const category = (id: string, name: string, archived = false): Category => ({ id, name, archived }) as Category
 
@@ -89,5 +89,54 @@ describe('reste à vivre', () => {
   it('n\'existe pas sans rentrée prévue, et peut être dépassé', () => {
     expect(restToLive({ incomeCents: 0, expenseCents: 5000, recurringExpenseCents: 0 }, [])).toBeNull()
     expect(restToLive({ incomeCents: 10000, expenseCents: 15000, recurringExpenseCents: 0 }, [])?.leftCents).toBe(-5000)
+  })
+})
+
+describe('total prévu et respect des budgets', () => {
+  it('additionne les catégories prévues et met à part le hors budget', () => {
+    const budget = month({
+      byCategory: [
+        { categoryId: 'food', name: 'courses', totalCents: 31200 },
+        { categoryId: 'fun', name: 'loisirs', totalCents: 12900 },
+        { categoryId: 'health', name: 'santé', totalCents: 2500 },
+      ],
+      plans: [
+        { categoryId: 'food', plannedCents: 40000, scope: 'FROM_MONTH' },
+        { categoryId: 'fun', plannedCents: 15000, scope: 'FROM_MONTH' },
+      ],
+    })
+    const categories = [category('food', 'courses'), category('fun', 'loisirs'), category('health', 'santé')]
+
+    expect(planTotals(categoryProgress(budget, categories, []))).toMatchObject({
+      plannedCents: 55000,
+      spentCents: 44100,
+      offPlanCents: 2500,
+      status: 'warning',
+      badge: '80 %',
+    })
+    expect(planTotals(categoryProgress(month({ byCategory: budget.byCategory }), categories, []))).toBeNull()
+  })
+
+  it('compare prévu et dépensé sur les mois écoulés, et compte les mois tenus', () => {
+    const report = {
+      expenseByCategory: [{ categoryId: 'food', name: 'courses', totalCents: 122000 }],
+      monthPlans: ['2026-09', '2026-10', '2026-11', '2026-12'].flatMap((m) => [
+        { month: m, categoryId: 'food', cents: 40000 },
+        { month: m, categoryId: 'fun', cents: 15000 },
+      ]),
+      monthExpenses: [
+        { month: '2026-09', categoryId: 'food', cents: 38000 },
+        { month: '2026-10', categoryId: 'food', cents: 45000 },
+        { month: '2026-11', categoryId: 'food', cents: 39000 },
+        { month: '2026-10', categoryId: 'health', cents: 9900 },
+      ],
+    } as BudgetReport
+
+    const lines = budgetAdherence(report, [category('fun', 'loisirs')], '2026-11')
+
+    expect(lines.map((line) => line.name)).toEqual(['courses', 'loisirs'])
+    expect(lines[0]).toMatchObject({ plannedCents: 120000, spentCents: 122000, gapCents: -2000, status: 'over', months: 3, keptMonths: 2 })
+    expect(lines[1]).toMatchObject({ plannedCents: 45000, spentCents: 0, gapCents: 45000, keptMonths: 3 })
+    expect(adherenceTotals(lines)).toMatchObject({ plannedCents: 165000, spentCents: 122000, categories: 2, keptCategories: 1 })
   })
 })

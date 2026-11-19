@@ -1,17 +1,30 @@
 <script lang="ts">
   // Choix exclusif parmi quelques options (payé par, pour qui…), présenté en boutons accolés.
   // hideLabel : titre lu par les lecteurs d'écran seulement (les options se suffisent à elles-mêmes).
+  // info : explication du choix, affichée par une icône « i » à côté du titre.
+  import InfoTip from '../atoms/InfoTip.svelte'
+
   let {
     label,
     options,
     value = $bindable(),
     hideLabel = false,
-  }: { label: string; options: { value: string; label: string }[]; value: string; hideLabel?: boolean } = $props()
+    info,
+  }: {
+    label: string
+    options: { value: string; label: string }[]
+    value: string
+    hideLabel?: boolean
+    info?: string
+  } = $props()
 </script>
 
 <div class="segmented">
   {#if !hideLabel}
-    <span class="caption">{label}</span>
+    <span class="caption">
+      {label}
+      {#if info}<InfoTip text={info} label="À quoi sert « {label} »" />{/if}
+    </span>
   {/if}
   <div class="options" role="group" aria-label={label}>
     {#each options as option (option.value)}
@@ -32,6 +45,11 @@
     min-width: 0;
   }
   .caption {
+    /* La bulle de l'icône « i » se place sous cette ligne. */
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2px;
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--color-text-muted);

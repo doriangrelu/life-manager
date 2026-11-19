@@ -132,6 +132,17 @@ export interface BudgetReport {
   months: { month: string; incomeCents: number; expenseCents: number; resultCents: number }[]
   /** Part des dépenses née d'une dépense récurrente : sert au reste à vivre. */
   recurringExpenseCents: number
+  /** Budget prévu de chaque catégorie, mois par mois (pour le respect des budgets). */
+  monthPlans: MonthAmount[]
+  /** Dépenses de chaque catégorie, mois par mois. */
+  monthExpenses: MonthAmount[]
+}
+
+/** Montant d'une catégorie pour un mois (« 2026-11 »), en centimes. */
+export interface MonthAmount {
+  month: string
+  categoryId: string
+  cents: number
 }
 
 // ---- Véhicules : dates au format « 2027-03-01 », coût en centimes d'euro, null = non renseigné.

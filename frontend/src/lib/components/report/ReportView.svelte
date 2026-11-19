@@ -3,13 +3,13 @@
   import { onMount } from 'svelte'
   import { scale } from 'svelte/transition'
   import { forecast as loadForecast } from '../../api/billsApi'
-  import { budgetReport } from '../../api/budgetApi'
+  import { budgetReport, listCategories } from '../../api/budgetApi'
   import { getHousehold } from '../../api/householdApi'
-  import type { BudgetReport, ForecastItem, Member } from '../../api/types'
+  import type { BudgetReport, Category, ForecastItem, Member } from '../../api/types'
   import { receiverName } from '../../members'
   import { currentMonth } from '../../month'
   import { ms, rise } from '../../motion'
-  import { restToLive } from '../../plan'
+  import { budgetAdherence, restToLive } from '../../plan'
   import {
     PERIOD_KINDS,
     hasFuture,
@@ -22,6 +22,7 @@
   } from '../../report'
   import Skeleton from '../../ui/atoms/Skeleton.svelte'
   import Segmented from '../../ui/molecules/Segmented.svelte'
+  import BudgetAdherence from './BudgetAdherence.svelte'
   import ExpectedList from './ExpectedList.svelte'
   import MonthBars from './MonthBars.svelte'
   import ReportBreakdown from './ReportBreakdown.svelte'
@@ -35,6 +36,9 @@
   let report = $state<BudgetReport | null>(null)
   let expected = $state<ForecastItem[]>([])
   let members = $state<Member[]>([])
+  let categories = $state<Category[]>([])
+  // Deux vues : le résultat de la période, ou le respect des budgets prévus.
+  let view = $state<'result' | 'budgets'>('result')
   let loading = $state(false)
   let error = $state<string | null>(null)
 
@@ -43,10 +47,15 @@
   const forecastTotals = $derived(report && withForecast ? projected(report, expected) : null)
   // Reste à vivre de la période : rentrées prévues moins dépenses récurrentes (payées et à venir).
   const rest = $derived(report ? restToLive(report, expected) : null)
+  // Respect des budgets : une ligne par catégorie prévue sur la période (vide = onglet masqué).
+  const adherence = $derived(report ? budgetAdherence(report, categories, currentMonth()) : [])
+  const shownView = $derived(adherence.length > 0 ? view : 'result')
 
   onMount(async () => {
     try {
-      members = (await getHousehold(householdId)).members
+      const [household, loadedCategories] = await Promise.all([getHousehold(householdId), listCategories(householdId)])
+      members = household.members
+      categories = loadedCategories
     } catch {
       // Sans les noms, le bilan reste lisible (« Ancien membre »).
     }
@@ -110,6 +119,20 @@
 
   {#if report}
     <div class="stack" class:reloading={loading} aria-busy={loading}>
+      {#if adherence.length > 0}
+        <Segmented
+          label="Vue du bilan"
+          hideLabel
+          options={[
+            { value: 'result', label: 'Résultat' },
+            { value: 'budgets', label: 'Budgets' },
+          ]}
+          bind:value={view}
+        />
+      {/if}
+      {#if shownView === 'budgets'}
+        <BudgetAdherence lines={adherence} />
+      {:else}
       <ReportHero {report} projected={forecastTotals} {rest} />
       {#if forecastTotals}
         <ExpectedList items={expected} />
@@ -118,6 +141,7 @@
         <MonthBars {report} />
       {/if}
       <ReportBreakdown {report} receiverName={(id) => receiverName(members, id)} />
+      {/if}
     </div>
   {:else if !error}
     <Skeleton variant="hero" />

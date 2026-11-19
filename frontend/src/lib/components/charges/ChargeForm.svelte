@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { untrack } from 'svelte'
+  import { tick, untrack } from 'svelte'
   import type { AmountKind, Category, Charge, ChargeInput, FlowDirection, Frequency, Member } from '../../api/types'
   import { sortCategories } from '../../categories'
   import { FREQUENCIES } from '../../charges'
@@ -9,7 +9,17 @@
   import { displayName } from '../../text'
   import AmountInput from '../../ui/atoms/AmountInput.svelte'
   import Chip from '../../ui/atoms/Chip.svelte'
+  import Field from '../../ui/molecules/Field.svelte'
   import Segmented from '../../ui/molecules/Segmented.svelte'
+  import {
+    allValid,
+    amount as amountRule,
+    check,
+    focusFirstInvalid,
+    notBefore,
+    optionalAmount,
+    required,
+  } from '../../validation'
 
   // Saisie ou modification d'une charge récurrente (dans une modale) : dépense, crédit, ou rentrée (salaire…).
   // Pour une rentrée, « payé par » devient « reçu par » et il n'y a pas de bénéficiaire.
@@ -72,38 +82,39 @@
     return loanCents === null || insuranceCents === null ? null : loanCents + insuranceCents
   })
 
-  /** Montant de la charge et, pour un crédit, son assurance ; null (avec un message) si la saisie est invalide. */
-  function amounts(): { amountCents: number; insuranceCents: number } | null {
-    const amountCents = parseAmountToCents(amount)
-    if (amountCents === null) {
-      error = isLoan ? 'Mensualité du prêt invalide (exemple : 588,40)' : 'Montant invalide (exemple : 39,99)'
-      return null
-    }
-    if (!isLoan) {
-      return { amountCents, insuranceCents: 0 }
-    }
-    if (insuranceCents === null) {
-      error = 'Assurance invalide (exemple : 24)'
-      return null
-    }
-    return { amountCents: amountCents + insuranceCents, insuranceCents }
+  // Contrôles en direct, champ par champ ; après un envoi refusé, toutes les erreurs se montrent.
+  let revealed = $state(false)
+  const errors = $derived({
+    name: check(name, required('Donnez un nom')),
+    amount: check(amount, amountRule(isLoan ? '588,40' : '39,99')),
+    insurance: isLoan ? check(insurance, optionalAmount('24')) : null,
+    firstDueOn: check(
+      firstDueOn,
+      required('Choisissez une date'),
+      notBefore(minFirstDueOn ?? '', 'La date ne peut pas être passée'),
+    ),
+    lastDueOn: isLoan ? check(lastDueOn, notBefore(firstDueOn, 'La dernière mensualité ne peut pas précéder la prochaine')) : null,
+    category: categoryId ? null : 'Choisissez une catégorie du budget',
+  })
+
+  /** Montant de la charge et, pour un crédit, son assurance (la saisie a déjà été contrôlée). */
+  function amounts(): { amountCents: number; insuranceCents: number } {
+    const amountCents = parseAmountToCents(amount) ?? 0
+    const insured = isLoan ? (insuranceCents ?? 0) : 0
+    return { amountCents: amountCents + insured, insuranceCents: insured }
   }
 
   async function submit(event: SubmitEvent) {
     event.preventDefault()
     error = null
+    if (!allValid(errors)) {
+      const form = event.currentTarget as HTMLFormElement
+      revealed = true
+      await tick()
+      focusFirstInvalid(form)
+      return
+    }
     const entered = amounts()
-    if (entered === null) {
-      return
-    }
-    if (!categoryId) {
-      error = 'Choisissez une catégorie du budget'
-      return
-    }
-    if (isLoan && lastDueOn && lastDueOn < firstDueOn) {
-      error = 'La dernière mensualité ne peut pas précéder la prochaine'
-      return
-    }
     busy = true
     try {
       await onsave({
@@ -128,23 +139,34 @@
 </script>
 
 <form class="stack" onsubmit={submit}>
-  <label>
-    Nom
+  <Field label="Nom" error={errors.name} reveal={revealed}>
+    {#snippet children(id)}
     <input
+      {id}
       bind:value={name}
       maxlength="60"
       placeholder={income ? 'Ex. : Salaire, Allocations…' : isLoan ? 'Ex. : Prêt immobilier, Crédit auto…' : 'Ex. : Internet, Électricité…'}
-      required
       data-autofocus
     />
-  </label>
+    {/snippet}
+  </Field>
 
   {#if isLoan}
-    <AmountInput bind:value={amount} label="Mensualité du prêt" />
-    <label>
-      Assurance par mois, en € (facultative)
-      <input bind:value={insurance} inputmode="decimal" placeholder="Ex. : 24" autocomplete="off" />
-    </label>
+    <Field error={errors.amount} reveal={revealed}>
+      {#snippet children()}
+        <AmountInput bind:value={amount} label="Mensualité du prêt" />
+      {/snippet}
+    </Field>
+    <Field
+      label="Assurance par mois, en € (facultative)"
+      error={errors.insurance}
+      reveal={revealed}
+      info="L'assurance emprunteur prélevée chaque mois. Elle s'ajoute à la mensualité du prêt : une seule dépense, du total, arrive dans le budget."
+    >
+      {#snippet children(id)}
+        <input {id} bind:value={insurance} inputmode="decimal" placeholder="Ex. : 24" autocomplete="off" />
+      {/snippet}
+    </Field>
     <p class="muted hint" aria-live="polite">
       {#if loanTotalCents !== null}
         Chaque mois, une dépense de {formatCents(loanTotalCents)} est ajoutée au budget toute seule.
@@ -153,21 +175,33 @@
       {/if}
     </p>
     <div class="form-row">
-      <label>
-        {initial.charge ? 'Première mensualité' : 'Prochaine mensualité'}
-        <input type="date" bind:value={firstDueOn} min={minFirstDueOn} required />
-      </label>
-      <label>
-        Dernière mensualité (facultative)
-        <input type="date" bind:value={lastDueOn} min={firstDueOn} />
-      </label>
+      <Field label={initial.charge ? 'Première mensualité' : 'Prochaine mensualité'} error={errors.firstDueOn} reveal={revealed}>
+        {#snippet children(id)}
+          <input {id} type="date" bind:value={firstDueOn} min={minFirstDueOn} />
+        {/snippet}
+      </Field>
+      <Field
+        label="Dernière mensualité (facultative)"
+        error={errors.lastDueOn}
+        reveal={revealed}
+        info="La date de fin du crédit. Si vous la donnez, le crédit s'arrête tout seul après cette mensualité et l'écran affiche combien il en reste."
+      >
+        {#snippet children(id)}
+          <input {id} type="date" bind:value={lastDueOn} min={firstDueOn} />
+        {/snippet}
+      </Field>
     </div>
     <p class="muted hint">Avec une dernière mensualité, le crédit s'arrête tout seul à cette date.</p>
   {:else}
-    <AmountInput bind:value={amount} label={kind === 'FIXED' ? 'Montant' : 'Montant prévu'} />
+    <Field error={errors.amount} reveal={revealed}>
+      {#snippet children()}
+        <AmountInput bind:value={amount} label={kind === 'FIXED' ? 'Montant' : 'Montant prévu'} />
+      {/snippet}
+    </Field>
 
     <Segmented
       label="Montant"
+      info="Fixe : le même montant à chaque échéance, ajouté au budget tout seul. Variable : le montant change (électricité, eau…), vous le confirmez à chaque facture."
       options={[
         { value: 'FIXED', label: 'Fixe' },
         { value: 'VARIABLE', label: 'Variable' },
@@ -195,10 +229,11 @@
           {/each}
         </select>
       </label>
-      <label>
-        {initial.charge ? 'Première échéance' : 'Prochaine échéance'}
-        <input type="date" bind:value={firstDueOn} min={minFirstDueOn} required />
-      </label>
+      <Field label={initial.charge ? 'Première échéance' : 'Prochaine échéance'} error={errors.firstDueOn} reveal={revealed}>
+        {#snippet children(id)}
+          <input {id} type="date" bind:value={firstDueOn} min={minFirstDueOn} />
+        {/snippet}
+      </Field>
     </div>
   {/if}
 
@@ -211,6 +246,9 @@
         </Chip>
       {/each}
     </div>
+    {#if revealed && errors.category}
+      <span class="field-error" role="alert">{errors.category}</span>
+    {/if}
   </fieldset>
 
   {#if income}
@@ -226,7 +264,7 @@
     <p class="error" role="alert">{error}</p>
   {/if}
 
-  <button class="large" disabled={busy || !name.trim()} aria-busy={busy}>
+  <button class="large" disabled={busy} aria-busy={busy}>
     {initial.charge ? 'Enregistrer' : income ? 'Ajouter la rentrée' : isLoan ? 'Ajouter le crédit' : 'Ajouter la charge'}
   </button>
 </form>

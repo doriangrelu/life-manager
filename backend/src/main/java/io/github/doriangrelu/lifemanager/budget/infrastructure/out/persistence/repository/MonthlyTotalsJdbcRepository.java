@@ -3,6 +3,7 @@ package io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.entity.ExpenseEntity;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.projection.CategoryTotalRow;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.projection.MemberTotalRow;
+import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.projection.MonthCategoryTotalRow;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jdbc.annotation.JdbcRepository;
@@ -52,4 +53,13 @@ public interface MonthlyTotalsJdbcRepository extends GenericRepository<ExpenseEn
             FROM expense e JOIN charge_expense link ON link.expense_id = e.id
             WHERE e.household_id = :householdId AND e.spent_on BETWEEN :firstDay AND :lastDay""")
     long recurringTotal(UUID householdId, LocalDate firstDay, LocalDate lastDay);
+
+    /** Dépenses de chaque catégorie, mois par mois (seuls les mois et catégories qui en ont). */
+    @Query("""
+            SELECT to_char(spent_on, 'YYYY-MM') AS month, category_id, SUM(amount_cents)::bigint AS total_cents
+            FROM expense
+            WHERE household_id = :householdId AND spent_on BETWEEN :firstDay AND :lastDay
+            GROUP BY month, category_id
+            ORDER BY month""")
+    List<MonthCategoryTotalRow> totalsByMonthAndCategory(UUID householdId, LocalDate firstDay, LocalDate lastDay);
 }

@@ -339,6 +339,15 @@ button.icon {
   margin: 0;
 }
 
+/* Motif d'une erreur de saisie, sous un groupe de choix (les champs simples passent par Field). */
+.field-error {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-danger);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
 .amount {
   font-variant-numeric: tabular-nums;
   font-weight: 800;

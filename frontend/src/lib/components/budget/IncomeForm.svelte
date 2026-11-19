@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Trash2 } from '@lucide/svelte'
-  import { untrack } from 'svelte'
+  import { tick, untrack } from 'svelte'
   import { correctIncome, recordIncome } from '../../api/budgetApi'
   import type { Category, Income, IncomeInput, Member } from '../../api/types'
   import { isOther, sortCategories } from '../../categories'
@@ -10,7 +10,9 @@
   import { displayName } from '../../text'
   import AmountInput from '../../ui/atoms/AmountInput.svelte'
   import Chip from '../../ui/atoms/Chip.svelte'
+  import Field from '../../ui/molecules/Field.svelte'
   import Segmented from '../../ui/molecules/Segmented.svelte'
+  import { allValid, amount as amountRule, check, focusFirstInvalid, notAfter, required } from '../../validation'
 
   // Saisie (ou correction) d'une rentrée d'argent : même geste qu'une dépense, sans « payé par ».
   let {
@@ -45,6 +47,13 @@
   let precision = $state('')
   let busy = $state(false)
   let error = $state<string | null>(null)
+  // Contrôles en direct ; après un envoi refusé, toutes les erreurs se montrent.
+  let revealed = $state(false)
+  const errors = $derived({
+    amount: check(amount, amountRule('1850,00')),
+    category: categoryId ? null : 'Choisissez une catégorie',
+    receivedOn: check(receivedOn, required('Choisissez une date'), notAfter(today(), 'La date ne peut pas être dans le futur')),
+  })
 
   const choices = $derived(sortCategories(categories.filter((c) => !c.archived || c.id === initial.income?.categoryId)))
   const otherChosen = $derived(isOther(categories.find((c) => c.id === categoryId)?.name ?? ''))
@@ -64,13 +73,12 @@
 
   async function submit(event: SubmitEvent) {
     event.preventDefault()
+    const form = event.currentTarget as HTMLFormElement
     const amountCents = parseAmountToCents(amount)
-    if (amountCents === null) {
-      error = 'Montant invalide (exemple : 1850,00)'
-      return
-    }
-    if (!categoryId) {
-      error = 'Choisissez une catégorie'
+    if (!allValid(errors) || amountCents === null) {
+      revealed = true
+      await tick()
+      focusFirstInvalid(form)
       return
     }
     busy = true
@@ -92,7 +100,11 @@
 </script>
 
 <form class="stack" onsubmit={submit}>
-  <AmountInput bind:value={amount} />
+  <Field error={errors.amount} reveal={revealed}>
+    {#snippet children()}
+      <AmountInput bind:value={amount} />
+    {/snippet}
+  </Field>
 
   <fieldset class="categories">
     <legend>Catégorie</legend>
@@ -101,6 +113,9 @@
         <Chip selected={categoryId === category.id} onclick={() => (categoryId = category.id)}>{displayName(category.name)}</Chip>
       {/each}
     </div>
+    {#if revealed && errors.category}
+      <span class="field-error" role="alert">{errors.category}</span>
+    {/if}
     {#if otherChosen}
       <label class="precision">
         Préciser (facultatif) — crée la catégorie
@@ -109,13 +124,19 @@
     {/if}
   </fieldset>
 
-  <Segmented label="Reçu par" options={receivers} bind:value={receivedBy} />
+  <Segmented
+    label="Reçu par"
+    options={receivers}
+    bind:value={receivedBy}
+    info="Qui reçoit cet argent : une personne, ou le foyer entier. Le Bilan détaille les rentrées par personne."
+  />
 
   <div class="form-row">
-    <label>
-      Date
-      <input type="date" bind:value={receivedOn} max={today()} required />
-    </label>
+    <Field label="Date" error={errors.receivedOn} reveal={revealed}>
+      {#snippet children(id)}
+        <input {id} type="date" bind:value={receivedOn} max={today()} />
+      {/snippet}
+    </Field>
     <label>
       Libellé
       <input bind:value={label} maxlength="140" placeholder="Facultatif" />

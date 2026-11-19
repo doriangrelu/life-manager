@@ -2,6 +2,7 @@ package io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.
 
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.BeneficiaryTotal;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.CategoryTotal;
+import io.github.doriangrelu.lifemanager.budget.application.port.in.result.MonthCategoryAmount;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.MonthResult;
 import io.github.doriangrelu.lifemanager.budget.application.port.out.BudgetReportReadModel;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
@@ -49,6 +50,14 @@ class BudgetReportReadModelAdapter implements BudgetReportReadModel {
     @Override
     public long recurringExpenseCents(HouseholdId householdId, LocalDate firstDay, LocalDate lastDay) {
         return expenses.recurringTotal(householdId.value(), firstDay, lastDay);
+    }
+
+    @Override
+    public List<MonthCategoryAmount> expensesByMonthAndCategory(HouseholdId householdId, LocalDate firstDay,
+                                                                LocalDate lastDay) {
+        return expenses.totalsByMonthAndCategory(householdId.value(), firstDay, lastDay).stream()
+                .map(row -> new MonthCategoryAmount(YearMonth.parse(row.month()), row.categoryId(), row.totalCents()))
+                .toList();
     }
 
     @Override

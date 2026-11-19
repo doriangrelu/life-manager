@@ -3,7 +3,7 @@
   import type { MonthlyBudget } from '../../api/types'
   import { categoryStyle } from '../../categoryStyle'
   import { formatCents } from '../../money'
-  import type { CategoryProgress } from '../../plan'
+  import { planTotals, type CategoryProgress } from '../../plan'
   import ProgressBar from '../../ui/atoms/ProgressBar.svelte'
 
   // Répartition du mois : par catégorie, puis pour qui.
@@ -26,6 +26,8 @@
 
   const largest = $derived(Math.max(1, ...progress.map((line) => line.spentCents)))
   const anyPlan = $derived(progress.some((line) => line.plannedCents !== null))
+  // Synthèse : dépensé dans les catégories prévues, face au total prévu (absente sans aucun prévu).
+  const totals = $derived(planTotals(progress))
 
   const percent = (part: number, whole: number) => `${Math.min(100, Math.round((part / whole) * 100))}%`
 
@@ -47,6 +49,30 @@
     <h2>Par catégorie</h2>
     <button class="link" onclick={onmanage}>Gérer</button>
   </div>
+  {#if totals}
+    <div class="total">
+      <span class="line">
+        <span class="name">
+          Budget prévu
+          {#if totals.badge}<span class="badge" class:over={totals.status === 'over'}>{totals.badge}</span>{/if}
+        </span>
+        <span class="amount">
+          {formatCents(totals.spentCents)}
+          <span class="planned">/ {formatCents(totals.plannedCents)}</span>
+        </span>
+      </span>
+      <span class="track" aria-hidden="true">
+        <span
+          class="fill"
+          style:width={percent(totals.spentCents, totals.plannedCents)}
+          style:background={totals.status === 'over' ? 'var(--color-danger)' : totals.status === 'warning' ? 'var(--color-warning)' : 'var(--color-primary)'}
+        ></span>
+      </span>
+      {#if totals.offPlanCents > 0}
+        <span class="hint">+ {formatCents(totals.offPlanCents)} hors budget (catégories sans prévu)</span>
+      {/if}
+    </div>
+  {/if}
   <ul class="rows">
     {#each progress as line (line.categoryId)}
       {@const planned = line.plannedCents}
@@ -147,6 +173,16 @@
       filter: none;
       background: var(--color-surface-muted);
     }
+  }
+  /* Synthèse du mois, séparée des catégories par un filet. */
+  .total {
+    display: grid;
+    gap: 6px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .total .line {
+    font-weight: 800;
   }
   .line {
     display: flex;

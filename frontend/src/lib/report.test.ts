@@ -13,6 +13,8 @@ const report = (incomeCents: number, expenseCents: number): BudgetReport => ({
   expenseByCategory: [],
   months: [{ month: '2026-11', incomeCents, expenseCents, resultCents: incomeCents - expenseCents }],
   recurringExpenseCents: 0,
+  monthPlans: [],
+  monthExpenses: [],
 })
 
 const item = (direction: ForecastItem['direction'], expectedCents: number): ForecastItem => ({
