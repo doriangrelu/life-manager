@@ -61,7 +61,7 @@ Au retour de Keycloak, oauth2-proxy cherchait le champ `groups` absent du jeton 
 
 ## 2026-11-19 14:36 — Claude + Dorian — alertes Healthchecks.io
 
-Compte et surveillance « VPS » créés par Dorian (période 10 min, grâce 20 min) ; adresse de signal enregistrée par lui (`~/admin/.healthchecks-url`, 600). `vps-signal-vie.timer` (toutes les 10 min, en `ubuntu`) lance `~/admin/signal-vie.sh` : `etat.sh`, 2e essai 2 min plus tard en cas d'écart, puis signal OK ou échec avec le détail. Premier tour réussi ; échec de test volontaire envoyé.
+Compte et surveillance « VPS » créés par Dorian (période 10 min, grâce 20 min) ; adresse de signal enregistrée par lui (`~/admin/.healthchecks-url`, 600). `vps-signal-vie.timer` (toutes les 10 min, en `ubuntu`) lance `~/admin/signal-vie.sh` : `etat.sh`, 2e essai 2 min plus tard en cas d'écart, puis signal OK ou échec avec le détail. Premier tour réussi ; échec de test volontaire envoyé, **alerte reçue par Dorian**.
 Retour arrière : `sudo systemctl disable --now vps-signal-vie.timer`.
 
 ## Points ouverts (à décider avec Dorian)
