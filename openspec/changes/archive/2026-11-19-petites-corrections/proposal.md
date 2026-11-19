@@ -19,5 +19,5 @@ Trois petites gênes relevées par Dorian le 2026-11-19 (backlog « Petites corr
 - Backend, domaine `vehicle` : nouvelle colonne facultative `other_label` sur l'opération d'entretien (migration `vehicle/V4`), champ `otherLabel` dans la requête et la réponse. Aucun autre domaine touché.
 - PWA : formulaire et carte du carnet, `CategoryManager` (prop `kind`), `BudgetView`.
 - Thème Keycloak `infra/keycloak/themes/life-manager/account` + `docker-compose.yml` (dev). En prod, les fichiers du thème sont recopiés dans `~/keycloak/themes` et Keycloak doit être **redémarré : environ 1 minute de coupure de connexion pour tous les sites** du VPS. À faire avec l'accord de Dorian, au moment qu'il choisit.
-- Version **v0.6.2**.
+- Version **v0.6.3** (le tag v0.6.2, mal placé, a été abandonné).
 - Specs touchées : `carnet-entretien` (précision du type « Autre »), `rentrees` (gestion des catégories de rentrées dans la PWA).
