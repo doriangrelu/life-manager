@@ -1,7 +1,8 @@
 <script lang="ts">
   import { ChartColumnBig } from '@lucide/svelte'
+  import { INCOME_OPTION_TEXT, INCOME_OPTION_TITLE } from '../householdSettings'
 
-  // Réglage du foyer « Suivre les rentrées » : le propriétaire l'active, les autres membres le voient.
+  // Réglage du foyer « Rentrées et bilan » : le propriétaire l'active, les autres membres le voient.
   let {
     enabled,
     isOwner,
@@ -23,11 +24,8 @@
 <section class="card setting">
   <span class="bubble" aria-hidden="true"><ChartColumnBig size={20} /></span>
   <div class="text">
-    <strong id="income-tracking-title">Suivre les rentrées</strong>
-    <span class="muted">
-      Salaires, primes, aides… saisis comme les dépenses, avec un écran Bilan : ce qui est rentré, dépensé et mis de
-      côté sur le mois, le trimestre ou l'année.
-    </span>
+    <strong id="income-tracking-title">{INCOME_OPTION_TITLE}</strong>
+    <span class="muted">{INCOME_OPTION_TEXT}</span>
     {#if !isOwner}
       <span class="muted owner-only">Seul le propriétaire du foyer peut changer ce réglage.</span>
     {/if}

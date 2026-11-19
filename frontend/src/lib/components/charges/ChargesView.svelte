@@ -16,6 +16,7 @@
   import { navigate, route } from '../../route'
   import { displayName } from '../../text'
   import Fab from '../../ui/molecules/Fab.svelte'
+  import IncomeTrackingPromo from '../IncomeTrackingPromo.svelte'
   import Modal from '../../ui/molecules/Modal.svelte'
   import Segmented from '../../ui/molecules/Segmented.svelte'
   import Skeleton from '../../ui/atoms/Skeleton.svelte'
@@ -23,12 +24,13 @@
   import ChargeForm from './ChargeForm.svelte'
   import ConfirmAmountDialog from './ConfirmAmountDialog.svelte'
 
-  // Onglet Charges : abonnements et factures qui reviennent, leurs échéances et ce qui attend une confirmation.
+  // Onglet Récurrents : abonnements, factures (et rentrées régulières, si suivies) qui reviennent, leurs échéances et ce qui attend une confirmation.
   let { householdId, profile }: { householdId: string; profile: UserProfile } = $props()
 
   let charges = $state<Charge[]>([])
   let categories = $state<Category[]>([])
   let members = $state<Member[]>([])
+  let ownerId = $state<string | null>(null)
   let loaded = $state(false)
   let error = $state<string | null>(null)
   let adding = $state(false)
@@ -58,6 +60,7 @@
       ])
       charges = loadedCharges
       members = household.members
+      ownerId = household.ownerId
       categories = loadedCategories
       loaded = true
     }),
@@ -144,15 +147,15 @@
   </div>
 {:else}
   <div class="stack" in:rise>
-    <h1>Charges</h1>
+    <h1>Récurrents</h1>
 
     {#if $incomeTracking}
       <Segmented
         label="Dépenses ou rentrées récurrentes"
         hideLabel
         options={[
-          { value: 'EXPENSE', label: 'Dépenses fixes' },
-          { value: 'INCOME', label: 'Rentrées fixes' },
+          { value: 'EXPENSE', label: 'Dépenses' },
+          { value: 'INCOME', label: 'Rentrées' },
         ]}
         bind:value={panel}
       />
@@ -251,6 +254,10 @@
           {/if}
         </div>
       {/if}
+    {/if}
+
+    {#if loaded && ownerId}
+      <IncomeTrackingPromo {householdId} isOwner={ownerId === profile.userId} variant="line" />
     {/if}
 
     <Fab label={isIncome ? 'Ajouter une rentrée récurrente' : 'Ajouter une charge'} onclick={() => (adding = true)} />

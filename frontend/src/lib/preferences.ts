@@ -24,6 +24,25 @@ export function rememberKeepAdding(keep: boolean): void {
   }
 }
 
+const INCOME_PROMO_KEY = 'life-manager.income-promo-dismissed.'
+
+/** Vrai si la mise en avant de « Rentrées et bilan » a été refermée sur cet appareil, pour ce foyer. */
+export function incomePromoDismissed(householdId: string): boolean {
+  try {
+    return localStorage.getItem(INCOME_PROMO_KEY + householdId) === 'true'
+  } catch {
+    return false
+  }
+}
+
+export function dismissIncomePromo(householdId: string): void {
+  try {
+    localStorage.setItem(INCOME_PROMO_KEY + householdId, 'true')
+  } catch {
+    // Sans stockage, la carte reviendra au prochain chargement : sans gravité.
+  }
+}
+
 /** Rappels déjà notifiés aujourd'hui sur cet appareil. */
 export function notifiedMemo(): NotifiedMemo | null {
   try {

@@ -3,12 +3,12 @@
   import { spaceOf, visibleEntries } from '../../navigation'
   import type { Section } from '../../route'
 
-  // Sous-onglets de l'espace ouvert (ex. Argent : Budget · Charges), en pastilles sous l'en-tête.
+  // Sous-onglets de l'espace ouvert (ex. Argent : Budget · Récurrents), en pastilles sous l'en-tête.
   // Mobile seulement : sur grand écran, le menu latéral montre déjà tous les écrans.
   let { active, onselect }: { active: Section; onselect: (section: Section) => void } = $props()
 
   const space = $derived(spaceOf(active))
-  const entries = $derived(visibleEntries(space, $incomeTracking))
+  const entries = $derived(visibleEntries(space, $incomeTracking === true))
 </script>
 
 {#if entries.length > 1}

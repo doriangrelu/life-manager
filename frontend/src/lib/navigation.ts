@@ -28,7 +28,7 @@ export const SPACES: Space[] = [
     icon: Wallet,
     entries: [
       { section: 'budget', label: 'Budget', icon: Wallet },
-      { section: 'charges', label: 'Charges', icon: ReceiptText },
+      { section: 'charges', label: 'Récurrents', icon: ReceiptText },
       { section: 'report', label: 'Bilan', icon: ChartColumnBig, incomeTrackingOnly: true },
     ],
   },

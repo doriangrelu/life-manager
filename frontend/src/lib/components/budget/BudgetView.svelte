@@ -21,7 +21,8 @@
   import ExpenseForm from './ExpenseForm.svelte'
   import ExpenseList from './ExpenseList.svelte'
   import IncomeForm from './IncomeForm.svelte'
-  import IncomeList from './IncomeList.svelte'
+  import OperationList from './OperationList.svelte'
+  import IncomeTrackingPromo from '../IncomeTrackingPromo.svelte'
   import MonthHero from './MonthHero.svelte'
 
   // Onglet Budget : la vue du mois, d'où l'on saisit, corrige ou supprime des dépenses.
@@ -32,6 +33,8 @@
   let budget = $state<MonthlyBudget | null>(null)
   let categories = $state<Category[]>([])
   let members = $state<Member[]>([])
+  // Propriétaire : lui seul peut activer « Rentrées et bilan » depuis la carte de mise en avant.
+  let ownerId = $state<string | null>(null)
   let error = $state<string | null>(null)
   // Mois en cours de chargement : l'ancien reste affiché, estompé.
   let loadingMonth = $state(false)
@@ -65,6 +68,7 @@
     run(async () => {
       const [household, loadedCategories] = await Promise.all([getHousehold(householdId), listCategories(householdId)])
       members = household.members
+      ownerId = household.ownerId
       categories = loadedCategories
     }),
   )
@@ -191,14 +195,27 @@
 
 {#if budget}
   <div class="stack" class:reloading={loadingMonth} aria-busy={loadingMonth} in:rise>
-    <MonthHero {budget} {memberName} incomeTracking={$incomeTracking} />
-    {#if $incomeTracking}
-      <IncomeList incomes={budget.incomes} categories={incomeCategories} {receiverName} onopen={openIncome} />
+    <MonthHero {budget} {memberName} incomeTracking={$incomeTracking === true} />
+    {#if ownerId}
+      <IncomeTrackingPromo {householdId} isOwner={ownerId === profile.userId} />
     {/if}
     {#if budget.expenses.length > 0}
       <CategoryBreakdown {budget} {memberName} onmanage={() => (managingCategories = true)} />
     {/if}
-    <ExpenseList expenses={budget.expenses} {categories} {memberName} onopen={openEditor} />
+    {#if $incomeTracking}
+      <OperationList
+        expenses={budget.expenses}
+        incomes={budget.incomes}
+        {categories}
+        {incomeCategories}
+        {memberName}
+        {receiverName}
+        onopenexpense={openEditor}
+        onopenincome={openIncome}
+      />
+    {:else}
+      <ExpenseList expenses={budget.expenses} {categories} {memberName} onopen={openEditor} />
+    {/if}
     {#if budget.expenses.length === 0}
       <button class="link manage" onclick={() => (managingCategories = true)}>Gérer les catégories</button>
     {/if}

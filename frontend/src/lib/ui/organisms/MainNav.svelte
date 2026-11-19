@@ -11,7 +11,7 @@
   const activeSpace = $derived(spaceOf(active).id)
 
   function openSpace(space: Space) {
-    onselect(sectionToOpen(space, active, rememberedSpaceSection(space.id), $incomeTracking))
+    onselect(sectionToOpen(space, active, rememberedSpaceSection(space.id), $incomeTracking === true))
   }
 </script>
 
@@ -36,7 +36,7 @@
   <!-- Grand écran : chaque espace avec ses écrans -->
   <div class="side">
     {#each SPACES as space (space.id)}
-      {@const entries = visibleEntries(space, $incomeTracking)}
+      {@const entries = visibleEntries(space, $incomeTracking === true)}
       <div class="group">
         <!-- Un espace d'un seul écran du même nom n'a pas besoin de titre. -->
         {#if entries.length > 1 || entries[0].label !== space.label}

@@ -49,7 +49,7 @@
   // Réglage du foyer (suivi des rentrées) : lu au chargement, il décide des écrans proposés.
   let settingsLoaded = $state(false)
   onMount(async () => {
-    incomeTracking.set(false)
+    incomeTracking.set(null)
     try {
       incomeTracking.set((await getHousehold(householdId)).incomeTracking)
     } finally {
