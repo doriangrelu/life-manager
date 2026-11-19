@@ -9,8 +9,8 @@
 | Hébergeur | OVH, VPS 2 cœurs, 3,7 Go de mémoire, **pas de swap**, disque 38 Go |
 | Système | Ubuntu 26.04 LTS, horloge UTC |
 | Accès | SSH sur 152.228.237.190, **par clé uniquement** ; secours : console KVM ou mode rescue de l'espace client OVH |
-| Utilisateur `ubuntu` | propriétaire de tous les fichiers ; `sudo` sans mot de passe, groupe `docker`. Clés : Dorian (PC Windows et WSL), `claude-deploy-mybook` (session Claude de mybook, en double) |
-| Utilisateur `ia` | réservé à l'IA (créé le 2026-11-19) : `sudo` sans mot de passe (`/etc/sudoers.d/90-ia`), groupes `docker` et `ubuntu`, pas de mot de passe. Clé : `claude-code-life-manager`. Couper l'accès de l'IA : `sudo usermod -L -e 1 ia` ou vider `/home/ia/.ssh/authorized_keys` |
+| Utilisateur `ubuntu` | propriétaire de tous les fichiers ; `sudo` sans mot de passe, groupe `docker`. Clés : Dorian seulement (PC Windows et WSL) |
+| Utilisateur `ia` | réservé à l'IA (créé le 2026-11-19) : `sudo` sans mot de passe (`/etc/sudoers.d/90-ia`), groupes `docker` et `ubuntu`, pas de mot de passe. Clés : `claude-code-life-manager` (sessions Claude de Life Manager), `claude-deploy-mybook` (sessions Claude de mybook). Couper l'accès de l'IA : `sudo usermod -L -e 1 ia` ou vider `/home/ia/.ssh/authorized_keys` |
 | Pare-feu | `ufw` : entrée refusée sauf 22, 80, 443 |
 | fail2ban | une prison `sshd` |
 | Réglages ajoutés | `/etc/ssh/sshd_config.d/00-cles-uniquement.conf` ; `/etc/docker/daemon.json` (journaux 3 × 10 Mo, pour les conteneurs créés après un redémarrage de Docker) |

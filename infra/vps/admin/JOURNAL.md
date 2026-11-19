@@ -34,11 +34,15 @@ Installation de `~/AGENTS.md`, `~/CLAUDE.md` et `~/admin/` (inventaire, procédu
 Choix de Dorian : « séparé mais complet ». Utilisateur `ia` : `sudo` sans mot de passe (`/etc/sudoers.d/90-ia`), groupes `docker` et `ubuntu`, pas de mot de passe, clé `claude-code-life-manager`, `/home/ia/CLAUDE.md` qui renvoie vers `~ubuntu/AGENTS.md`. La clé `claude-code-life-manager` est **retirée d'`ubuntu`** (copie : `~/.ssh/authorized_keys.avant-ia`) ; refus vérifié. Les scripts de l'IA se connectent en `ia` et travaillent en `ubuntu` par `sudo -iu ubuntu`.
 Retour arrière : `sudo userdel -r ia ; sudo rm /etc/sudoers.d/90-ia` et remettre la clé dans `~ubuntu/.ssh/authorized_keys`.
 
+## 2026-11-19 14:05 — Claude — clé de mybook basculée sur « ia »
+
+Clé `claude-deploy-mybook` (présente deux fois, même empreinte ; aucune connexion depuis au moins 4 semaines ; pas utilisée par la CI) retirée d'`ubuntu` et ajoutée à `ia`. Copie : `~/.ssh/authorized_keys.avant-mybook-ia`. `ubuntu` n'a plus que les clés de Dorian.
+**À faire** : les sessions Claude de mybook doivent se connecter en `ia@` et travailler avec `sudo -iu ubuntu` (non testé : la clé privée est sur le PC de Dorian).
+
 ## Points ouverts (à décider avec Dorian)
 
 - Swap de 2 Go.
 - Supervision et alerte (un site qui tombe ne prévient personne).
-- La session Claude de mybook utilise encore `ubuntu` (clé `claude-deploy-mybook`, en double) : la basculer aussi sur `ia` ?
 - Versionner `~/infra`, `~/keycloak`, `~/portainer` dans un dépôt privé.
 - Ménage du dossier personnel : `%{redirect_url}n`, `get-docker.sh`, `test-newsletter-brevo.sh`, `conteneurs-avant-reboot.txt`, `~/mybook/backups` (arrêté en août), `~/backups` (vide), clé SSH `claude-deploy-mybook` en double.
 - Le rôle PostgreSQL `site` (mybook) est superutilisateur.
