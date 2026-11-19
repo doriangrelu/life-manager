@@ -12,7 +12,8 @@ import java.time.LocalDate;
  * @param note        note, ou {@code null}
  * @param nextDueOn   prochaine échéance choisie (contrôle technique, révision), ou {@code null} pour le calcul
  *                    automatique
+ * @param otherLabel  précision du type « Autre », ou {@code null}
  */
 public record MaintenanceInput(LocalDate performedOn, String kind, Integer mileageKm, Long costCents, String note,
-                               LocalDate nextDueOn) {
+                               LocalDate nextDueOn, String otherLabel) {
 }

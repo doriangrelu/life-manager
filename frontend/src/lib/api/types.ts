@@ -135,6 +135,8 @@ export interface MaintenanceInput {
   note: string | null
   /** Contrôle technique ou révision : prochaine échéance précise, null = calcul automatique par le serveur. */
   nextDueOn: string | null
+  /** Type « Autre » seulement : précision libre (« Essuie-glaces »), sinon null. */
+  otherLabel: string | null
 }
 
 export interface MaintenanceEntry extends Omit<MaintenanceInput, 'nextDueOn'> {

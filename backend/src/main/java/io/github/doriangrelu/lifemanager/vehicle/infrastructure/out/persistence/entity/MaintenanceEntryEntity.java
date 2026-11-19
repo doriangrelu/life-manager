@@ -12,5 +12,5 @@ import java.util.UUID;
 @MappedEntity("maintenance_entry")
 public record MaintenanceEntryEntity(@Id UUID id, UUID vehicleId, LocalDate performedOn, String kind,
                                      @Nullable Integer mileageKm, @Nullable Long costCents, @Nullable String note,
-                                     UUID recordedBy, Instant recordedAt) {
+                                     UUID recordedBy, Instant recordedAt, @Nullable String otherLabel) {
 }

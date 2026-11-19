@@ -2,13 +2,18 @@
   import { Archive, ArchiveRestore, Pencil } from '@lucide/svelte'
   import { displayName } from '../../text'
   import { addCategory, archiveCategory, reactivateCategory, renameCategory } from '../../api/budgetApi'
-  import type { Category } from '../../api/types'
+  import type { Category, FlowDirection } from '../../api/types'
   import { sortCategories } from '../../categories'
   import { categoryStyle } from '../../categoryStyle'
   import TextDialog from '../../ui/molecules/TextDialog.svelte'
 
   // Gestion des catégories du foyer (dans une modale) : ajout, renommage, archivage, réactivation.
-  let { householdId, categories = $bindable() }: { householdId: string; categories: Category[] } = $props()
+  // kind : catégories de dépenses (par défaut) ou de rentrées.
+  let {
+    householdId,
+    categories = $bindable(),
+    kind = 'EXPENSE',
+  }: { householdId: string; categories: Category[]; kind?: FlowDirection } = $props()
 
   let newName = $state('')
   let error = $state<string | null>(null)
@@ -33,7 +38,7 @@
 
   async function add(event: SubmitEvent) {
     event.preventDefault()
-    if (await run(() => addCategory(householdId, newName))) {
+    if (await run(() => addCategory(householdId, newName, kind))) {
       newName = ''
     }
   }
@@ -47,18 +52,24 @@
     const category = renaming
     // Le nom affiché a une majuscule, l'enregistré non : on compare sans tenir compte de la casse.
     if (category && name.trim().toLowerCase() !== category.name) {
-      run(() => renameCategory(householdId, category.id, name))
+      run(() => renameCategory(householdId, category.id, name, kind))
     }
   }
 
   function toggle(category: Category) {
-    run(() => (category.archived ? reactivateCategory : archiveCategory)(householdId, category.id))
+    run(() => (category.archived ? reactivateCategory : archiveCategory)(householdId, category.id, kind))
   }
 </script>
 
 <form class="add" onsubmit={add}>
   <label class="visually-hidden" for="new-category">Nouvelle catégorie</label>
-  <input id="new-category" bind:value={newName} maxlength="40" placeholder="Nouvelle catégorie" required />
+  <input
+    id="new-category"
+    bind:value={newName}
+    maxlength="40"
+    placeholder={kind === 'INCOME' ? 'Nouvelle catégorie de rentrées' : 'Nouvelle catégorie'}
+    required
+  />
   <button disabled={!newName.trim()}>Ajouter</button>
 </form>
 

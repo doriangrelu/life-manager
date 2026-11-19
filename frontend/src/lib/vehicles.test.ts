@@ -5,10 +5,19 @@ import {
   daysBetween,
   deadlineStatus,
   deadlineText,
+  entryLabel,
   formatDay,
   kindLabel,
   setsDeadline,
 } from './vehicles'
+
+describe('nom affiché d\'une opération', () => {
+  it('montre la précision d\'un type « Autre », sinon le nom du type', () => {
+    expect(entryLabel({ kind: 'OTHER', otherLabel: 'Essuie-glaces' })).toBe('Essuie-glaces')
+    expect(entryLabel({ kind: 'OTHER', otherLabel: null })).toBe('Autre')
+    expect(entryLabel({ kind: 'TIRES', otherLabel: null })).toBe('Pneus')
+  })
+})
 
 describe('prochaine échéance fixée par le carnet', () => {
   it('ajoute 2 ans pour un contrôle technique et 1 an pour une révision', () => {

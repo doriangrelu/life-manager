@@ -17,7 +17,7 @@
     uploadAttachment,
   } from '../../api/vehicleApi'
   import type { MaintenanceEntry, MaintenanceInput, Vehicle, VehicleInput } from '../../api/types'
-  import { formatDay, kindLabel } from '../../vehicles'
+  import { entryLabel, formatDay } from '../../vehicles'
   import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
   import Modal from '../../ui/molecules/Modal.svelte'
   import Skeleton from '../../ui/atoms/Skeleton.svelte'
@@ -186,7 +186,7 @@
   {@const entryId = attachmentsOf.id}
   <AttachmentsDialog
     bind:open={attachmentsOpen}
-    subtitle="{kindLabel(attachmentsOf.kind)} du {formatDay(attachmentsOf.performedOn)}"
+    subtitle="{entryLabel(attachmentsOf)} du {formatDay(attachmentsOf.performedOn)}"
     files={{
       list: () => listAttachments(householdId, vehicle.id, entryId),
       upload: (file, onprogress) => uploadAttachment(householdId, vehicle.id, entryId, file, onprogress),
@@ -200,7 +200,7 @@
 <ConfirmDialog
   bind:open={confirmingEntryDeletion}
   title="Supprimer l'opération ?"
-  message={deletingEntry ? `« ${kindLabel(deletingEntry.kind)} » du ${formatDay(deletingEntry.performedOn)} sera définitivement supprimée.` : ''}
+  message={deletingEntry ? `« ${entryLabel(deletingEntry)} » du ${formatDay(deletingEntry.performedOn)} sera définitivement supprimée.` : ''}
   onconfirm={deleteEntry}
 />
 

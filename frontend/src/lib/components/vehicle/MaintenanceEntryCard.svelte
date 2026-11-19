@@ -3,7 +3,7 @@
   import type { MaintenanceEntry, MaintenanceKind } from '../../api/types'
   import { attachmentCountLabel } from '../../attachments'
   import { formatCents } from '../../money'
-  import { formatDay, kindLabel } from '../../vehicles'
+  import { entryLabel, formatDay } from '../../vehicles'
 
   // Une opération du carnet : type (avec son icône), date, kilométrage, coût, note et pièces jointes.
   let {
@@ -21,6 +21,7 @@
     OTHER: Wrench,
   }
   const Icon = $derived(ICONS[entry.kind])
+  const label = $derived(entryLabel(entry))
   const details = $derived(
     [formatDay(entry.performedOn), entry.mileageKm !== null ? `${entry.mileageKm.toLocaleString('fr-FR')} km` : null]
       .filter(Boolean)
@@ -32,7 +33,7 @@
   <span class="bubble" aria-hidden="true"><Icon size={20} /></span>
   <div class="text">
     <span class="head">
-      <strong>{kindLabel(entry.kind)}</strong>
+      <strong>{label}</strong>
       {#if entry.costCents !== null}<span class="amount">{formatCents(entry.costCents)}</span>{/if}
     </span>
     <span class="muted">{details}</span>
@@ -42,7 +43,7 @@
       {entry.attachmentCount > 0 ? attachmentCountLabel(entry.attachmentCount) : 'Joindre un fichier'}
     </button>
   </div>
-  <button class="link icon" aria-label="Supprimer l'opération {kindLabel(entry.kind)}" onclick={ondelete}>
+  <button class="link icon" aria-label="Supprimer l'opération {label}" onclick={ondelete}>
     <Trash2 size={18} />
   </button>
 </article>

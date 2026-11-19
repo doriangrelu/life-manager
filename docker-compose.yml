@@ -39,6 +39,8 @@ services:
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
       KC_HTTP_PORT: 8180
       KC_HEALTH_ENABLED: "true"
+      # Adresse de la PWA de dev : le logo de la console « Mon compte » y ramène.
+      LM_PWA_URL: http://localhost:5173
     ports:
       - "8180:8180"
     volumes:

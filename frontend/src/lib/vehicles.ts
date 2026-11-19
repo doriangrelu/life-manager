@@ -1,6 +1,6 @@
 // Véhicules : libellés des types d'entretien et état des échéances (dates au format « 2027-03-01 »).
 
-import type { MaintenanceKind } from './api/types'
+import type { MaintenanceEntry, MaintenanceKind } from './api/types'
 
 export const MAINTENANCE_KINDS: { kind: MaintenanceKind; label: string }[] = [
   { kind: 'SERVICE', label: 'Révision' },
@@ -13,6 +13,11 @@ export const MAINTENANCE_KINDS: { kind: MaintenanceKind; label: string }[] = [
 
 export function kindLabel(kind: MaintenanceKind): string {
   return MAINTENANCE_KINDS.find((k) => k.kind === kind)?.label ?? kind
+}
+
+/** Nom affiché d'une opération : sa précision pour un type « Autre » précisé, sinon le nom du type. */
+export function entryLabel(entry: Pick<MaintenanceEntry, 'kind' | 'otherLabel'>): string {
+  return entry.otherLabel ?? kindLabel(entry.kind)
 }
 
 /** Durée en années avant la prochaine opération (même règle que le serveur, qui fait foi). */

@@ -53,4 +53,17 @@ class VehicleValueObjectsTest {
         assertThat(deadlines.service()).isEmpty();
         assertThat(MaintenanceNote.ofNullable("")).isNull();
     }
+
+    @Test
+    void only_an_other_operation_can_be_specified() {
+        var day = LocalDate.of(2026, 3, 1);
+        var wipers = MaintenanceOtherLabel.ofNullable(" Essuie-glaces ");
+
+        assertThat(new MaintenanceDetails(day, MaintenanceKind.OTHER, null, null, null, wipers).optionalOtherLabel())
+                .contains(new MaintenanceOtherLabel("Essuie-glaces"));
+        assertThat(MaintenanceOtherLabel.ofNullable(" ")).isNull();
+        assertThatThrownBy(() -> new MaintenanceOtherLabel("a".repeat(41))).isInstanceOf(InvalidValueException.class);
+        assertThatThrownBy(() -> new MaintenanceDetails(day, MaintenanceKind.SERVICE, null, null, null, wipers))
+                .isInstanceOf(InvalidValueException.class);
+    }
 }

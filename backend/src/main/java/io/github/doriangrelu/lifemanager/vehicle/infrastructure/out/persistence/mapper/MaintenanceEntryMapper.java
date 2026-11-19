@@ -6,6 +6,7 @@ import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceD
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceEntryId;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceKind;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceNote;
+import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceOtherLabel;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MemberId;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.Mileage;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.VehicleId;
@@ -28,7 +29,8 @@ public final class MaintenanceEntryMapper {
                 details.optionalCost().map(Cost::cents).orElse(null),
                 details.optionalNote().map(MaintenanceNote::value).orElse(null),
                 entry.recordedBy().value(),
-                entry.recordedAt());
+                entry.recordedAt(),
+                details.optionalOtherLabel().map(MaintenanceOtherLabel::value).orElse(null));
     }
 
     public static MaintenanceEntry toDomain(MaintenanceEntryEntity entity) {
@@ -37,7 +39,8 @@ public final class MaintenanceEntryMapper {
                 MaintenanceKind.of(entity.kind()),
                 Mileage.ofNullable(entity.mileageKm()),
                 Cost.ofNullable(entity.costCents()),
-                MaintenanceNote.ofNullable(entity.note()));
+                MaintenanceNote.ofNullable(entity.note()),
+                MaintenanceOtherLabel.ofNullable(entity.otherLabel()));
         return MaintenanceEntry.restore(new MaintenanceEntryId(entity.id()), new VehicleId(entity.vehicleId()),
                 details, new MemberId(entity.recordedBy()), entity.recordedAt());
     }

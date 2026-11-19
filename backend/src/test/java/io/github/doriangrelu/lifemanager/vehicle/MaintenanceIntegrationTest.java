@@ -44,7 +44,7 @@ class MaintenanceIntegrationTest extends IntegrationTestSupport {
         var clio = clioOf(owner, household);
 
         var service = vehicles.record(owner, household, clio,
-                new MaintenanceRequest(LocalDate.of(2026, 10, 12), "SERVICE", 45_000, 18_990L, "Garage Martin", null));
+                new MaintenanceRequest(LocalDate.of(2026, 10, 12), "SERVICE", 45_000, 18_990L, "Garage Martin", null, null));
         vehicles.record(owner, household, clio, kind(LocalDate.of(2025, 4, 2), "TIRES"));
 
         assertThat(service.mileageKm()).isEqualTo(45_000);
@@ -65,9 +65,29 @@ class MaintenanceIntegrationTest extends IntegrationTestSupport {
         assertThat(failure(() -> vehicles.record(owner, household, clio, kind(LocalDate.of(2026, 1, 1), "WASH")))
                 .code()).isEqualTo(400);
         assertThat(failure(() -> vehicles.record(owner, household, clio,
-                new MaintenanceRequest(LocalDate.of(2026, 1, 1), "REPAIR", -1, null, null, null))).code()).isEqualTo(400);
+                new MaintenanceRequest(LocalDate.of(2026, 1, 1), "REPAIR", -1, null, null, null, null))).code()).isEqualTo(400);
         assertThat(failure(() -> vehicles.record(owner, household, clio,
-                new MaintenanceRequest(LocalDate.of(2026, 1, 1), "REPAIR", null, -5L, null, null))).code()).isEqualTo(400);
+                new MaintenanceRequest(LocalDate.of(2026, 1, 1), "REPAIR", null, -5L, null, null, null))).code()).isEqualTo(400);
+    }
+
+    @Test
+    void only_other_operations_can_be_specified() {
+        var owner = newUser();
+        var household = households.create(owner, "Maison").id();
+        var clio = clioOf(owner, household);
+        var day = LocalDate.of(2026, 3, 1);
+
+        var wipers = vehicles.record(owner, household, clio, other(day, "  Essuie-glaces "));
+        var plain = vehicles.record(owner, household, clio, other(day, " "));
+
+        assertThat(wipers.otherLabel()).isEqualTo("Essuie-glaces");
+        assertThat(plain.otherLabel()).isNull();
+        assertThat(vehicles.logbook(owner, household, clio)).extracting(MaintenanceResponse::otherLabel)
+                .containsExactlyInAnyOrder("Essuie-glaces", null);
+        assertThat(failure(() -> vehicles.record(owner, household, clio,
+                new MaintenanceRequest(day, "SERVICE", null, null, null, null, "Pneus hiver"))).code()).isEqualTo(400);
+        assertThat(failure(() -> vehicles.record(owner, household, clio, other(day, "x".repeat(41)))).code())
+                .isEqualTo(400);
     }
 
     @Test
@@ -103,7 +123,11 @@ class MaintenanceIntegrationTest extends IntegrationTestSupport {
     }
 
     private static MaintenanceRequest kind(LocalDate day, String kind) {
-        return new MaintenanceRequest(day, kind, null, null, null, null);
+        return new MaintenanceRequest(day, kind, null, null, null, null, null);
+    }
+
+    private static MaintenanceRequest other(LocalDate day, String label) {
+        return new MaintenanceRequest(day, "OTHER", null, null, null, null, label);
     }
 
     private static String newUser() {

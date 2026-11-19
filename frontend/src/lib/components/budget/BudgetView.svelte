@@ -42,6 +42,8 @@
   let editorOpen = $state(false)
   let editing = $state<Expense | null>(null)
   let managingCategories = $state(false)
+  // Fenêtre « Catégories » : catégories de dépenses ou de rentrées (choix proposé si le foyer suit ses rentrées).
+  let managedKind = $state<FlowDirection>('EXPENSE')
   let deleting = $state<Expense | null>(null)
   let confirmingDelete = $state(false)
   // Suivi des rentrées : nouvelle saisie en dépense ou en rentrée, rentrée ouverte, rentrée à supprimer.
@@ -274,7 +276,24 @@
 />
 
 <Modal bind:open={managingCategories} title="Catégories">
-  <CategoryManager {householdId} bind:categories />
+  {#if $incomeTracking}
+    <div class="entry-kind">
+      <Segmented
+        label="Catégories à gérer"
+        hideLabel
+        options={[
+          { value: 'EXPENSE', label: 'Dépenses' },
+          { value: 'INCOME', label: 'Rentrées' },
+        ]}
+        bind:value={managedKind}
+      />
+    </div>
+  {/if}
+  {#if $incomeTracking && managedKind === 'INCOME'}
+    <CategoryManager {householdId} kind="INCOME" bind:categories={incomeCategories} />
+  {:else}
+    <CategoryManager {householdId} bind:categories />
+  {/if}
 </Modal>
 
 <ConfirmDialog

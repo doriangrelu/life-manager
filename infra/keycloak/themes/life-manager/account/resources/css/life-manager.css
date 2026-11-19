@@ -173,17 +173,23 @@ body {
 .pf-v5-c-page__sidebar .pf-v5-c-nav {
   --pf-v5-c-nav--BackgroundColor: transparent;
   --pf-v5-c-nav__link--Color: var(--lm-text-muted);
-  --pf-v5-c-nav__link--hover--Color: var(--lm-text);
+  --pf-v5-c-nav__link--hover--Color: var(--lm-primary-text);
   --pf-v5-c-nav__link--focus--Color: var(--lm-text);
   --pf-v5-c-nav__link--active--Color: var(--lm-primary-text);
   --pf-v5-c-nav__link--m-current--Color: var(--lm-primary-text);
   --pf-v5-c-nav__link--BackgroundColor: transparent;
-  --pf-v5-c-nav__link--hover--BackgroundColor: var(--lm-surface-muted);
+  /* Survol : teinte indigo légère, comme le menu latéral de la PWA (au lieu du gris) */
+  --pf-v5-c-nav__link--hover--BackgroundColor: color-mix(in srgb, var(--lm-primary-soft) 55%, transparent);
   --pf-v5-c-nav__link--m-current--BackgroundColor: var(--lm-primary-soft);
   --pf-v5-c-nav__link--active--BackgroundColor: var(--lm-primary-soft);
   --pf-v5-c-nav__section-title--Color: var(--lm-text-muted);
   --pf-v5-c-nav__toggle--Color: var(--lm-text-muted);
   padding-inline: 10px;
+}
+
+/* En sombre, la teinte à 55 % se voit à peine sur le fond du menu : teinte pleine. */
+:root.pf-v5-theme-dark .pf-v5-c-page__sidebar .pf-v5-c-nav {
+  --pf-v5-c-nav__link--hover--BackgroundColor: var(--lm-primary-soft);
 }
 
 .pf-v5-c-page__sidebar .pf-v5-c-nav__link {

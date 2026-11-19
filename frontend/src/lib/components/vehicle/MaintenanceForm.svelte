@@ -22,6 +22,7 @@
   let mileage = $state('')
   let cost = $state('')
   let note = $state('')
+  let otherLabel = $state('') // précision tapée sous « Autre »
   let nextMode = $state<'auto' | 'precise'>('auto')
   let preciseNextDue = $state('')
   let error = $state<string | null>(null)
@@ -58,7 +59,9 @@
       return null
     }
     const nextDueOn = precise ? preciseNextDue : null
-    return { performedOn, kind, mileageKm, costCents, note: note.trim() || null, nextDueOn }
+    // La précision n'est envoyée que pour « Autre » (le serveur la refuse ailleurs).
+    const label = kind === 'OTHER' ? otherLabel.trim() || null : null
+    return { performedOn, kind, mileageKm, costCents, note: note.trim() || null, nextDueOn, otherLabel: label }
   }
 </script>
 
@@ -70,6 +73,12 @@
         <Chip selected={kind === option.kind} onclick={() => (kind = option.kind)}>{option.label}</Chip>
       {/each}
     </div>
+    {#if kind === 'OTHER'}
+      <label class="precision">
+        Préciser (facultatif)
+        <input bind:value={otherLabel} maxlength="40" placeholder="Essuie-glaces, batterie…" />
+      </label>
+    {/if}
   </fieldset>
   <div class="form-row">
     <label>
@@ -131,6 +140,13 @@
     font-weight: 700;
     color: var(--color-text-muted);
     margin-bottom: 8px;
+  }
+  /* Même présentation que la précision « Autre » des dépenses */
+  .precision {
+    margin-top: 12px;
+  }
+  .precision input {
+    border: 2px solid var(--color-primary);
   }
   .next {
     padding: 12px;
