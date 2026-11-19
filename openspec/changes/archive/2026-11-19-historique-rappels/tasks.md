@@ -14,4 +14,4 @@
 ## 3. Livraison
 
 - [x] 3.1 [infra] `VITE_APP_VERSION` dans `release.yml` ; `LM_VERSION` dans le déploiement ; parcours natif étendu
-- [ ] 3.2 [infra/vps] Version v0.12.0 publiée et déployée
+- [x] 3.2 [infra/vps] Version v0.12.0 publiée et déployée

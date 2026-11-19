@@ -88,14 +88,14 @@ Découpé en deux à la demande de Dorian (2026-11-19) :
 
 ### Lot 6c — Données personnelles et historique des rappels (en cadrage, avant le lot 7)
 
-Demandé par Dorian le 2026-11-19. Deux changes OpenSpec, propositions en attente de ses réponses :
+Demandé par Dorian le 2026-11-19. Deux changes OpenSpec :
 
-- **`historique-rappels`** : trace de chaque « C'est fait » (titre, date prévue, date faite, qui), section « Historique » dans l'écran Rappels, ligne retirable.
-- **`donnees-personnelles`** :
+- ✅ **`historique-rappels`** (v0.12.0, livré le 2026-11-19, en recette) : trace de chaque « C'est fait » (titre, date prévue, date faite, qui), section « Historique » dans l'écran Rappels, ligne retirable par tout membre, effacée après un an ; **version déployée** dans le pied de page.
+- **`donnees-personnelles`** (v0.13.0, deux questions encore ouvertes) :
   - **CGU** et **politique de confidentialité (RGPD)**, lisibles sans être connecté, acceptation des CGU dans l'application ;
   - **télécharger mes données** en JSON (périmètre à valider : rien de secret, ni e-mails des autres, ni codes d'invitation, ni contenu des fichiers) ;
   - **supprimer mon compte** (foyers quittés ou supprimés, profil effacé, compte Keycloak supprimé) ;
-  - **pied de page** avec la version déployée et les liens CGU / confidentialité.
+  - liens CGU / confidentialité dans le pied de page.
 
 ### Lot 7 — Comptes entre membres
 
