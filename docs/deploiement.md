@@ -115,6 +115,6 @@ Fait le 2026-11-19 : connexion SSH par clé uniquement (`/etc/ssh/sshd_config.d/
 Hors du périmètre de Life Manager, à appliquer seulement si Dorian le décide :
 
 - supprimer les images d'avant l'avant-dernière version de temps en temps (`docker image rm`, `docker builder prune -af`) ;
-- fixer la version de Keycloak au lieu de `latest` ;
+- monter Keycloak d'une branche à l'autre (26.9, 27…) : depuis le 2026-11-19, `~/keycloak/docker-compose.yml` suit la branche `26.8` (correctifs appliqués seuls par `auto-update.sh` à 4 h 15) ; pour changer de branche, lire le guide de mise à jour de Keycloak, modifier la ligne `image:` puis lancer `~/keycloak/auto-update.sh` (≈ 1 min de coupure de la connexion pour tous les sites, retour arrière automatique si le test échoue) ;
 - ajouter un fichier d'échange de 2 Go ;
 - bloquer `/admin` de Keycloak depuis Internet (accès par tunnel SSH).
