@@ -1,6 +1,0 @@
-# Interface web Docker (Dozzle), uniquement via oauth2-proxy (connexion Keycloak, realm « infra »).
-# Installé dans ~/infra/conf.d/docker.caddy ; ne jamais router directement vers Dozzle.
-docker.dorian-grelu.fr {
-	encode gzip
-	reverse_proxy dozzle-oauth2-proxy:4180
-}

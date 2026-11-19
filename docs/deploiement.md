@@ -79,9 +79,9 @@ Chaque nuit à 3 h, `~/infra/backup.sh` archive toutes les bases (`pg_dumpall`, 
 
 ### Copie chiffrée vers OneDrive
 
-À 3 h 30, `~/infra/onedrive/send-backup.sh` envoie les archives sur le OneDrive de Dorian, dossier `Sauvegardes/VPS`, chiffrées par rclone : sur OneDrive, les noms et les contenus sont illisibles. Les archives de plus de 30 jours y sont supprimées. Journal : `~/infra/onedrive/onedrive.log`. Sources : `infra/vps/onedrive/`.
+À 3 h 30, `~/infra/onedrive/send-backup.sh` envoie les archives sur le OneDrive de Dorian, dossier `Sauvegardes/VPS`, chiffrées par rclone : sur OneDrive, les noms et les contenus sont illisibles. Les archives de plus de 30 jours y sont supprimées. Journal : `~/infra/onedrive/onedrive.log`. Les scripts sont versionnés sur place, dans le dépôt privé `vps-socle` (configuration du serveur, voir ci-dessous).
 
-- **Installation (une fois, par Dorian)** : `sudo apt install rclone` sur le VPS, copier les deux scripts dans `~/infra/onedrive`, puis depuis WSL :
+- **Installation (une fois, par Dorian)** : `sudo apt install rclone` sur le VPS (scripts déjà dans `~/infra/onedrive`), puis depuis WSL :
   `ssh -t -L 53682:127.0.0.1:53682 ubuntu@152.228.237.190 '~/infra/onedrive/setup-onedrive.sh'`
   Le script fait ouvrir la page Microsoft dans le navigateur Windows (le tunnel `-L` la relie au VPS), demande la phrase de chiffrement, envoie une première fois et ajoute la tâche nocturne.
 - **Secrets** : le jeton OneDrive et la phrase (masquée) sont dans `~/.config/rclone/rclone.conf` du VPS, **pas** dans les archives. La phrase est aussi dans le gestionnaire de mots de passe de Dorian : sans elle, les copies sont perdues.
@@ -107,6 +107,10 @@ Restaurer Life Manager sur une machine neuve :
 | Connexion refusée après Keycloak | secret du client `life-manager-api` différent de `.env.prod` ; URL de redirection du realm |
 | Certificat absent | DNS de `maison.dorian-grelu.fr` pas encore propagé : `docker logs infra-caddy-1` |
 | Pièce jointe refusée en 500 | droits du dossier `~/volumes/life-manager-files` (doit appartenir à `65532`) |
+
+## Configuration du serveur : dépôt `vps-socle`
+
+Tout ce qui n'appartient pas à Life Manager (socle Caddy + PostgreSQL, Keycloak, sauvegardes, OneDrive, Dozzle, Beszel, maintenance nocturne, documentation d'administration `~/AGENTS.md` et `~/admin/`, réglages système) est versionné dans le dépôt privé `doriangrelu/vps-socle`, dont la copie de travail est `/home/ubuntu` sur le VPS. Aucun secret n'y entre (liste blanche). Le VPS n'a pas accès à GitHub : on commite sur le serveur, puis le relais `.claude-local/scripts/vps-git-sync.sh` (WSL) récupère les commits dans `~/projets/vps-socle` et les pousse sur GitHub. Mode d'emploi : `README.md` et `admin/PROCEDURES.md` du dépôt.
 
 ## Recommandations pour le serveur
 

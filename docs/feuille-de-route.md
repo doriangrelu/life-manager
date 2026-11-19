@@ -126,7 +126,7 @@ Découpé en deux à la demande de Dorian (2026-11-19) :
 
 | Sujet | État |
 |---|---|
-| Mise à jour automatique du VPS chaque nuit, redémarrage si nécessaire, vérification de vivacité et de disponibilité des services | ✅ installé le 2026-11-19 (`infra/vps`, chaque nuit à 5 h UTC, journal `/var/log/vps-maintenance.log`) |
+| Mise à jour automatique du VPS chaque nuit, redémarrage si nécessaire, vérification de vivacité et de disponibilité des services | ✅ installé le 2026-11-19 (dépôt `vps-socle`, dossier `systeme/`, chaque nuit à 5 h UTC, journal `/var/log/vps-maintenance.log`) |
 | Documentation technique : domaines, modèles de données et flux d'événements en **diagrammes** (Mermaid dans `docs/`) | à faire, mise à jour à chaque lot |
 
 ## Dette technique
