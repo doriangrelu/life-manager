@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SPACES, sectionToOpen, spaceOf } from './navigation'
+import { SPACES, sectionToOpen, spaceOf, visibleEntries } from './navigation'
 import type { Section } from './route'
 
 const space = (id: string) => SPACES.find((s) => s.id === id)!
@@ -19,6 +19,12 @@ describe('navigation par espaces', () => {
   it('ouvre le premier écran sans souvenir valide', () => {
     expect(sectionToOpen(space('money'), 'shopping', null)).toBe('budget')
     expect(sectionToOpen(space('money'), 'shopping', 'vehicles')).toBe('budget')
+  })
+
+  it('cache le Bilan quand le foyer ne suit pas ses rentrées', () => {
+    expect(visibleEntries(space('money'), false).map((e) => e.section)).toEqual(['budget', 'charges'])
+    expect(visibleEntries(space('money'), true).map((e) => e.section)).toEqual(['budget', 'charges', 'report'])
+    expect(sectionToOpen(space('money'), 'shopping', 'report', false)).toBe('budget')
   })
 
   it('revient au premier écran quand on touche l’espace déjà ouvert', () => {

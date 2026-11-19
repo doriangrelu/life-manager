@@ -1,26 +1,40 @@
 import { apiRequest } from './http'
-import type { Category, Expense, ExpenseInput, MonthlyBudget } from './types'
+import type { BudgetReport, Category, Expense, ExpenseInput, FlowDirection, Income, IncomeInput, MonthlyBudget } from './types'
 
 const base = (householdId: string) => `/households/${householdId}`
 
-export function listCategories(householdId: string): Promise<Category[]> {
-  return apiRequest('GET', `${base(householdId)}/expense-categories`)
+// Catégories de dépenses ou de rentrées : mêmes actions, adresses différentes.
+const categoriesOf = (householdId: string, kind: FlowDirection) =>
+  `${base(householdId)}/${kind === 'INCOME' ? 'income' : 'expense'}-categories`
+
+/** Catégories de dépenses (par défaut) ou de rentrées (suggestions créées au premier affichage). */
+export function listCategories(householdId: string, kind: FlowDirection = 'EXPENSE'): Promise<Category[]> {
+  return apiRequest('GET', categoriesOf(householdId, kind))
 }
 
-export function addCategory(householdId: string, name: string): Promise<Category> {
-  return apiRequest('POST', `${base(householdId)}/expense-categories`, { name })
+export function addCategory(householdId: string, name: string, kind: FlowDirection = 'EXPENSE'): Promise<Category> {
+  return apiRequest('POST', categoriesOf(householdId, kind), { name })
 }
 
-export function renameCategory(householdId: string, categoryId: string, name: string): Promise<Category> {
-  return apiRequest('PUT', `${base(householdId)}/expense-categories/${categoryId}`, { name })
+export function renameCategory(
+  householdId: string,
+  categoryId: string,
+  name: string,
+  kind: FlowDirection = 'EXPENSE',
+): Promise<Category> {
+  return apiRequest('PUT', `${categoriesOf(householdId, kind)}/${categoryId}`, { name })
 }
 
-export function archiveCategory(householdId: string, categoryId: string): Promise<Category> {
-  return apiRequest('POST', `${base(householdId)}/expense-categories/${categoryId}/archive`)
+export function archiveCategory(householdId: string, categoryId: string, kind: FlowDirection = 'EXPENSE'): Promise<Category> {
+  return apiRequest('POST', `${categoriesOf(householdId, kind)}/${categoryId}/archive`)
 }
 
-export function reactivateCategory(householdId: string, categoryId: string): Promise<Category> {
-  return apiRequest('POST', `${base(householdId)}/expense-categories/${categoryId}/reactivate`)
+export function reactivateCategory(
+  householdId: string,
+  categoryId: string,
+  kind: FlowDirection = 'EXPENSE',
+): Promise<Category> {
+  return apiRequest('POST', `${categoriesOf(householdId, kind)}/${categoryId}/reactivate`)
 }
 
 export function recordExpense(householdId: string, expense: ExpenseInput): Promise<Expense> {
@@ -35,7 +49,24 @@ export function deleteExpense(householdId: string, expenseId: string): Promise<v
   return apiRequest('DELETE', `${base(householdId)}/expenses/${expenseId}`)
 }
 
+export function recordIncome(householdId: string, income: IncomeInput): Promise<Income> {
+  return apiRequest('POST', `${base(householdId)}/incomes`, income)
+}
+
+export function correctIncome(householdId: string, incomeId: string, income: IncomeInput): Promise<Income> {
+  return apiRequest('PUT', `${base(householdId)}/incomes/${incomeId}`, income)
+}
+
+export function deleteIncome(householdId: string, incomeId: string): Promise<void> {
+  return apiRequest('DELETE', `${base(householdId)}/incomes/${incomeId}`)
+}
+
 /** Vue d'un mois, ex. month = « 2026-11 ». */
 export function monthlyBudget(householdId: string, month: string): Promise<MonthlyBudget> {
   return apiRequest('GET', `${base(householdId)}/budget/${month}`)
+}
+
+/** Bilan réalisé de from à to inclus (mois « 2026-10 »), 24 mois au plus. */
+export function budgetReport(householdId: string, from: string, to: string): Promise<BudgetReport> {
+  return apiRequest('GET', `${base(householdId)}/report?from=${from}&to=${to}`)
 }

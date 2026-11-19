@@ -61,6 +61,28 @@ export interface MemberTotal {
   totalCents: number
 }
 
+/** Sens d'une catégorie, d'une charge récurrente : argent qui sort ou qui rentre. */
+export type FlowDirection = 'EXPENSE' | 'INCOME'
+
+/**
+ * Saisie ou correction d'une rentrée d'argent. receivedBy = null pour le foyer entier.
+ * La catégorie : soit categoryId (existante), soit newCategoryName (tapée librement, créée si besoin).
+ */
+export interface IncomeInput {
+  amountCents: number
+  categoryId: string | null
+  newCategoryName: string | null
+  receivedOn: string
+  receivedBy: string | null
+  label: string | null
+}
+
+export interface Income extends Omit<IncomeInput, 'categoryId' | 'newCategoryName'> {
+  id: string
+  categoryId: string
+}
+
+/** Vue d'un mois. totalCents = dépenses ; rentrées et résultat valent 0 / vides sans suivi des rentrées. */
 export interface MonthlyBudget {
   month: string
   totalCents: number
@@ -68,6 +90,26 @@ export interface MonthlyBudget {
   byPayer: MemberTotal[]
   byBeneficiary: MemberTotal[]
   expenses: Expense[]
+  incomeCents: number
+  /** Rentrées moins dépenses : négatif = mois dans le rouge. */
+  resultCents: number
+  incomeByCategory: CategoryTotal[]
+  incomes: Income[]
+}
+
+/** Bilan réalisé d'une période de mois entiers (from et to : « 2026-10 »). */
+export interface BudgetReport {
+  from: string
+  to: string
+  incomeCents: number
+  expenseCents: number
+  resultCents: number
+  incomeByCategory: CategoryTotal[]
+  /** memberId = null pour les rentrées du foyer entier. */
+  incomeByReceiver: MemberTotal[]
+  expenseByCategory: CategoryTotal[]
+  /** Seuls les mois qui ont des mouvements. */
+  months: { month: string; incomeCents: number; expenseCents: number; resultCents: number }[]
 }
 
 // ---- Véhicules : dates au format « 2027-03-01 », coût en centimes d'euro, null = non renseigné.
@@ -153,6 +195,8 @@ export interface HouseholdDetails {
   members: Member[]
   /** Code actif ; toujours null pour un membre qui n'est pas propriétaire. */
   activeInvitation: Invitation | null
+  /** Suivi des rentrées et bilan activés (réglage du propriétaire). */
+  incomeTracking: boolean
 }
 
 // ---- Charges récurrentes (abonnements, factures)
@@ -169,8 +213,11 @@ export interface ChargeInput {
   frequency: Frequency
   firstDueOn: string
   budgetCategoryId: string
+  /** Pour une rentrée récurrente : le membre qui la reçoit. */
   payerId: string
   beneficiaryId: string | null
+  /** Absent = dépense. */
+  direction?: FlowDirection
 }
 
 /** Une échéance d'une charge. */
@@ -190,4 +237,16 @@ export interface Charge extends ChargeInput {
   id: string
   active: boolean
   next: Occurrence | null
+}
+
+/** Échéance encore attendue d'une période, à son montant prévu ; PLANNED = calculée, pas encore créée. */
+export interface ForecastItem {
+  occurrenceId: string | null
+  chargeId: string
+  name: string
+  dueOn: string
+  expectedCents: number
+  status: 'UPCOMING' | 'TO_CONFIRM' | 'PLANNED'
+  direction: FlowDirection
+  budgetCategoryId: string
 }

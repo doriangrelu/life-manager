@@ -142,6 +142,24 @@ code=$(curl -s -o "$WORK/body" -w '%{http_code}' -H "Authorization: Bearer $ALIC
 [ "$code" = 201 ] || fail "étape $STEP : envoi de la facture → $code : $(head -c 300 "$WORK/body")"
 echo "ok $STEP : facture d'échéance → 201"
 
+echo "== Rentrées et bilan : réglage du foyer, rentrée saisie, rentrée récurrente, prévisions"
+call "$ALICE" PUT "/households/$HOUSEHOLD/settings" 204 '{"incomeTracking":true}'
+call "$BOB" PUT "/households/$HOUSEHOLD/settings" 403 '{"incomeTracking":false}'
+call "$ALICE" GET "/households/$HOUSEHOLD/income-categories" 200
+SALARY=$(python3 -c "import json,sys; print(next(c['id'] for c in json.load(sys.stdin) if c['name']=='salaire'))" < "$WORK/body")
+call "$ALICE" POST "/households/$HOUSEHOLD/incomes" 201 \
+  "{\"amountCents\":100000,\"categoryId\":\"$SALARY\",\"newCategoryName\":null,\"receivedOn\":\"$TODAY\",\"receivedBy\":\"$BOB_ID\",\"label\":null}"
+call "$ALICE" POST "/households/$HOUSEHOLD/charges" 201 \
+  "{\"name\":\"Salaire\",\"amountCents\":200000,\"amountKind\":\"FIXED\",\"frequency\":\"MONTHLY\",\"firstDueOn\":\"$TODAY\",\"budgetCategoryId\":\"$SALARY\",\"payerId\":\"$ALICE_ID\",\"beneficiaryId\":null,\"direction\":\"INCOME\"}"
+# 1 000 € saisis + 2 000 € de la rentrée récurrente du jour ; résultat = 3 000 € − 144,73 €.
+eventually 10 call "$ALICE" GET "/households/$HOUSEHOLD/budget/$MONTH" 200
+[ "$(body "['incomeCents']")" = "300000" ] || fail "rentrées du mois inattendues : $(head -c 400 "$WORK/body")"
+[ "$(body "['resultCents']")" = "285527" ] || fail "résultat du mois inattendu : $(head -c 400 "$WORK/body")"
+call "$ALICE" GET "/households/$HOUSEHOLD/report?from=$MONTH&to=$MONTH" 200
+[ "$(body "['resultCents']")" = "285527" ] || fail "bilan inattendu : $(head -c 400 "$WORK/body")"
+call "$ALICE" GET "/households/$HOUSEHOLD/charges/forecast?from=$TODAY&to=$(date -d '+2 months' +%F)" 200
+[ "$(body "[0]['status']")" != "" ] || fail "prévisions vides : $(head -c 400 "$WORK/body")"
+
 echo "== Rappels"
 eventually 10 call "$ALICE" GET "/households/$HOUSEHOLD/reminders" 200
 

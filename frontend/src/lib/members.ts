@@ -20,6 +20,19 @@ export function payerOptions(members: Member[]): { value: string; label: string 
   return members.map((m) => ({ value: m.memberId, label: m.displayName }))
 }
 
+/** Libellé du foyer entier comme bénéficiaire d'une rentrée (« Reçu par Foyer »). */
+export const HOUSEHOLD = 'Foyer'
+
+/** Qui reçoit une rentrée : un membre, ou « Foyer » pour null. */
+export function receiverName(members: Member[], memberId: string | null): string {
+  return memberId === null ? HOUSEHOLD : memberName(members, memberId)
+}
+
+/** Choix « reçu par » d'une rentrée : chaque membre, puis le foyer entier (valeur vide). */
+export function receiverOptions(members: Member[]): { value: string; label: string }[] {
+  return [...payerOptions(members), { value: '', label: HOUSEHOLD }]
+}
+
 /** Choix « pour » : le foyer entier (valeur vide), puis chaque membre. */
 export function beneficiaryOptions(members: Member[]): { value: string; label: string }[] {
   return [{ value: '', label: SHARED }, ...payerOptions(members)]

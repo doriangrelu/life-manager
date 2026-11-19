@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { spaceOf } from '../../navigation'
+  import { incomeTracking } from '../../householdSettings'
+  import { spaceOf, visibleEntries } from '../../navigation'
   import type { Section } from '../../route'
 
   // Sous-onglets de l'espace ouvert (ex. Argent : Budget · Charges), en pastilles sous l'en-tête.
@@ -7,11 +8,12 @@
   let { active, onselect }: { active: Section; onselect: (section: Section) => void } = $props()
 
   const space = $derived(spaceOf(active))
+  const entries = $derived(visibleEntries(space, $incomeTracking))
 </script>
 
-{#if space.entries.length > 1}
+{#if entries.length > 1}
   <nav class="space-tabs" aria-label="Écrans de l'espace {space.label}">
-    {#each space.entries as entry (entry.section)}
+    {#each entries as entry (entry.section)}
       {@const Icon = entry.icon}
       {@const current = entry.section === active}
       <button class:active={current} aria-current={current ? 'page' : undefined} onclick={() => onselect(entry.section)}>

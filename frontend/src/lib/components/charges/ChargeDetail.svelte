@@ -149,8 +149,13 @@
     <strong>{displayName(category)}</strong>
   </div>
   <div>
-    <span class="caption">Payé par · pour</span>
-    <strong>{payer} · {beneficiary}</strong>
+    {#if charge.direction === 'INCOME'}
+      <span class="caption">Reçu par</span>
+      <strong>{payer}</strong>
+    {:else}
+      <span class="caption">Payé par · pour</span>
+      <strong>{payer} · {beneficiary}</strong>
+    {/if}
   </div>
   <p class="muted note">
     {#if !charge.active}

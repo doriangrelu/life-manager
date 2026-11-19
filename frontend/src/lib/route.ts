@@ -1,9 +1,9 @@
 // Écran affiché, écrit dans l'adresse après « # » : F5 et Précédent / Suivant le retrouvent.
-// Exemples : #/budget, #/budget/2026-10, #/charges/<id>, #/courses, #/vehicules/<id>, #/foyer.
+// Exemples : #/budget, #/budget/2026-10, #/charges/<id>, #/bilan, #/courses, #/vehicules/<id>, #/foyer.
 
 import { writable, type Readable } from 'svelte/store'
 
-export type Section = 'budget' | 'charges' | 'shopping' | 'vehicles' | 'household'
+export type Section = 'budget' | 'charges' | 'report' | 'shopping' | 'vehicles' | 'household'
 
 /** Écran : la section, et pour Budget le mois consulté, pour Charges et Véhicules la fiche ouverte. */
 export interface Route {
@@ -17,6 +17,7 @@ export interface Route {
 const SLUGS: Record<Section, string> = {
   budget: 'budget',
   charges: 'charges',
+  report: 'bilan',
   shopping: 'courses',
   vehicles: 'vehicules',
   household: 'foyer',

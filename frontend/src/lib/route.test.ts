@@ -10,6 +10,7 @@ describe('adresse de l\'écran', () => {
     expect(parseRoute('#/vehicules/abc-123')).toEqual({ section: 'vehicles', vehicleId: 'abc-123' })
     expect(parseRoute('#/foyer')).toEqual({ section: 'household' })
     expect(parseRoute('#/charges')).toEqual({ section: 'charges' })
+    expect(parseRoute('#/bilan')).toEqual({ section: 'report' })
     expect(parseRoute('#/charges/c-1')).toEqual({ section: 'charges', chargeId: 'c-1' })
   })
 

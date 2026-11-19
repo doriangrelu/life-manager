@@ -41,6 +41,11 @@ export function leaveHousehold(householdId: string): Promise<void> {
   return apiRequest('POST', `/households/${householdId}/leave`)
 }
 
+/** Active ou désactive le suivi des rentrées et le bilan (propriétaire). */
+export function setIncomeTracking(householdId: string, incomeTracking: boolean): Promise<void> {
+  return apiRequest('PUT', `/households/${householdId}/settings`, { incomeTracking })
+}
+
 /** Annule le code d'invitation en cours (propriétaire). */
 export function cancelInvitation(householdId: string): Promise<void> {
   return apiRequest('DELETE', `/households/${householdId}/invitations`)

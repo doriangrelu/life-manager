@@ -6,16 +6,18 @@
   import { addCharge, confirmOccurrence, listCharges, skipOccurrence } from '../../api/billsApi'
   import { listCategories } from '../../api/budgetApi'
   import { getHousehold } from '../../api/householdApi'
-  import type { Category, Charge, ChargeInput, Member, Occurrence, UserProfile } from '../../api/types'
+  import type { Category, Charge, ChargeInput, FlowDirection, Member, Occurrence, UserProfile } from '../../api/types'
   import { categoryStyle } from '../../categoryStyle'
   import { frequencyLabel, monthlyEstimateCents, sortCharges, statusLabel } from '../../charges'
   import { formatDay } from '../../dates'
+  import { incomeTracking } from '../../householdSettings'
   import { formatCents } from '../../money'
   import { listMove, ms, rise } from '../../motion'
   import { navigate, route } from '../../route'
   import { displayName } from '../../text'
   import Fab from '../../ui/molecules/Fab.svelte'
   import Modal from '../../ui/molecules/Modal.svelte'
+  import Segmented from '../../ui/molecules/Segmented.svelte'
   import Skeleton from '../../ui/atoms/Skeleton.svelte'
   import ChargeDetail from './ChargeDetail.svelte'
   import ChargeForm from './ChargeForm.svelte'
@@ -32,11 +34,18 @@
   let adding = $state(false)
   let confirming = $state<{ charge: Charge; occurrence: Occurrence } | null>(null)
   let confirmOpen = $state(false)
+  // Avec le suivi des rentrées : deux panneaux, dépenses fixes et rentrées fixes (salaires, aides…).
+  let panel = $state<FlowDirection>('EXPENSE')
+  let incomeCategories = $state<Category[]>([])
 
-  const sorted = $derived(sortCharges(charges))
+  // Sans suivi des rentrées, seules les dépenses sont montrées (comme avant).
+  const shownDirection = $derived<FlowDirection>($incomeTracking ? panel : 'EXPENSE')
+  const inPanel = $derived(charges.filter((c) => (c.direction ?? 'EXPENSE') === shownDirection))
+  const isIncome = $derived(shownDirection === 'INCOME')
+  const sorted = $derived(sortCharges(inPanel))
   const toConfirm = $derived(sorted.filter((c) => c.next?.status === 'TO_CONFIRM'))
   const others = $derived(sorted.filter((c) => c.next?.status !== 'TO_CONFIRM'))
-  const active = $derived(charges.filter((c) => c.active))
+  const active = $derived(inPanel.filter((c) => c.active))
   const openedId = $derived($route.chargeId ?? null)
   const opened = $derived(charges.find((c) => c.id === openedId) ?? null)
 
@@ -53,6 +62,17 @@
       loaded = true
     }),
   )
+
+  $effect(() => {
+    if ($incomeTracking) {
+      run(async () => {
+        incomeCategories = await listCategories(householdId, 'INCOME')
+      })
+    }
+  })
+
+  /** Catégories du sens d'une charge. */
+  const categoriesOf = (direction: FlowDirection | undefined) => (direction === 'INCOME' ? incomeCategories : categories)
 
   // Charge inconnue (adresse d'un autre foyer…) : retour à la liste.
   $effect(() => {
@@ -106,7 +126,7 @@
   }
 
   function categoryName(charge: Charge): string {
-    return categories.find((c) => c.id === charge.budgetCategoryId)?.name ?? 'autre'
+    return categoriesOf(charge.direction).find((c) => c.id === charge.budgetCategoryId)?.name ?? 'autre'
   }
 </script>
 
@@ -115,7 +135,7 @@
     <ChargeDetail
       {householdId}
       charge={opened}
-      {categories}
+      categories={categoriesOf(opened.direction)}
       {members}
       currentUserId={profile.userId}
       onchanged={() => run(reload)}
@@ -126,6 +146,18 @@
   <div class="stack" in:rise>
     <h1>Charges</h1>
 
+    {#if $incomeTracking}
+      <Segmented
+        label="Dépenses ou rentrées récurrentes"
+        hideLabel
+        options={[
+          { value: 'EXPENSE', label: 'Dépenses fixes' },
+          { value: 'INCOME', label: 'Rentrées fixes' },
+        ]}
+        bind:value={panel}
+      />
+    {/if}
+
     {#if error}
       <p class="error" role="alert">{error}</p>
     {/if}
@@ -135,12 +167,18 @@
       <Skeleton variant="cards" count={3} />
     {:else if loaded}
       <section class="summary">
-        <span class="caption">Charges par mois (estimation)</span>
-        <strong class="total amount">{formatCents(monthlyEstimateCents(charges))}</strong>
+        <span class="caption">{isIncome ? 'Rentrées par mois (estimation)' : 'Charges par mois (estimation)'}</span>
+        <strong class="total amount">{formatCents(monthlyEstimateCents(inPanel))}</strong>
         <span class="caption">
-          {active.length === 0
-            ? 'Aucune charge pour l’instant'
-            : `${active.length} charge${active.length > 1 ? 's' : ''} en cours`}
+          {#if isIncome}
+            {active.length === 0
+              ? 'Aucune rentrée récurrente pour l’instant'
+              : `${active.length} rentrée${active.length > 1 ? 's' : ''} récurrente${active.length > 1 ? 's' : ''}`}
+          {:else}
+            {active.length === 0
+              ? 'Aucune charge pour l’instant'
+              : `${active.length} charge${active.length > 1 ? 's' : ''} en cours`}
+          {/if}
         </span>
       </section>
 
@@ -198,21 +236,38 @@
         </ul>
       {:else if toConfirm.length === 0}
         <div class="empty card">
-          <p class="muted">
-            Ajoutez ce qui revient chaque mois ou chaque année : internet, électricité, assurances, abonnements…
-            Les dépenses arriveront toutes seules dans le budget.
-          </p>
-          <button class="soft" onclick={() => (adding = true)}>Ajouter une charge</button>
+          {#if isIncome}
+            <p class="muted">
+              Ajoutez ce qui rentre régulièrement : salaires, allocations, loyers perçus… Les rentrées arriveront toutes
+              seules dans le budget, et le bilan saura ce qui est encore attendu.
+            </p>
+            <button class="soft" onclick={() => (adding = true)}>Ajouter une rentrée récurrente</button>
+          {:else}
+            <p class="muted">
+              Ajoutez ce qui revient chaque mois ou chaque année : internet, électricité, assurances, abonnements…
+              Les dépenses arriveront toutes seules dans le budget.
+            </p>
+            <button class="soft" onclick={() => (adding = true)}>Ajouter une charge</button>
+          {/if}
         </div>
       {/if}
     {/if}
 
-    <Fab label="Ajouter une charge" onclick={() => (adding = true)} />
+    <Fab label={isIncome ? 'Ajouter une rentrée récurrente' : 'Ajouter une charge'} onclick={() => (adding = true)} />
   </div>
 {/if}
 
-<Modal bind:open={adding} title="Nouvelle charge">
-  <ChargeForm charge={null} {categories} {members} currentUserId={profile.userId} onsave={add} />
+<Modal bind:open={adding} title={isIncome ? 'Nouvelle rentrée récurrente' : 'Nouvelle charge'}>
+  {#key shownDirection}
+    <ChargeForm
+      charge={null}
+      categories={categoriesOf(shownDirection)}
+      {members}
+      currentUserId={profile.userId}
+      direction={shownDirection}
+      onsave={add}
+    />
+  {/key}
 </Modal>
 
 {#if confirming}

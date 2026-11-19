@@ -9,15 +9,18 @@
     leaveHousehold,
     removeMember,
     renameHousehold,
+    setIncomeTracking,
     transferOwnership,
   } from '../api/householdApi'
   import type { HouseholdDetails, Member } from '../api/types'
   import { formatDay } from '../dates'
+  import { incomeTracking } from '../householdSettings'
   import { displayName } from '../text'
   import Skeleton from '../ui/atoms/Skeleton.svelte'
   import ConfirmDialog from '../ui/molecules/ConfirmDialog.svelte'
   import TextDialog from '../ui/molecules/TextDialog.svelte'
   import DeleteHouseholdDialog from './DeleteHouseholdDialog.svelte'
+  import IncomeTrackingCard from './IncomeTrackingCard.svelte'
   import InvitationCard from './InvitationCard.svelte'
 
   // Onglet Foyer : ses membres et son propriétaire, l'invitation (propriétaire), quitter ou supprimer le foyer.
@@ -61,6 +64,17 @@
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     }
+  }
+
+  // Réglage du suivi des rentrées : enregistré, puis partagé avec les menus (écran Bilan).
+  async function toggleIncomeTracking(enabled: boolean) {
+    await run(async () => {
+      await setIncomeTracking(householdId, enabled)
+      if (household) {
+        household.incomeTracking = enabled
+      }
+      incomeTracking.set(enabled)
+    })
   }
 
   async function newCode() {
@@ -173,6 +187,8 @@
       {/each}
     </ul>
   </section>
+
+  <IncomeTrackingCard enabled={household.incomeTracking} {isOwner} ontoggle={toggleIncomeTracking} />
 
   {#if isOwner}
     <InvitationCard invitation={household.activeInvitation} onrenew={newCode} oncancel={cancelCode} />

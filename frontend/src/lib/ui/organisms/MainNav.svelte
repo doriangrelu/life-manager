@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { SPACES, sectionToOpen, spaceOf, type Space } from '../../navigation'
+  import { incomeTracking } from '../../householdSettings'
+  import { SPACES, sectionToOpen, spaceOf, visibleEntries, type Space } from '../../navigation'
   import { rememberedSpaceSection } from '../../preferences'
   import type { Section } from '../../route'
 
@@ -10,7 +11,7 @@
   const activeSpace = $derived(spaceOf(active).id)
 
   function openSpace(space: Space) {
-    onselect(sectionToOpen(space, active, rememberedSpaceSection(space.id)))
+    onselect(sectionToOpen(space, active, rememberedSpaceSection(space.id), $incomeTracking))
   }
 </script>
 
@@ -35,12 +36,13 @@
   <!-- Grand écran : chaque espace avec ses écrans -->
   <div class="side">
     {#each SPACES as space (space.id)}
+      {@const entries = visibleEntries(space, $incomeTracking)}
       <div class="group">
         <!-- Un espace d'un seul écran du même nom n'a pas besoin de titre. -->
-        {#if space.entries.length > 1 || space.entries[0].label !== space.label}
+        {#if entries.length > 1 || entries[0].label !== space.label}
           <span class="group-title">{space.label}</span>
         {/if}
-        {#each space.entries as entry (entry.section)}
+        {#each entries as entry (entry.section)}
           {@const Icon = entry.icon}
           {@const current = active === entry.section}
           <button class:active={current} aria-current={current ? 'page' : undefined} onclick={() => onselect(entry.section)}>

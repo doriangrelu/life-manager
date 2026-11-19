@@ -3,21 +3,25 @@
   import { CalendarCheck, ChevronLeft, ChevronRight } from '@lucide/svelte'
   import { scale } from 'svelte/transition'
   import { onMount } from 'svelte'
-  import { deleteExpense, listCategories, monthlyBudget } from '../../api/budgetApi'
+  import { deleteExpense, deleteIncome, listCategories, monthlyBudget } from '../../api/budgetApi'
   import { getHousehold } from '../../api/householdApi'
-  import type { Category, Expense, Member, MonthlyBudget, UserProfile } from '../../api/types'
-  import { memberName as nameOf } from '../../members'
+  import type { Category, Expense, FlowDirection, Income, Member, MonthlyBudget, UserProfile } from '../../api/types'
+  import { incomeTracking } from '../../householdSettings'
+  import { memberName as nameOf, receiverName as receiverOf } from '../../members'
   import { formatCents } from '../../money'
   import { currentMonth, monthLabel, shiftMonth } from '../../month'
   import { navigate, route } from '../../route'
   import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
   import Fab from '../../ui/molecules/Fab.svelte'
   import Modal from '../../ui/molecules/Modal.svelte'
+  import Segmented from '../../ui/molecules/Segmented.svelte'
   import Skeleton from '../../ui/atoms/Skeleton.svelte'
   import CategoryBreakdown from './CategoryBreakdown.svelte'
   import CategoryManager from './CategoryManager.svelte'
   import ExpenseForm from './ExpenseForm.svelte'
   import ExpenseList from './ExpenseList.svelte'
+  import IncomeForm from './IncomeForm.svelte'
+  import IncomeList from './IncomeList.svelte'
   import MonthHero from './MonthHero.svelte'
 
   // Onglet Budget : la vue du mois, d'où l'on saisit, corrige ou supprime des dépenses.
@@ -37,6 +41,25 @@
   let managingCategories = $state(false)
   let deleting = $state<Expense | null>(null)
   let confirmingDelete = $state(false)
+  // Suivi des rentrées : nouvelle saisie en dépense ou en rentrée, rentrée ouverte, rentrée à supprimer.
+  let entryKind = $state<FlowDirection>('EXPENSE')
+  let editingIncome = $state<Income | null>(null)
+  let incomeCategories = $state<Category[]>([])
+  let deletingIncome = $state<Income | null>(null)
+  let confirmingIncomeDelete = $state(false)
+
+  const modalTitle = $derived(
+    editingIncome ? 'Modifier la rentrée' : editing ? 'Modifier la dépense' : $incomeTracking ? 'Nouvelle saisie' : 'Nouvelle dépense',
+  )
+
+  // Catégories de rentrées : chargées seulement si le foyer suit ses rentrées.
+  $effect(() => {
+    if ($incomeTracking) {
+      run(async () => {
+        incomeCategories = await listCategories(householdId, 'INCOME')
+      })
+    }
+  })
 
   onMount(() =>
     run(async () => {
@@ -69,8 +92,13 @@
 
   // Après une saisie : le mois, et les catégories (une précision sous « Autre » a pu en créer une).
   async function reloadAfterSave() {
-    const [loadedCategories] = await Promise.all([listCategories(householdId), loadMonth()])
+    const [loadedCategories, loadedIncomeCategories] = await Promise.all([
+      listCategories(householdId),
+      $incomeTracking ? listCategories(householdId, 'INCOME') : Promise.resolve(incomeCategories),
+      loadMonth(),
+    ])
     categories = loadedCategories
+    incomeCategories = loadedIncomeCategories
   }
 
   function changeMonth(delta: number) {
@@ -80,7 +108,32 @@
 
   function openEditor(expense: Expense | null) {
     editing = expense
+    editingIncome = null
+    entryKind = 'EXPENSE'
     editorOpen = true
+  }
+
+  function openIncome(income: Income) {
+    editing = null
+    editingIncome = income
+    entryKind = 'INCOME'
+    editorOpen = true
+  }
+
+  function askDeleteIncome(income: Income) {
+    deletingIncome = income
+    confirmingIncomeDelete = true
+  }
+
+  function removeIncome() {
+    const income = deletingIncome
+    if (income) {
+      editorOpen = false
+      run(async () => {
+        await deleteIncome(householdId, income.id)
+        await loadMonth()
+      })
+    }
   }
 
   function askDelete(expense: Expense) {
@@ -111,6 +164,8 @@
 
   /** Nom d'un membre ; null désigne le foyer entier (« Commun »). */
   const memberName = (memberId: string | null) => nameOf(members, memberId)
+  /** Qui reçoit une rentrée ; null = le foyer entier. */
+  const receiverName = (memberId: string | null) => receiverOf(members, memberId)
 </script>
 
 <div class="month-nav">
@@ -136,7 +191,10 @@
 
 {#if budget}
   <div class="stack" class:reloading={loadingMonth} aria-busy={loadingMonth} in:rise>
-    <MonthHero {budget} {memberName} />
+    <MonthHero {budget} {memberName} incomeTracking={$incomeTracking} />
+    {#if $incomeTracking}
+      <IncomeList incomes={budget.incomes} categories={incomeCategories} {receiverName} onopen={openIncome} />
+    {/if}
     {#if budget.expenses.length > 0}
       <CategoryBreakdown {budget} {memberName} onmanage={() => (managingCategories = true)} />
     {/if}
@@ -150,9 +208,34 @@
   <Skeleton variant="rows" count={5} />
 {/if}
 
-<Fab label="Ajouter une dépense" onclick={() => openEditor(null)} />
+<Fab label={$incomeTracking ? 'Ajouter une dépense ou une rentrée' : 'Ajouter une dépense'} onclick={() => openEditor(null)} />
 
-<Modal bind:open={editorOpen} title={editing ? 'Modifier la dépense' : 'Nouvelle dépense'}>
+<Modal bind:open={editorOpen} title={modalTitle}>
+  {#if $incomeTracking && !editing && !editingIncome}
+    <div class="entry-kind">
+      <Segmented
+        label="Type de saisie"
+        hideLabel
+        options={[
+          { value: 'EXPENSE', label: 'Dépense' },
+          { value: 'INCOME', label: 'Rentrée' },
+        ]}
+        bind:value={entryKind}
+      />
+    </div>
+  {/if}
+  {#if entryKind === 'INCOME'}
+    <IncomeForm
+      {householdId}
+      categories={incomeCategories}
+      {members}
+      currentUserId={profile.userId}
+      income={editingIncome}
+      onsaved={() => run(reloadAfterSave)}
+      onclose={() => (editorOpen = false)}
+      ondelete={askDeleteIncome}
+    />
+  {:else}
   <ExpenseForm
     {householdId}
     {categories}
@@ -163,7 +246,15 @@
     onclose={() => (editorOpen = false)}
     ondelete={askDelete}
   />
+  {/if}
 </Modal>
+
+<ConfirmDialog
+  bind:open={confirmingIncomeDelete}
+  title="Supprimer la rentrée ?"
+  message={deletingIncome ? `La rentrée de ${formatCents(deletingIncome.amountCents)} sera définitivement supprimée.` : ''}
+  onconfirm={removeIncome}
+/>
 
 <Modal bind:open={managingCategories} title="Catégories">
   <CategoryManager {householdId} bind:categories />
@@ -206,5 +297,8 @@
   }
   .manage {
     justify-self: center;
+  }
+  .entry-kind {
+    margin-bottom: 16px;
   }
 </style>

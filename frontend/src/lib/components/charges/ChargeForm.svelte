@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte'
-  import type { AmountKind, Category, Charge, ChargeInput, Frequency, Member } from '../../api/types'
+  import type { AmountKind, Category, Charge, ChargeInput, FlowDirection, Frequency, Member } from '../../api/types'
   import { sortCategories } from '../../categories'
   import { FREQUENCIES } from '../../charges'
   import { beneficiaryOptions, payerOptions } from '../../members'
@@ -11,23 +11,29 @@
   import Chip from '../../ui/atoms/Chip.svelte'
   import Segmented from '../../ui/molecules/Segmented.svelte'
 
-  // Saisie ou modification d'une charge récurrente (dans une modale).
+  // Saisie ou modification d'une charge récurrente (dans une modale) : dépense, ou rentrée (salaire…).
+  // Pour une rentrée, « payé par » devient « reçu par » et il n'y a pas de bénéficiaire.
   let {
     charge,
     categories,
     members,
     currentUserId,
+    direction = 'EXPENSE',
     onsave,
   }: {
     charge: Charge | null
+    /** Catégories du sens de la charge (dépenses ou rentrées). */
     categories: Category[]
     members: Member[]
     currentUserId: string
+    /** Sens d'une nouvelle charge ; une charge existante garde le sien. */
+    direction?: FlowDirection
     onsave: (input: ChargeInput) => Promise<void>
   } = $props()
 
   // Le formulaire part d'une copie des valeurs reçues à l'ouverture.
-  const initial = untrack(() => ({ charge, currentUserId }))
+  const initial = untrack(() => ({ charge, currentUserId, direction: charge?.direction ?? direction }))
+  const income = initial.direction === 'INCOME'
 
   let name = $state(initial.charge ? displayName(initial.charge.name) : '')
   let amount = $state(initial.charge ? centsToInput(initial.charge.amountCents) : '')
@@ -68,7 +74,8 @@
         firstDueOn,
         budgetCategoryId: categoryId,
         payerId,
-        beneficiaryId: beneficiaryId || null,
+        beneficiaryId: income ? null : beneficiaryId || null,
+        direction: initial.direction,
       })
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
@@ -81,7 +88,13 @@
 <form class="stack" onsubmit={submit}>
   <label>
     Nom
-    <input bind:value={name} maxlength="60" placeholder="Ex. : Internet, Électricité…" required data-autofocus />
+    <input
+      bind:value={name}
+      maxlength="60"
+      placeholder={income ? 'Ex. : Salaire, Allocations…' : 'Ex. : Internet, Électricité…'}
+      required
+      data-autofocus
+    />
   </label>
 
   <AmountInput bind:value={amount} label={kind === 'FIXED' ? 'Montant' : 'Montant prévu'} />
@@ -95,9 +108,15 @@
     bind:value={kind}
   />
   <p class="muted hint">
-    {kind === 'FIXED'
-      ? 'La dépense est ajoutée au budget toute seule, le jour de chaque échéance.'
-      : 'À chaque échéance, vous confirmez le montant de la facture : la dépense est alors ajoutée au budget.'}
+    {#if income}
+      {kind === 'FIXED'
+        ? 'La rentrée est ajoutée au budget toute seule, le jour prévu.'
+        : 'À chaque échéance, vous confirmez le montant reçu : la rentrée est alors ajoutée au budget.'}
+    {:else}
+      {kind === 'FIXED'
+        ? 'La dépense est ajoutée au budget toute seule, le jour de chaque échéance.'
+        : 'À chaque échéance, vous confirmez le montant de la facture : la dépense est alors ajoutée au budget.'}
+    {/if}
   </p>
 
   <div class="form-row">
@@ -126,17 +145,21 @@
     </div>
   </fieldset>
 
-  <div class="form-row">
-    <Segmented label="Payé par" options={payers} bind:value={payerId} />
-    <Segmented label="Pour" options={beneficiaries} bind:value={beneficiaryId} />
-  </div>
+  {#if income}
+    <Segmented label="Reçu par" options={payers} bind:value={payerId} />
+  {:else}
+    <div class="form-row">
+      <Segmented label="Payé par" options={payers} bind:value={payerId} />
+      <Segmented label="Pour" options={beneficiaries} bind:value={beneficiaryId} />
+    </div>
+  {/if}
 
   {#if error}
     <p class="error" role="alert">{error}</p>
   {/if}
 
   <button class="large" disabled={busy || !name.trim()} aria-busy={busy}>
-    {initial.charge ? 'Enregistrer' : 'Ajouter la charge'}
+    {initial.charge ? 'Enregistrer' : income ? 'Ajouter la rentrée' : 'Ajouter la charge'}
   </button>
 </form>
 

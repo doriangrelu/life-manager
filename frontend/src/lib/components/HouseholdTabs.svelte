@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
+  import { getHousehold } from '../api/householdApi'
   import type { UserProfile } from '../api/types'
+  import { incomeTracking } from '../householdSettings'
   import { rise } from '../motion'
   import { spaceOf } from '../navigation'
   import { rememberSpaceSection } from '../preferences'
@@ -8,6 +11,7 @@
   import SpaceTabs from '../ui/molecules/SpaceTabs.svelte'
   import MainNav from '../ui/organisms/MainNav.svelte'
   import BudgetView from './budget/BudgetView.svelte'
+  import ReportView from './report/ReportView.svelte'
   import ChargesView from './charges/ChargesView.svelte'
   import HouseholdView from './HouseholdView.svelte'
   import RemindersBanner from './RemindersBanner.svelte'
@@ -41,6 +45,24 @@
   })
 
   const open = (next: Section) => navigate({ section: next })
+
+  // Réglage du foyer (suivi des rentrées) : lu au chargement, il décide des écrans proposés.
+  let settingsLoaded = $state(false)
+  onMount(async () => {
+    incomeTracking.set(false)
+    try {
+      incomeTracking.set((await getHousehold(householdId)).incomeTracking)
+    } finally {
+      settingsLoaded = true
+    }
+  })
+
+  // Bilan demandé (adresse, favori) alors que le foyer ne suit pas ses rentrées : retour au budget.
+  $effect(() => {
+    if (settingsLoaded && section === 'report' && !$incomeTracking) {
+      navigate({ section: 'budget' }, { replace: true })
+    }
+  })
 </script>
 
 <RemindersBanner {householdId} refreshKey={section} />
@@ -54,6 +76,10 @@
       <BudgetView {householdId} {profile} />
     {:else if section === 'charges'}
       <ChargesView {householdId} {profile} />
+    {:else if section === 'report'}
+      {#if $incomeTracking}
+        <ReportView {householdId} />
+      {/if}
     {:else if section === 'shopping'}
       <ShoppingView {householdId} />
     {:else if section === 'vehicles'}

@@ -16,12 +16,12 @@ Un domaine = un package de premier niveau, avec son propre schéma de base.
 | Domaine | Package | Rôle |
 |---|---|---|
 | Identité | `identity` | Profil utilisateur local, rattaché au compte Keycloak |
-| Foyer | `household` | Foyers, membres, invitations |
-| Budget | `budget` | Dépenses, catégories, vue mensuelle |
+| Foyer | `household` | Foyers, membres, invitations, réglages (suivi des rentrées) |
+| Budget | `budget` | Dépenses et rentrées, catégories (sens dépense ou rentrée), vue mensuelle, bilan par période |
 | Véhicule | `vehicle` | Fiches véhicules, échéances (CT, révision), carnet d'entretien |
 | Courses | `shopping` | Liste de courses partagée par foyer |
 | Rappels | `reminder` | Copie des échéances (véhicules, charges) et rappels à afficher ou notifier |
-| Charges | `bills` | Charges récurrentes (abonnements, factures), échéances, factures jointes |
+| Charges | `bills` | Charges et rentrées récurrentes (sens `EXPENSE` / `INCOME`), échéances, factures jointes, prévisions de période |
 
 Un domaine apparu après la création d'un foyer apprend ses membres par `MembershipKnownV1`, rappelé pour chaque membre au démarrage (le traitement doit accepter les doublons).
 

@@ -52,7 +52,9 @@ En plus : renommage du foyer ; invitations réservées au propriétaire (choix d
 
 ### Lot 4 — Rentrées d'argent, budget prévisionnel et crédits
 
-Découpé en deux changes : **4a « Rentrées et épargne »** (proposition `openspec/changes/rentrees-epargne`, en relecture), puis **4b « Prévisionnel et crédits »**.
+Découpé en deux changes : **4a « Rentrées et bilan »** (`openspec/changes/rentrees-epargne`, implémenté, cible v0.6.0), puis **4b « Prévisionnel et crédits »**.
+
+4a, tel que livré : réglage du foyer « Suivre les rentrées » (propriétaire, désactivé par défaut : rien ne change sans lui) ; rentrées saisies comme les dépenses (catégories libres, suggestions Salaire, Prime, Remboursement, Aides, Autre ; qui reçoit) ; bandeau du mois Rentré / Dépensé / Résultat ; Charges en deux panneaux Dépenses fixes / Rentrées fixes ; écran **Bilan** (mois, trimestre, année, 12 derniers mois ; réalisé et prévu en fin de période ; épargne = résultat positif). Comptes, livrets et solde de départ abandonnés à la demande de Dorian.
 
 - **Rentrées d'argent** (idée du frère de Dorian, à mûrir à l'implémentation) : salaires, primes, remboursements, aides… saisis à la main ou **récurrents** (comme les charges), par membre ou pour le foyer. Dans l'espace Argent. Le mois affiche alors rentrées, dépenses et **solde**.
 - **Épargne mensuelle** : une case dédiée chaque mois, avec le montant mis de côté (fixe et récurrent, ou saisi). Elle est comptée à part des dépenses, pour suivre l'épargne cumulée et, au lot 5, son évolution.

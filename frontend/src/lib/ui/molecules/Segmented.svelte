@@ -1,14 +1,18 @@
 <script lang="ts">
   // Choix exclusif parmi quelques options (payé par, pour qui…), présenté en boutons accolés.
+  // hideLabel : titre lu par les lecteurs d'écran seulement (les options se suffisent à elles-mêmes).
   let {
     label,
     options,
     value = $bindable(),
-  }: { label: string; options: { value: string; label: string }[]; value: string } = $props()
+    hideLabel = false,
+  }: { label: string; options: { value: string; label: string }[]; value: string; hideLabel?: boolean } = $props()
 </script>
 
 <div class="segmented">
-  <span class="caption">{label}</span>
+  {#if !hideLabel}
+    <span class="caption">{label}</span>
+  {/if}
   <div class="options" role="group" aria-label={label}>
     {#each options as option (option.value)}
       <button

@@ -1,5 +1,5 @@
 import { apiBlob, apiRequest, apiUpload } from './http'
-import type { Attachment, Charge, ChargeInput, Occurrence } from './types'
+import type { Attachment, Charge, ChargeInput, ForecastItem, Occurrence } from './types'
 
 const charges = (householdId: string) => `/households/${householdId}/charges`
 const occurrences = (householdId: string, chargeId: string) => `${charges(householdId)}/${chargeId}/occurrences`
@@ -20,6 +20,11 @@ export function updateCharge(householdId: string, chargeId: string, charge: Char
 
 export function terminateCharge(householdId: string, chargeId: string): Promise<void> {
   return apiRequest('DELETE', `${charges(householdId)}/${chargeId}`)
+}
+
+/** Échéances encore attendues entre deux jours inclus (« 2026-11-01 »), dépenses et rentrées. */
+export function forecast(householdId: string, from: string, to: string): Promise<ForecastItem[]> {
+  return apiRequest('GET', `${charges(householdId)}/forecast?from=${from}&to=${to}`)
 }
 
 export function listOccurrences(householdId: string, chargeId: string): Promise<Occurrence[]> {
