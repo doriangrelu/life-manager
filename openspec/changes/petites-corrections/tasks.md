@@ -16,4 +16,4 @@
 
 - [x] 4.1 [frontend] Vérification au navigateur : mobile et bureau, clair et sombre (carnet, catégories, console « Mon compte » de dev)
 - [ ] 4.2 [infra/vps] Version v0.6.2 publiée et déployée
-- [ ] 4.3 [infra/vps] Thème recopié dans `~/keycloak/themes` et Keycloak redémarré, avec l'accord de Dorian (coupure d'environ 1 min pour tous les sites)
+- [x] 4.3 [infra/vps] Thème recopié dans `~/keycloak/themes` et Keycloak redémarré, avec l'accord de Dorian (coupure d'environ 1 min pour tous les sites)
