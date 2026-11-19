@@ -64,9 +64,13 @@ Au retour de Keycloak, oauth2-proxy cherchait le champ `groups` absent du jeton 
 Compte et surveillance « VPS » créés par Dorian (période 10 min, grâce 20 min) ; adresse de signal enregistrée par lui (`~/admin/.healthchecks-url`, 600). `vps-signal-vie.timer` (toutes les 10 min, en `ubuntu`) lance `~/admin/signal-vie.sh` : `etat.sh`, 2e essai 2 min plus tard en cas d'écart, puis signal OK ou échec avec le détail. Premier tour réussi ; échec de test volontaire envoyé, **alerte reçue par Dorian**.
 Retour arrière : `sudo systemctl disable --now vps-signal-vie.timer`.
 
+## 2026-11-19 14:45 — Claude — suppression de `~/portainer`
+
+À la demande de Dorian. Préparation jamais démarrée, remplacée par `~/dozzle` : aucun conteneur, volume ni réseau, aucune référence dans Caddy ni dans la sauvegarde. Dossier supprimé (pas dans les sauvegardes : suppression définitive).
+
 ## Points ouverts (à décider avec Dorian)
 
-- Supprimer `~/portainer` (préparation remplacée par `~/dozzle`).
-- Versionner `~/infra`, `~/keycloak`, `~/portainer` dans un dépôt privé.
+- Versionner `~/infra`, `~/keycloak`, `~/dozzle` dans un dépôt privé.
+- Tableau de bord de métriques avec historique (Beszel proposé).
 - Ménage du dossier personnel : `%{redirect_url}n`, `get-docker.sh`, `test-newsletter-brevo.sh`, `conteneurs-avant-reboot.txt`, `~/mybook/backups` (arrêté en août), `~/backups` (vide), clé SSH `claude-deploy-mybook` en double.
 - Le rôle PostgreSQL `site` (mybook) est superutilisateur.

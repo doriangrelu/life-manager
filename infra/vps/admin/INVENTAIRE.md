@@ -36,9 +36,7 @@ Internet → Caddy (`infra-caddy-1`, ports 80/443, certificats automatiques) →
 | `~/keycloak` | Keycloak, `auto-update.sh`, `themes/` | **non** | idem |
 | `~/life-manager` | dépôt git placé sur le tag déployé ; secrets dans `.env.prod` | git (github `doriangrelu/life-manager`) | `infra/deploy/deploy.sh <tag>` |
 | `~/mybook` | dépôt git du site de l'auteur ; secrets dans `.env` | git (github `doriangrelu/lacassinauteur`) | voir `~/mybook/docs/mode-operatoire-deploiement.md` |
-| `~/dozzle` | interface web Docker (Dozzle + oauth2-proxy), https://docker.dorian-grelu.fr, realm Keycloak `infra` ; secrets dans `.env` | source dans `life-manager/infra/vps/dozzle` (voir son README) | `docker compose up -d` dans le dossier |
-| `~/portainer` | ancienne préparation (Portainer), **remplacée par `~/dozzle`**, jamais démarrée | non | — |
-| `~/volumes` | données montées dans les conteneurs : `db-data`, `images-data`, `logs-data`, `caddy-data`, `caddy-config`, `life-manager-files` | — | — |
+| `~/dozzle` | interface web Docker (Dozzle + oauth2-proxy), https://docker.dorian-grelu.fr, realm Keycloak `infra` ; secrets dans `.env` | source dans `life-manager/infra/vps/dozzle` (voir son README) | `docker compose up -d` dans le dossier || `~/volumes` | données montées dans les conteneurs : `db-data`, `images-data`, `logs-data`, `caddy-data`, `caddy-config`, `life-manager-files` | — | — |
 | `~/admin` | cette documentation et `etat.sh` | source dans `life-manager/infra/vps/admin` | — |
 
 ## Conteneurs
@@ -64,7 +62,7 @@ Le nom de l'administrateur est la variable `POSTGRES_USER` de `~/infra/.env` : n
 
 ## Secrets (emplacement seulement, ne jamais lire les valeurs)
 
-`~/infra/.env`, `~/keycloak/.env`, `~/life-manager/.env.prod`, `~/mybook/.env`, `~/portainer/.env` (tous en droits 600) ; `~/.config/rclone/rclone.conf` (jeton OneDrive + phrase de chiffrement masquée) ; `~/admin/.healthchecks-url` (adresse de signal : qui la connaît peut envoyer de faux signaux). La phrase de chiffrement OneDrive est aussi dans le gestionnaire de mots de passe de Dorian.
+`~/infra/.env`, `~/keycloak/.env`, `~/life-manager/.env.prod`, `~/mybook/.env`, `~/dozzle/.env` (tous en droits 600) ; `~/.config/rclone/rclone.conf` (jeton OneDrive + phrase de chiffrement masquée) ; `~/admin/.healthchecks-url` (adresse de signal : qui la connaît peut envoyer de faux signaux). La phrase de chiffrement OneDrive est aussi dans le gestionnaire de mots de passe de Dorian.
 
 ## Tâches planifiées (UTC)
 
