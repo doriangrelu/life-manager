@@ -1,0 +1,11 @@
+[Unit]
+Description=Maintenance nocturne du VPS chaque nuit
+
+[Timer]
+# Après la sauvegarde (3 h) et la mise à jour de Keycloak (4 h 15), avant le réveil de la maison.
+OnCalendar=*-*-* 05:00:00
+# Serveur éteint à l'heure prévue : la maintenance part au démarrage suivant.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

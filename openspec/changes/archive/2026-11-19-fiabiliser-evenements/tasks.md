@@ -13,9 +13,9 @@
 ## 3. Vérification
 
 - [x] 3.1 [kernel + bills/budget] Tests : arrêt simulé avant distribution, destinataire en erreur puis rétabli, mise de côté, changement annulé, doublon sans effet
-- [ ] 3.2 [ci] Suite complète et parcours natif verts
+- [x] 3.2 [ci] Suite complète et parcours natif verts
 
 ## 4. Livraison
 
 - [x] 4.1 [doc] Architecture : règle de la boîte d'envoi ; feuille de route : dette soldée
-- [ ] 4.2 [infra/vps] Version publiée et déployée
+- [x] 4.2 [infra/vps] Version publiée et déployée (v0.3.1, 2026-11-19)

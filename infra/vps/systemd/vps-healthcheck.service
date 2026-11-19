@@ -1,0 +1,12 @@
+[Unit]
+Description=Vérification des services Docker après chaque démarrage du VPS
+After=network-online.target docker.service
+Wants=network-online.target docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/vps-healthcheck.sh
+TimeoutStartSec=15min
+
+[Install]
+WantedBy=multi-user.target

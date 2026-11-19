@@ -1,0 +1,9 @@
+[Unit]
+Description=Maintenance nocturne du VPS (mises à jour, redémarrage si nécessaire)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/vps-maintenance.sh
+TimeoutStartSec=2h

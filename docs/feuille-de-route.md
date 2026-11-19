@@ -1,90 +1,128 @@
 # Feuille de route
 
-> **Proposition à valider par Dorian** (2026-11-18). Chaque lot deviendra un change OpenSpec (proposé, relu, appliqué, archivé), une version `vX.Y.0` et un déploiement.
+> **Version 2 à valider par Dorian** (2026-11-19) : intègre les idées et retours de la nuit du 18 au 19 novembre.
+
+## Comment on avance (lien avec OpenSpec)
+
+- **Ce document est le carnet de commandes** : chaque idée y est rangée dans un lot, avec son ordre et ses dépendances. Rien n'est codé directement depuis ici.
+- **Un lot = un change OpenSpec** au moment où on l'attaque : proposition (pourquoi, quoi, hors périmètre), relecture par Dorian, puis design, tâches, code, version `vX.Y.0`, déploiement, recette et archive.
+- **Les petites retouches d'interface** sont regroupées dans un lot de finitions, qui donne un seul change.
+- **Les sujets incertains** (IA, connexion à des services externes) commencent par une **étude** : une note dans `docs/etudes/` (options, coûts, risques, recommandation). Le change OpenSpec ne vient qu'après ton accord.
+- Une nouvelle idée s'ajoute en bas de la section « Idées à ranger », puis on la place à la revue suivante.
 
 ## Où on en est
 
-Le **MVP de la vision est livré et en production** (v0.1.1 sur https://maison.dorian-grelu.fr) :
+En production sur https://maison.dorian-grelu.fr (v0.3.1) :
 
 | Domaine | Livré |
 |---|---|
-| Socle | comptes Keycloak, foyers, invitation par code |
+| Socle | comptes Keycloak (connexion et console « Mon compte » aux couleurs de l'application), foyers, invitation par code |
 | Budget | saisie rapide, catégories libres, vue mensuelle par catégorie et par personne |
-| Véhicules | fiches, carnet d'entretien, pièces jointes, échéances CT et révision calculées |
-| Courses | listes partagées en temps réel, sous-listes, historique et remise en liste |
-| Rappels | échéances des véhicules, notifications de l'appareil (application ouverte) |
-| PWA | navigation, écran conservé au rechargement, mode sombre |
+| Charges | abonnements et factures récurrents, dépense créée seule ou à confirmer, factures jointes |
+| Véhicules | fiches, carnet d'entretien, pièces jointes, échéances CT et révision |
+| Courses | listes partagées en temps réel, sous-listes, historique |
+| Rappels | échéances des véhicules et des charges, notifications de l'appareil (application ouverte) |
+| Fiabilité | événements entre domaines garantis (boîte d'envoi), parcours natif en CI, sauvegarde nocturne |
+
+Lots terminés : lot 0 (finitions de mise en production, v0.2.x), lot 1 (factures et abonnements, v0.3.0), boîte d'envoi (v0.3.1).
 
 ## Ordre proposé
 
-### Lot 0 — Finitions de la mise en production ✅ (terminé le 2026-11-18, v0.2.0 à v0.2.5)
+### Lot 2 — Finitions d'usage (petit, rapide, visible au quotidien)
 
-- ✅ Thème de connexion en production.
-- ✅ Pièces jointes dans la sauvegarde nocturne, archive vérifiée.
-- ✅ Messages d'erreur clairs (serveur injoignable, panne serveur) et retour de connexion sans erreur.
-- ✅ Retour arrière vérifié entre deux vraies versions.
-- ✅ Parcours d'usage sur l'exécutable natif en CI.
-- En plus, d'après les retours de Dorian : noms normalisés, chargements, animations, survol, mise à jour automatique de la PWA.
-- Reste : test de restauration complète sur une machine vierge (voir dette technique).
+- Budget : bouton **« Aujourd'hui »** pour revenir au mois en cours.
+- Mobile : à l'ouverture d'un formulaire (nouvelle dépense…), la page et la fenêtre repartent **en haut**.
+- **Affichage des noms** harmonisé partout (majuscules, noms de membres, catégories, listes).
+- Courses : **glisser-déposer** pour ordonner les articles et les sous-listes.
+- Front : composants communs rangés façon **Atomic Design** (atomes, molécules, organismes), au fil des écrans touchés, pour ne plus dupliquer.
 
-### Lot 1 — Factures et abonnements ✅ (livré le 2026-11-18, v0.3.0, en recette)
+### Lot 3 — Gestion du foyer
 
-Électricité, internet, assurances, téléphone… : ce qui revient chaque mois.
+- **Propriétaire** du foyer (le créateur au départ, transmissible).
+- Le propriétaire peut **retirer un membre**.
+- **Annuler un code d'invitation** encore valide.
+- **Supprimer un foyer**, avec confirmation forte. Toutes les données du foyer sont effacées dans chaque domaine, par événement.
 
-- ✅ Onglet « Charges » : charges récurrentes (montant fixe ou variable, fréquence, catégorie, payé par / pour).
-- ✅ Montant fixe : la dépense arrive seule dans le budget le jour de l'échéance. Montant variable : échéance « à confirmer » avec le montant de la facture.
-- ✅ Rappel 7 jours avant l'échéance ; rappel tant qu'un montant reste à confirmer.
-- ✅ Factures jointes à chaque échéance (socle des pièces jointes partagé avec le carnet).
-- ✅ Nouveau domaine `bills`.
+À faire avant d'ouvrir l'application à d'autres foyers.
 
-### Lot 2 — Rappels libres (V2)
+### Lot 4 — Budget : vision annuelle et graphiques
 
-Aujourd'hui les rappels ne viennent que des véhicules.
+- Dépenses de l'**année** : total et répartition **par catégorie**.
+- **Graphiques par mois** : évolution du total et des principales catégories.
+- Coût réel de chaque véhicule sur l'année (entretien + charges liées).
 
-- Rappels saisis à la main : date, récurrence (annuelle, mensuelle), note. Exemples : déclaration d'impôts, ramonage, renouvellement de mutuelle.
-- Même affichage et mêmes notifications que les rappels de véhicules.
-- Prépare le lot 4 (dates d'expiration des documents).
+### Lot 5 — Budget prévisionnel et crédits
 
-### Lot 3 — Crédits et budget prévisionnel (V2)
-
+- Budget prévisionnel du mois par catégorie : revenus, charges récurrentes (lot 1), mensualités, donc **reste à vivre**.
+- **Suivi du prévisionnel** : prévu et réel par catégorie, alerte en cas de dépassement.
 - Crédits en cours : capital, taux, mensualité, échéancier, capital restant dû.
-- Budget prévisionnel du mois : revenus + charges récurrentes (lot 1) + mensualités → **reste à vivre**.
-- Comparaison prévu / réel par catégorie.
 
-Dépend du lot 1.
+Dépend du lot 4 pour les vues.
 
-### Lot 4 — Documents et démarches (V2, données les plus sensibles)
+### Lot 6 — Rappels libres et e-mails
 
-- Coffre-fort de documents du foyer (carte grise, contrats, actes, diplômes…), classés par type et par personne.
-- Dates d'expiration (CNI, passeport, permis) → rappels (lot 2).
-- **À trancher avant** : chiffrement des fichiers au repos sur le VPS, qui peut y accéder dans le foyer.
+- Rappels saisis à la main : date, récurrence, note (impôts, ramonage, mutuelle…).
+- **Rappels par e-mail via Brevo**, au choix de chaque membre.
+- **E-mails de Keycloak aux couleurs de l'application** (mot de passe oublié, vérification), envoyés par Brevo.
+- Prérequis technique : réparer le HTTPS sortant de l'exécutable natif (voir dette).
 
-### Lot 5 — Notifications push (amélioration des rappels)
+### Lot 7 — Comptes entre membres
 
-Aujourd'hui, une notification n'apparaît que si l'application est ouverte.
+- **Qui doit quoi** : dépenses et abonnements partagés, part de chacun, solde entre membres, remboursement enregistré.
+- S'appuie sur « payé par / pour » déjà présent dans les dépenses et les charges.
 
-- Web Push : notification sur le téléphone même application fermée (Android, et iPhone si la PWA est installée sur l'écran d'accueil).
-- Choix par membre de ce qu'il reçoit.
+### Lot 8 — Projets
 
-### Lot 6 — Courses hors connexion
+- Projets du foyer (travaux, vacances, mariage…) avec un **budget**, des **dépenses rattachées** et une **liste de tâches**.
 
-- La liste reste consultable et cochable dans un magasin sans réseau ; synchronisation au retour du réseau.
+### Lot 9 — Documents et démarches (données les plus sensibles)
 
-### Plus tard / à reconsidérer
+- Coffre-fort de documents du foyer, classés par type et par personne.
+- Dates d'expiration (CNI, passeport, permis), qui deviennent des rappels (lot 6).
+- **À trancher avant** : chiffrement des fichiers au repos, qui peut y accéder dans le foyer.
 
-- Import CSV des relevés bancaires (la vision exclut l'agrégation automatique).
-- Statistiques sur l'année (évolution des dépenses, coût réel de chaque véhicule).
+### Lot 10 — Relevés bancaires et IA (précédé d'une étude)
 
-## Dette technique à traiter au fil de l'eau
+- **Étude A, connexions externes** : quels services peuvent alimenter l'application tout seuls (agrégation bancaire DSP2, fournisseurs d'énergie, assurances), avec coût, sécurité et faisabilité en auto-hébergé. La vision excluait l'agrégation automatique : à rediscuter avec l'étude.
+- **Étude B, IA** : quel modèle et où (API externe ou modèle local), quelles données envoyées, coût, confidentialité.
+- Puis :
+  - **import de relevés** (CSV/OFX) avec rapprochement automatique des dépenses ;
+  - **catégorisation par IA** ;
+  - **analyse des dépenses avec propositions d'optimisation** (abonnements doublons, postes qui dérivent…).
+
+### Lot 11 — Offre ouverte : limites et VIP (si l'application s'ouvre au-delà de la famille)
+
+- **Limites** sur le nombre d'objets créés (foyers, invités, dépenses, listes, catégories…) pour les comptes standards.
+- **VIP sans limite**, repérés par un **rôle Keycloak**.
+- Dépend du lot 3.
+
+### Ensuite
+
+- Notifications push (application fermée), avec choix par membre.
+- Courses hors connexion (magasin sans réseau).
+
+## Exploitation et documentation (au fil de l'eau, hors lots)
+
+| Sujet | État |
+|---|---|
+| Mise à jour automatique du VPS chaque nuit, redémarrage si nécessaire, vérification de vivacité et de disponibilité des services | scripts prêts (`infra/vps`), installation à valider par Dorian |
+| Documentation technique : domaines, modèles de données et flux d'événements en **diagrammes** (Mermaid dans `docs/`) | à faire, mise à jour à chaque lot |
+
+## Dette technique
 
 | Sujet | Risque aujourd'hui | Quand |
 |---|---|---|
-| ~~Événements entre domaines sans « outbox »~~ | ✅ soldé le 2026-11-18 (v0.3.1) : boîte d'envoi par domaine, distribution garantie | — |
-| HTTPS sortant depuis l'exécutable natif | échoue (`decrypt_error`) ; contourné par le réseau interne | dès qu'un appel externe sera nécessaire (Web Push, lot 5) |
+| ~~Événements entre domaines sans « outbox »~~ | ✅ soldé le 2026-11-19 (v0.3.1) | — |
+| HTTPS sortant depuis l'exécutable natif | échoue (`decrypt_error`) ; contourné par le réseau interne | **avant le lot 6** (Brevo), puis IA |
 | Test de restauration complète | jamais fait sur une machine vierge | dès qu'un VPS de test est disponible |
+
+## Idées à ranger
+
+(vide)
 
 ## Questions pour Dorian
 
-1. L'ordre des lots te convient-il ? Qu'est-ce qui te manque le plus au quotidien ?
-2. Des besoins absents de cette liste ?
-3. Ta femme utilise-t-elle déjà l'application ? Ses retours peuvent changer les priorités.
+1. L'ordre te convient-il ? Je mettrais le lot 2 (rapide, visible) puis le lot 3 (contrôle du foyer) en premier.
+2. Lot 7 : « dettes et abonnements partagés », c'est bien « qui doit combien à qui » entre membres du foyer ?
+3. Lot 11 : comptes-tu ouvrir l'application à d'autres foyers que le tien ? Sinon ce lot peut attendre.
+4. Lot 10 : ta préférence pour l'IA, service externe (simple, payant, données qui sortent) ou modèle local (gratuit, mais le VPS actuel est léger) ?
