@@ -6,7 +6,7 @@
 
 | Élément | Valeur |
 |---|---|
-| Hébergeur | OVH, VPS 2 cœurs, 3,7 Go de mémoire, **pas de swap**, disque 38 Go |
+| Hébergeur | OVH, VPS 2 cœurs, 3,7 Go de mémoire, swap de 2 Go (`/swapfile`, `vm.swappiness=10` dans `/etc/sysctl.d/90-swap.conf`), disque 38 Go |
 | Système | Ubuntu 26.04 LTS, horloge UTC |
 | Accès | SSH sur 152.228.237.190, **par clé uniquement** ; secours : console KVM ou mode rescue de l'espace client OVH |
 | Utilisateur `ubuntu` | propriétaire de tous les fichiers ; `sudo` sans mot de passe, groupe `docker`. Clés : Dorian seulement (PC Windows et WSL) |
@@ -78,4 +78,4 @@ Sources de la maintenance : `life-manager/infra/vps/` (installation : `infra/vps
 
 ## Ce qui manque (connu)
 
-Pas de swap ; pas de supervision ni d'alerte (personne n'est prévenu si un site tombe) ; `~/infra` et `~/keycloak` non versionnés ; l'utilisateur `ia` a tous les droits (choix de Dorian : séparé mais complet, les limites sont des consignes).
+Pas de supervision ni d'alerte (personne n'est prévenu si un site tombe) ; `~/infra` et `~/keycloak` non versionnés ; l'utilisateur `ia` a tous les droits (choix de Dorian : séparé mais complet, les limites sont des consignes).

@@ -39,9 +39,13 @@ Retour arrière : `sudo userdel -r ia ; sudo rm /etc/sudoers.d/90-ia` et remettr
 Clé `claude-deploy-mybook` (présente deux fois, même empreinte ; aucune connexion depuis au moins 4 semaines ; pas utilisée par la CI) retirée d'`ubuntu` et ajoutée à `ia`. Copie : `~/.ssh/authorized_keys.avant-mybook-ia`. `ubuntu` n'a plus que les clés de Dorian.
 **À faire** : les sessions Claude de mybook doivent se connecter en `ia@` et travailler avec `sudo -iu ubuntu` (non testé : la clé privée est sur le PC de Dorian).
 
+## 2026-11-19 14:10 — Claude — swap de 2 Go
+
+`/swapfile` (2 Go, droits 600) activé et ajouté à `/etc/fstab` ; `vm.swappiness=10` (`/etc/sysctl.d/90-swap.conf`) : utilisé seulement en dernier recours. Retour arrière : `sudo swapoff /swapfile`, retirer la ligne de `/etc/fstab`, supprimer le fichier.
+
 ## Points ouverts (à décider avec Dorian)
 
-- Swap de 2 Go.
+- Interface web d'administration Docker sur un sous-domaine de dorian-grelu.fr, derrière oauth2-proxy + Keycloak (préparation existante dans `~/portainer`, à adapter).
 - Supervision et alerte (un site qui tombe ne prévient personne).
 - Versionner `~/infra`, `~/keycloak`, `~/portainer` dans un dépôt privé.
 - Ménage du dossier personnel : `%{redirect_url}n`, `get-docker.sh`, `test-newsletter-brevo.sh`, `conteneurs-avant-reboot.txt`, `~/mybook/backups` (arrêté en août), `~/backups` (vide), clé SSH `claude-deploy-mybook` en double.
