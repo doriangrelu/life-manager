@@ -53,9 +53,14 @@ jobs:
     # Long et gourmand (~7 Go de RAM) : seulement sur main ou à la demande.
     # Construit l'image de production puis rejoue un vrai parcours sur l'API native :
     # attrape les erreurs propres à GraalVM (réflexion, ressources) que les tests JVM ne voient pas.
+    # Si le parcours passe, l'image est publiée (sha-<commit>) : un tag de version la reprend telle quelle,
+    # sans la reconstruire (une seule construction native par commit).
     if: github.ref == 'refs/heads/main'
     needs: backend
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v5
       - uses: docker/setup-buildx-action@v3
@@ -65,6 +70,7 @@ jobs:
           context: backend
           load: true
           tags: life-manager-api:ci
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
           cache-from: type=gha,scope=life-manager-api
           cache-to: type=gha,mode=max,scope=life-manager-api
       - name: PostgreSQL et Keycloak de développement
@@ -81,6 +87,16 @@ jobs:
           for i in $(seq 1 30); do curl -sf http://localhost:8081/health && break; sleep 2; done
       - name: Parcours d'usage
         run: API=http://localhost:8081 infra/ci/native-smoke.sh
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publication de l'image vérifiée (sha-<commit>)
+        run: |
+          IMAGE=ghcr.io/${{ github.repository_owner }}/life-manager-api:sha-${{ github.sha }}
+          docker tag life-manager-api:ci "$IMAGE"
+          docker push "$IMAGE"
       - name: Journaux de l'API (en cas d'échec)
         if: failure()
         run: docker logs api 2>&1 | tail -100

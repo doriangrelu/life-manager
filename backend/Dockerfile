@@ -5,10 +5,12 @@ FROM ghcr.io/graalvm/native-image-community:25 AS build
 WORKDIR /build
 COPY .mvn .mvn
 COPY mvnw pom.xml checkstyle.xml aot-jar.properties aot-native-image.properties ./
+# Maven et les dépendances dans une couche à part : gardée en cache (CI comprise) tant que le pom ne change pas.
+# Évite de tout retélécharger à chaque construction (et les refus 429 de Maven Central).
+# Au mieux : ce qui manque encore sera téléchargé par l'étape suivante.
+RUN ./mvnw -B -q dependency:go-offline -Dpackaging=native-image || true
 COPY src src
-# Le cache Maven survit d'une construction à l'autre (BuildKit).
-RUN --mount=type=cache,target=/root/.m2 \
-    ./mvnw -B -q package -Dpackaging=native-image -Dmicronaut.aot.enabled=true -DskipTests \
+RUN ./mvnw -B -q package -Dpackaging=native-image -Dmicronaut.aot.enabled=true -DskipTests \
     && mkdir -p /out/files && cp target/backend /out/
 
 # L'exécutable a besoin de zlib, absente de l'image distroless : on la prend dans Debian de même version.

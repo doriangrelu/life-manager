@@ -12,7 +12,7 @@ Life Manager tourne sur le VPS OVH, branché sur le **socle partagé** déjà en
 
 Images publiées par la CI à chaque tag `v*` : `ghcr.io/doriangrelu/life-manager-api` et `ghcr.io/doriangrelu/life-manager-web`.
 
-À chaque commit sur `main`, la CI construit aussi l'image native et rejoue un parcours d'usage complet sur l'API compilée ([`infra/ci/native-smoke.sh`](../infra/ci/native-smoke.sh)) : les erreurs propres à l'exécutable natif sont arrêtées avant toute version. Avant de publier un tag, vérifier que le job « Exécutable natif » de `main` est vert.
+À chaque commit sur `main`, la CI construit aussi l'image native et rejoue un parcours d'usage complet sur l'API compilée ([`infra/ci/native-smoke.sh`](../infra/ci/native-smoke.sh)) : les erreurs propres à l'exécutable natif sont arrêtées avant toute version. Si ce parcours passe, l'image est publiée sous le nom `life-manager-api:sha-<commit>`. Un tag de version **ne reconstruit pas l'API** : il donne le nom de la version à cette image déjà vérifiée (une seule construction native par commit). Seule la PWA est construite au moment du tag. Avant de publier un tag, attendre donc que le job « Exécutable natif » de `main` soit vert **sur ce commit** ; sinon la publication échoue en le signalant.
 
 ## Première installation
 

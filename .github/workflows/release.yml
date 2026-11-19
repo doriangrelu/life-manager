@@ -1,6 +1,8 @@
 name: Publication des images
 
-# Un tag de version (ex. v0.1.0) construit et publie les images de production sur GitHub Container Registry.
+# Un tag de version (ex. v0.1.0) publie les images de production sur GitHub Container Registry.
+# L'API n'est pas reconstruite : on reprend l'image native déjà vérifiée par la CI du même commit
+# (sha-<commit>). Seule la PWA, rapide à construire, l'est ici.
 # Le déploiement reste lancé à la main sur le serveur (infra/deploy/deploy.sh <tag>).
 on:
   push:
@@ -13,19 +15,32 @@ permissions:
 env:
   # Adresse publique de Keycloak, figée dans la PWA au build.
   OIDC_AUTHORITY: https://iabilis.fr/realms/life-manager
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
-  images:
-    name: Image ${{ matrix.image }}
+  api:
+    name: Image life-manager-api (reprise de la CI)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - image: life-manager-api
-            context: backend
-          - image: life-manager-web
-            context: frontend
+    steps:
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Pour un tag, github.sha est le commit visé : son image existe si la CI de main est passée.
+      - name: Nouveau nom pour l'image vérifiée
+        run: |
+          SOURCE=$REGISTRY/life-manager-api:sha-${{ github.sha }}
+          if ! docker buildx imagetools inspect "$SOURCE" >/dev/null 2>&1; then
+            echo "::error::Image $SOURCE absente : attendre que la CI de main soit verte sur ce commit avant de poser le tag."
+            exit 1
+          fi
+          docker buildx imagetools create -t $REGISTRY/life-manager-api:${{ github.ref_name }} "$SOURCE"
+
+  web:
+    name: Image life-manager-web
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: docker/setup-buildx-action@v3
@@ -36,10 +51,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@v6
         with:
-          context: ${{ matrix.context }}
+          context: frontend
           push: true
           build-args: VITE_OIDC_AUTHORITY=${{ env.OIDC_AUTHORITY }}
-          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ github.ref_name }}
+          tags: ${{ env.REGISTRY }}/life-manager-web:${{ github.ref_name }}
           labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
-          cache-from: type=gha,scope=${{ matrix.image }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+          cache-from: type=gha,scope=life-manager-web
+          cache-to: type=gha,mode=max,scope=life-manager-web
