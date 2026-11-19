@@ -23,6 +23,7 @@ Internet → Caddy (`infra-caddy-1`, ports 80/443, certificats automatiques) →
 |---|---|---|---|
 | maison.dorian-grelu.fr | `~/infra/conf.d/life-manager.caddy` | `life-manager-api` (API), `life-manager-web` (application web) | Life Manager |
 | thierrylacassin-auteur.fr (+ www), leblogdethierry.fr (+ www) | `~/infra/conf.d/mybook.caddy` | `mybook-app-1` | mybook |
+| metrics.dorian-grelu.fr | `~/infra/conf.d/metrics.caddy` | `beszel-oauth2-proxy` → `beszel` (réseau privé) | métriques (Beszel) |
 | docker.dorian-grelu.fr | `~/infra/conf.d/docker.caddy` | `dozzle-oauth2-proxy` → `dozzle` (réseau privé) | interface Docker |
 | iabilis.fr | `~/infra/conf.d/keycloak.caddy` | `keycloak-keycloak-1` | Keycloak (connexion de tous les sites) |
 
@@ -36,7 +37,8 @@ Internet → Caddy (`infra-caddy-1`, ports 80/443, certificats automatiques) →
 | `~/keycloak` | Keycloak, `auto-update.sh`, `themes/` | **non** | idem |
 | `~/life-manager` | dépôt git placé sur le tag déployé ; secrets dans `.env.prod` | git (github `doriangrelu/life-manager`) | `infra/deploy/deploy.sh <tag>` |
 | `~/mybook` | dépôt git du site de l'auteur ; secrets dans `.env` | git (github `doriangrelu/lacassinauteur`) | voir `~/mybook/docs/mode-operatoire-deploiement.md` |
-| `~/dozzle` | interface web Docker (Dozzle + oauth2-proxy), https://docker.dorian-grelu.fr, realm Keycloak `infra` ; secrets dans `.env` | source dans `life-manager/infra/vps/dozzle` (voir son README) | `docker compose up -d` dans le dossier || `~/volumes` | données montées dans les conteneurs : `db-data`, `images-data`, `logs-data`, `caddy-data`, `caddy-config`, `life-manager-files` | — | — |
+| `~/dozzle` | interface web Docker (Dozzle + oauth2-proxy), https://docker.dorian-grelu.fr, realm Keycloak `infra` ; secrets dans `.env` | source dans `life-manager/infra/vps/dozzle` (voir son README) | `docker compose up -d` dans le dossier || `~/beszel` | métriques avec historique (Beszel + agent + oauth2-proxy), https://metrics.dorian-grelu.fr ; secrets dans `.env` ; données (`beszel_data`, root) non sauvegardées | source dans `life-manager/infra/vps/beszel` (voir son README) | `docker compose up -d` dans le dossier |
+| `~/volumes` | données montées dans les conteneurs : `db-data`, `images-data`, `logs-data`, `caddy-data`, `caddy-config`, `life-manager-files` | — | — |
 | `~/admin` | cette documentation et `etat.sh` | source dans `life-manager/infra/vps/admin` | — |
 
 ## Conteneurs
@@ -62,13 +64,13 @@ Le nom de l'administrateur est la variable `POSTGRES_USER` de `~/infra/.env` : n
 
 ## Secrets (emplacement seulement, ne jamais lire les valeurs)
 
-`~/infra/.env`, `~/keycloak/.env`, `~/life-manager/.env.prod`, `~/mybook/.env`, `~/dozzle/.env` (tous en droits 600) ; `~/.config/rclone/rclone.conf` (jeton OneDrive + phrase de chiffrement masquée) ; `~/admin/.healthchecks-url` (adresse de signal : qui la connaît peut envoyer de faux signaux). La phrase de chiffrement OneDrive est aussi dans le gestionnaire de mots de passe de Dorian.
+`~/infra/.env`, `~/keycloak/.env`, `~/life-manager/.env.prod`, `~/mybook/.env`, `~/dozzle/.env`, `~/beszel/.env` (tous en droits 600) ; `~/.config/rclone/rclone.conf` (jeton OneDrive + phrase de chiffrement masquée) ; `~/admin/.healthchecks-url` (adresse de signal : qui la connaît peut envoyer de faux signaux). La phrase de chiffrement OneDrive est aussi dans le gestionnaire de mots de passe de Dorian.
 
 ## Tâches planifiées (UTC)
 
 | Heure | Quoi | Où | Journal |
 |---|---|---|---|
-| 3 h 00 | sauvegarde complète (bases + volumes + config `~/infra`, `~/keycloak` et `~/dozzle`), 14 gardées | cron `ubuntu` → `~/infra/backup.sh` | `~/infra/backup.log` |
+| 3 h 00 | sauvegarde complète (bases + volumes + config `~/infra`, `~/keycloak`, `~/dozzle` et `~/beszel` sans ses données), 14 gardées | cron `ubuntu` → `~/infra/backup.sh` | `~/infra/backup.log` |
 | 3 h 30 | copie chiffrée vers OneDrive (`Sauvegardes/VPS`), 30 jours gardés | cron `ubuntu` → `~/infra/onedrive/send-backup.sh` | `~/infra/onedrive/onedrive.log` |
 | 4 h 15 | correctifs Keycloak de la branche fixée, test public + retour arrière automatique | cron `ubuntu` → `~/keycloak/auto-update.sh` | `~/keycloak/auto-update.log` |
 | 5 h 00 | mises à jour système, redémarrage seulement si nécessaire, puis vérification | `vps-maintenance.timer` | `/var/log/vps-maintenance.log` |

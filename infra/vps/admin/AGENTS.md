@@ -19,7 +19,8 @@ Trois projets partagent un socle commun (Caddy, PostgreSQL, Keycloak). Casser le
 
 - https://maison.dorian-grelu.fr : Life Manager (application de Dorian et de son foyer) ;
 - https://thierrylacassin-auteur.fr et https://leblogdethierry.fr : mybook (site d'un auteur) ;
-- https://iabilis.fr : Keycloak, la connexion de tous les sites.
+- https://iabilis.fr : Keycloak, la connexion de tous les sites ;
+- https://docker.dorian-grelu.fr (Dozzle) et https://metrics.dorian-grelu.fr (Beszel) : outils d'administration de Dorian, derrière oauth2-proxy + Keycloak (realm `infra`).
 
 ## Niveaux d'autonomie
 

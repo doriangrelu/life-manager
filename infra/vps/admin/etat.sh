@@ -25,6 +25,7 @@ for c in $(docker ps -a --filter status=restarting --format '{{.Names}}'); do ko
 
 echo "== Sites"
 for u in https://maison.dorian-grelu.fr/ https://thierrylacassin-auteur.fr/ https://leblogdethierry.fr/ \
+         https://docker.dorian-grelu.fr/ https://metrics.dorian-grelu.fr/ \
          https://iabilis.fr/realms/life-manager/.well-known/openid-configuration; do
   c=$(curl -s -o /dev/null -m 15 -w '%{http_code}' "$u")
   echo "   $c  $u"; [[ "$c" =~ ^[23] ]] || ko "site en erreur : $u ($c)"

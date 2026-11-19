@@ -68,9 +68,15 @@ Retour arrière : `sudo systemctl disable --now vps-signal-vie.timer`.
 
 À la demande de Dorian. Préparation jamais démarrée, remplacée par `~/dozzle` : aucun conteneur, volume ni réseau, aucune référence dans Caddy ni dans la sauvegarde. Dossier supprimé (pas dans les sauvegardes : suppression définitive).
 
+## 2026-11-19 14:45 — Claude — métriques : Beszel
+
+Choix de Dorian (outil recommandé). `~/beszel` : Beszel 0.21.2 + agent (socket local, réseau de l'hôte) + oauth2-proxy v7.15.6 (même client Keycloak que Dozzle ; Beszel ne croit l'e-mail transmis que depuis 10.89.0.10 ; mots de passe coupés). Secrets générés sur place. Route `~/infra/conf.d/metrics.caddy`, certificat OK, redirection Keycloak vérifiée. `~/beszel` ajouté à `backup.sh` en excluant ses données root (sinon la sauvegarde échouerait) ; copie `backup.sh.avant-beszel` ; sauvegarde à la main réussie et vérifiée. `etat.sh` surveille aussi docker. et metrics.
+Piège : `docker compose exec` dans `backup.sh` lit l'entrée standard et « avale » la suite d'un script envoyé par `ssh … bash -s` : lancer `backup.sh </dev/null`.
+**En attente de Dorian** : adresse de retour `https://metrics.dorian-grelu.fr/oauth2/callback` sur le client Keycloak, puis *Add System* (`/beszel_socket/beszel.sock`).
+Retour arrière : `cd ~/beszel && docker compose down`, supprimer `~/infra/conf.d/metrics.caddy` + recharger Caddy, remettre `backup.sh.avant-beszel`.
+
 ## Points ouverts (à décider avec Dorian)
 
-- Versionner `~/infra`, `~/keycloak`, `~/dozzle` dans un dépôt privé.
-- Tableau de bord de métriques avec historique (Beszel proposé).
+- Versionner `~/infra`, `~/keycloak`, `~/dozzle`, `~/beszel` dans un dépôt privé.
 - Ménage du dossier personnel : `%{redirect_url}n`, `get-docker.sh`, `test-newsletter-brevo.sh`, `conteneurs-avant-reboot.txt`, `~/mybook/backups` (arrêté en août), `~/backups` (vide), clé SSH `claude-deploy-mybook` en double.
 - Le rôle PostgreSQL `site` (mybook) est superutilisateur.

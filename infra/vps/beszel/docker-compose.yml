@@ -1,0 +1,94 @@
+# Métriques du VPS avec historique : Beszel (tableau de bord + agent), installé dans ~/beszel.
+# Accès : https://metrics.dorian-grelu.fr, via oauth2-proxy + Keycloak (realm « infra », même client
+# « oauth2-proxy » que Dozzle). Beszel fait confiance à l'adresse e-mail transmise par oauth2-proxy
+# UNIQUEMENT depuis l'adresse fixe de celui-ci ; connexion par mot de passe coupée.
+# Secrets dans ~/beszel/.env (600) : OAUTH2_PROXY_CLIENT_SECRET, OAUTH2_PROXY_COOKIE_SECRET, BESZEL_USER_PASSWORD.
+
+services:
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.6
+    container_name: beszel-oauth2-proxy
+    restart: unless-stopped
+    environment:
+      OAUTH2_PROXY_PROVIDER: keycloak-oidc
+      OAUTH2_PROXY_OIDC_ISSUER_URL: https://iabilis.fr/realms/infra
+      OAUTH2_PROXY_CLIENT_ID: oauth2-proxy
+      OAUTH2_PROXY_CLIENT_SECRET: ${OAUTH2_PROXY_CLIENT_SECRET}
+      OAUTH2_PROXY_COOKIE_SECRET: ${OAUTH2_PROXY_COOKIE_SECRET}
+      OAUTH2_PROXY_REDIRECT_URL: https://metrics.dorian-grelu.fr/oauth2/callback
+      OAUTH2_PROXY_UPSTREAMS: http://beszel:8090
+      OAUTH2_PROXY_HTTP_ADDRESS: 0.0.0.0:4180
+      OAUTH2_PROXY_REVERSE_PROXY: "true"
+      # En-têtes X-Forwarded-* acceptés seulement depuis le réseau socle (Caddy)
+      OAUTH2_PROXY_TRUSTED_PROXY_IPS: 172.19.0.0/16
+      OAUTH2_PROXY_COOKIE_SECURE: "true"
+      OAUTH2_PROXY_COOKIE_EXPIRE: 8h
+      OAUTH2_PROXY_CODE_CHALLENGE_METHOD: S256
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+      OAUTH2_PROXY_AUTHENTICATED_EMAILS_FILE: /etc/oauth2-proxy/emails-autorises.txt
+      OAUTH2_PROXY_PREFER_EMAIL_TO_USER: "true"
+      OAUTH2_PROXY_PASS_USER_HEADERS: "true"
+      # Pas d'appel « userinfo » (refusé avec le jeton d'accès allégé du realm)
+      OAUTH2_PROXY_SKIP_CLAIMS_FROM_PROFILE_URL: "true"
+    volumes:
+      - ./emails-autorises.txt:/etc/oauth2-proxy/emails-autorises.txt:ro
+    deploy:
+      resources:
+        limits: { cpus: "0.15", memory: 64M }
+    expose: ["4180"]
+    networks:
+      socle: {}
+      prive:
+        ipv4_address: 10.89.0.10
+
+  beszel:
+    image: henrygd/beszel:0.21.2
+    container_name: beszel
+    restart: unless-stopped
+    environment:
+      APP_URL: https://metrics.dorian-grelu.fr
+      # Identité = e-mail transmis par oauth2-proxy, accepté seulement depuis son adresse fixe
+      TRUSTED_AUTH_HEADER: X-Forwarded-Email
+      TRUSTED_PROXY_IPS: 10.89.0.10
+      DISABLE_PASSWORD_AUTH: "true"
+      # Premier utilisateur (administrateur) ; mot de passe aléatoire jamais utilisé
+      USER_EMAIL: doriangrelu839@gmail.com
+      USER_PASSWORD: ${BESZEL_USER_PASSWORD}
+    volumes:
+      - ./beszel_data:/beszel_data
+      - ./beszel_socket:/beszel_socket
+    deploy:
+      resources:
+        limits: { cpus: "0.3", memory: 128M }
+    expose: ["8090"]
+    networks: [prive]
+
+  beszel-agent:
+    image: henrygd/beszel-agent:0.21.2
+    container_name: beszel-agent
+    restart: unless-stopped
+    # Réseau de l'hôte : nécessaire pour mesurer le trafic réseau du serveur
+    network_mode: host
+    environment:
+      # Dialogue avec le tableau de bord par un fichier local, aucun port ouvert
+      LISTEN: /beszel_socket/beszel.sock
+      # Clé publique du tableau de bord (écrite à l'installation)
+      KEY_FILE: /var/lib/beszel-agent/hub.pub
+      DOCKER_IMAGE_CHECK: "false"
+    volumes:
+      - ./beszel_agent_data:/var/lib/beszel-agent
+      - ./beszel_socket:/beszel_socket
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      resources:
+        limits: { cpus: "0.2", memory: 64M }
+
+networks:
+  socle:
+    external: true
+  # Réseau privé oauth2-proxy ↔ Beszel, sans sortie vers Internet, adresses fixes
+  prive:
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.89.0.0/24

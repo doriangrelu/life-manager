@@ -1,0 +1,6 @@
+# Métriques du VPS (Beszel), uniquement via oauth2-proxy (connexion Keycloak, realm « infra »).
+# Installé dans ~/infra/conf.d/metrics.caddy ; ne jamais router directement vers Beszel.
+metrics.dorian-grelu.fr {
+	encode gzip
+	reverse_proxy beszel-oauth2-proxy:4180
+}

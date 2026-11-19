@@ -51,7 +51,7 @@ Suivre `~/mybook/docs/mode-operatoire-deploiement.md` (l'image est construite su
 ## 7. Sauvegardes
 
 - **Lister** (libre) : `ls -lt ~/infra/backups | head` ; OneDrive : `rclone lsl onedrive-chiffre:`.
-- **Lancer à la main** (annoncer) : `~/infra/backup.sh` puis `~/infra/onedrive/send-backup.sh`.
+- **Lancer à la main** (annoncer) : `~/infra/backup.sh </dev/null` puis `~/infra/onedrive/send-backup.sh` (le `</dev/null` évite que `backup.sh` avale la suite d'un script envoyé par SSH).
 - **Envoi OneDrive en échec** : lire `~/infra/onedrive/onedrive.log`. Jeton expiré → Dorian relance l'autorisation : `ssh -t -L 53682:127.0.0.1:53682 ubuntu@<serveur> 'rclone config reconnect onedrive:'` (lien à ouvrir dans son navigateur). Ne jamais le faire à sa place.
 - **Restaurer** (demander, toujours) :
   1. Récupérer l'archive (`~/infra/backups` ou `rclone copy onedrive-chiffre:<archive> .`).
