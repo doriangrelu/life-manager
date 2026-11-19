@@ -43,9 +43,15 @@ Clé `claude-deploy-mybook` (présente deux fois, même empreinte ; aucune conne
 
 `/swapfile` (2 Go, droits 600) activé et ajouté à `/etc/fstab` ; `vm.swappiness=10` (`/etc/sysctl.d/90-swap.conf`) : utilisé seulement en dernier recours. Retour arrière : `sudo swapoff /swapfile`, retirer la ligne de `/etc/fstab`, supprimer le fichier.
 
+## 2026-11-19 14:05 — Claude — interface web Docker préparée (Dozzle)
+
+Choix de Dorian : Dozzle (léger) plutôt que Portainer. `~/dozzle` : Dozzle v11.4.3 + oauth2-proxy v7.15.6 (realm Keycloak `infra`, client `oauth2-proxy`), Dozzle sur un réseau privé joignable seulement par oauth2-proxy. Dozzle démarré seul pour test (9 Mo, santé OK, injoignable de l'extérieur). Secret de cookie régénéré ; `~/dozzle` ajouté à `~/infra/backup.sh` (copie : `backup.sh.avant-dozzle`). La liste d'adresses reprise de `~/portainer` était vide.
+**En attente de Dorian** : DNS `docker.dorian-grelu.fr`, realm `infra` + client + compte avec OTP, puis `~/dozzle/configurer-acces.sh`. Ensuite : démarrage d'oauth2-proxy et route Caddy (README `infra/vps/dozzle`).
+Retour arrière : `cd ~/dozzle && docker compose down`, retirer `dozzle` de la ligne `infra keycloak dozzle` de `backup.sh`.
+
 ## Points ouverts (à décider avec Dorian)
 
-- Interface web d'administration Docker sur un sous-domaine de dorian-grelu.fr, derrière oauth2-proxy + Keycloak (préparation existante dans `~/portainer`, à adapter).
+- Supprimer `~/portainer` (préparation remplacée par `~/dozzle`).
 - Supervision et alerte (un site qui tombe ne prévient personne).
 - Versionner `~/infra`, `~/keycloak`, `~/portainer` dans un dépôt privé.
 - Ménage du dossier personnel : `%{redirect_url}n`, `get-docker.sh`, `test-newsletter-brevo.sh`, `conteneurs-avant-reboot.txt`, `~/mybook/backups` (arrêté en août), `~/backups` (vide), clé SSH `claude-deploy-mybook` en double.
