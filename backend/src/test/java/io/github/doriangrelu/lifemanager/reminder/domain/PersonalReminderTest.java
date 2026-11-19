@@ -59,6 +59,20 @@ class PersonalReminderTest {
     }
 
     @Test
+    void changing_only_the_note_keeps_the_day_of_month() {
+        var endOfMonth = reminder(LocalDate.of(2027, 1, 31), Recurrence.MONTHLY, NoticePeriod.SAME_DAY);
+        endOfMonth.complete(LocalDate.of(2027, 1, 31));
+
+        // Même date (28 février), seule la note change : le rappel reste « du 31 ».
+        var current = endOfMonth.details();
+        endOfMonth.update(new PersonalReminderDetails(current.title(), ReminderNote.ofNullable("Appeler le ramoneur"),
+                current.dueOn(), current.recurrence(), current.notice()));
+        endOfMonth.complete(LocalDate.of(2027, 2, 28));
+
+        assertThat(endOfMonth.details().dueOn()).isEqualTo(LocalDate.of(2027, 3, 31));
+    }
+
+    @Test
     void its_title_note_and_choices_are_checked() {
         assertThat(ReminderNote.ofNullable(" ")).isNull();
         assertThatThrownBy(() -> new ReminderTitle(" ")).isInstanceOf(InvalidValueException.class);

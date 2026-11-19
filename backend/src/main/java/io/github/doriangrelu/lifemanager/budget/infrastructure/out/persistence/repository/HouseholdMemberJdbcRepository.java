@@ -16,6 +16,8 @@ public interface HouseholdMemberJdbcRepository extends GenericRepository<Househo
 
     boolean existsByHouseholdIdAndMemberId(UUID householdId, UUID memberId);
 
+    boolean existsByHouseholdId(UUID householdId);
+
     /** Insère l'appartenance si elle n'existe pas encore : un même événement peut arriver deux fois. */
     @Query("""
             INSERT INTO household_member (id, household_id, member_id)

@@ -134,6 +134,24 @@ class ChargesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    void a_charge_with_an_invoice_on_its_next_occurrence_can_still_change_and_end() {
+        var home = newHome();
+        var internet = add(home, request(home, "Internet", 3999, "FIXED", TODAY.plusDays(5)));
+        var base = occurrence(home, internet.id(), internet.next().id()) + "/invoices";
+        var body = MultipartBody.builder().addPart("file", "facture.pdf", MediaType.APPLICATION_PDF_TYPE, PDF).build();
+        http.exchange(HttpRequest.POST(base, body).contentType(MediaType.MULTIPART_FORM_DATA_TYPE).bearerAuth(home.owner));
+
+        http.exchange(HttpRequest.PUT(charges(home) + "/" + internet.id(),
+                request(home, "Internet", 4999, "FIXED", TODAY.plusDays(5))).bearerAuth(home.owner));
+        http.exchange(HttpRequest.DELETE(charges(home) + "/" + internet.id()).bearerAuth(home.owner));
+
+        // La facture reste avec son échéance, qui ne sera pas payée (charge résiliée).
+        assertThat(http.retrieve(HttpRequest.GET(base).bearerAuth(home.owner),
+                Argument.listOf(InvoiceResponse.class))).hasSize(1);
+        assertThat(list(home).getFirst().next()).isNull();
+    }
+
+    @Test
     void invoices_are_attached_to_an_occurrence() {
         var home = newHome();
         var internet = add(home, request(home, "Internet", 3999, "FIXED", TODAY.plusDays(5)));

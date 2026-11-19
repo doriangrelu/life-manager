@@ -24,6 +24,9 @@ public interface ChargeOccurrenceJdbcRepository extends CrudRepository<ChargeOcc
             ORDER BY due_on""")
     List<ChargeOccurrenceEntity> findOpenByHousehold(UUID householdId);
 
-    @Query("DELETE FROM charge_occurrence WHERE charge_id = :chargeId AND status = 'UPCOMING'")
+    // Une échéance à venir qui porte déjà une facture est gardée (la facture y reste attachée).
+    @Query("""
+            DELETE FROM charge_occurrence WHERE charge_id = :chargeId AND status = 'UPCOMING'
+            AND NOT EXISTS (SELECT 1 FROM invoice WHERE invoice.occurrence_id = charge_occurrence.id)""")
     void deleteUpcoming(UUID chargeId);
 }

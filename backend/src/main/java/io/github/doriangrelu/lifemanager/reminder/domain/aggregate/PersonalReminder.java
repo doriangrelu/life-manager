@@ -46,10 +46,16 @@ public final class PersonalReminder extends AggregateRoot<PersonalReminderId> {
         return new PersonalReminder(id, householdId, details, anchorOn);
     }
 
-    /** Change le rappel ; sa nouvelle date devient la date de départ de sa récurrence. */
+    /**
+     * Change le rappel. Une nouvelle date devient la date de départ de sa récurrence ; la même date (seuls le titre,
+     * la note… changent) garde l'ancienne : un rappel « du 31 », recalé au 28 février, reste du 31.
+     */
     public void update(PersonalReminderDetails newDetails) {
-        details = Require.notNull(newDetails, "Le détail du rappel");
-        anchorOn = newDetails.dueOn();
+        Require.notNull(newDetails, "Le détail du rappel");
+        if (!newDetails.dueOn().equals(details.dueOn())) {
+            anchorOn = newDetails.dueOn();
+        }
+        details = newDetails;
     }
 
     /**

@@ -70,6 +70,22 @@ class ChargeDomainTest {
     }
 
     @Test
+    void the_last_due_date_of_a_started_charge_can_change() {
+        var started = RecurringCharge.restore(ChargeId.newId(), HOUSEHOLD, charge(AmountKind.FIXED, TODAY).details(),
+                new ChargeSchedule(TODAY.minusMonths(10), Frequency.MONTHLY), true);
+
+        // Même début (passé) et même fréquence : seule la dernière mensualité change.
+        started.update(started.details(), new ChargeSchedule(TODAY.minusMonths(10), Frequency.MONTHLY,
+                TODAY.plusMonths(15)), CLOCK);
+
+        assertThat(started.schedule().lastDueOn()).isEqualTo(TODAY.plusMonths(15));
+        assertThatThrownBy(() -> started.update(started.details(),
+                new ChargeSchedule(TODAY.minusMonths(9), Frequency.MONTHLY), CLOCK))
+                .as("un nouveau début dans le passé reste refusé")
+                .isInstanceOf(PastFirstDueDateException.class);
+    }
+
+    @Test
     void a_terminated_charge_no_longer_changes() {
         var charge = charge(AmountKind.FIXED, TODAY);
         charge.terminate();

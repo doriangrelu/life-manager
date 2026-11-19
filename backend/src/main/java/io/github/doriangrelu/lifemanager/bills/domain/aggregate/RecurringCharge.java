@@ -52,14 +52,16 @@ public final class RecurringCharge extends AggregateRoot<ChargeId> {
     }
 
     /**
-     * Change la charge ; vaut pour les échéances à venir. Un nouveau calendrier ne peut pas commencer
-     * dans le passé (celui déjà en place peut rester tel quel).
+     * Change la charge ; vaut pour les échéances à venir. Un nouveau début de calendrier (date ou fréquence) ne
+     * peut pas être dans le passé ; celui déjà en place peut rester, même si seule la dernière échéance change.
      */
     public void update(ChargeDetails newDetails, ChargeSchedule newSchedule, Clock clock) {
         ensureActive();
         Require.notNull(newDetails, "Le détail de la charge");
         Require.notNull(newSchedule, "Le calendrier de la charge");
-        if (!newSchedule.equals(schedule)) {
+        var sameStart = newSchedule.firstDueOn().equals(schedule.firstDueOn())
+                && newSchedule.frequency() == schedule.frequency();
+        if (!sameStart) {
             ensureNotPast(newSchedule, clock);
         }
         ensureLoanIsMonthly(newDetails, newSchedule);

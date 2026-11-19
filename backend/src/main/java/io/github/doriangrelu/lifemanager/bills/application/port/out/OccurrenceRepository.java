@@ -21,6 +21,9 @@ public interface OccurrenceRepository {
 
     void save(ChargeOccurrence occurrence);
 
-    /** Supprime les échéances à venir d'une charge (recalculées après une modification ou une résiliation). */
+    /**
+     * Supprime les échéances à venir d'une charge (recalculées après une modification ou une résiliation),
+     * sauf celles qui portent une facture : elles sont gardées avec elle.
+     */
     void deleteUpcomingOfCharge(ChargeId chargeId);
 }

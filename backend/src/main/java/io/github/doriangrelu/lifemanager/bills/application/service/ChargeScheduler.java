@@ -59,7 +59,17 @@ public class ChargeScheduler {
 
     /** Recalcule les échéances à venir (après une modification ou une résiliation). */
     public void reschedule(RecurringCharge charge) {
+        // Les échéances à venir sont recalculées, sauf celles qui portent une facture (gardées avec elle).
         occurrences.deleteUpcomingOfCharge(charge.id());
+        if (!charge.active()) {
+            // Charge résiliée : une échéance gardée pour sa facture ne sera jamais payée.
+            occurrences.findAllByCharge(charge.id()).stream()
+                    .filter(occurrence -> occurrence.settlement().status() == OccurrenceStatus.UPCOMING)
+                    .forEach(occurrence -> {
+                        occurrence.skip();
+                        occurrences.save(occurrence);
+                    });
+        }
         advance(charge);
     }
 

@@ -21,4 +21,14 @@
 
 ## 4. Anomalies trouvées
 
-(à remplir pendant le lot)
+PWA (corrigé, 0bc211e) : sélection de l'historique des courses effacée toutes les 5 s ; doubles envois (« Remettre en liste », « C'est fait », « Sauter ») ; erreurs du serveur cachées derrière les fenêtres (véhicule, entretien, budget prévu) et entretien en double ; erreur de rafraîchissement des courses jamais effacée ; ancienne sous-liste ramenée par un rafraîchissement ; réponses périmées du Bilan ; mois courant figé dans le Budget ; mensualités restantes fausses en fin de mois ; fiche récurrent non recréée ; promesse rejetée dans App.
+
+Backend (revue du 19/11, à corriger) :
+1. Charge impossible à modifier ou résilier si une facture est jointe à une échéance à venir (clé étrangère `invoice` → 500) — sûr.
+2. Changer la dernière mensualité d'une charge commencée → 400 « date passée » (`ChargeSchedule.equals` compare `lastDueOn`) — sûr.
+3. Modifier un rappel récurrent recale son ancre (rappel du 31 devient du 28) — sûr.
+4. Rentrée récurrente ou échéance de rappel livrée après la suppression du foyer → données orphelines — probable.
+5. Budget prévu d'une catégorie archivée encore compté dans l'onglet « Budgets » du Bilan — probable.
+6. Liens `charge_expense` / `charge_income` orphelins après suppression du foyer (identifiants seuls) — faible ; la correction propre demande un changement de schéma → à proposer à Dorian, sinon laissé.
+Course rare : « Payer maintenant » au moment exact du passage de 6 h.
+Améliorations repérées : N+1 dans `ForecastChargesUseCase`, `OpenOccurrences.view`, `ChargeScheduler.advance` ; `ChargeDeadlinesChangedV1` publié chaque jour sans changement ; doublon `ChargeExpenseDetails` / `ChargeIncomeDetails`.

@@ -1,5 +1,6 @@
 package io.github.doriangrelu.lifemanager.reminder.application.usecase;
 
+import io.github.doriangrelu.lifemanager.reminder.application.port.out.HouseholdMembers;
 import io.github.doriangrelu.lifemanager.reminder.application.port.in.TrackChargeDeadline;
 import io.github.doriangrelu.lifemanager.reminder.application.port.in.command.TrackChargeDeadlineCommand;
 import io.github.doriangrelu.lifemanager.reminder.application.port.out.DeadlineRepository;
@@ -19,9 +20,11 @@ import java.util.List;
 class TrackChargeDeadlineUseCase implements TrackChargeDeadline {
 
     private final DeadlineRepository deadlines;
+    private final HouseholdMembers members;
 
-    TrackChargeDeadlineUseCase(DeadlineRepository deadlines) {
+    TrackChargeDeadlineUseCase(DeadlineRepository deadlines, HouseholdMembers members) {
         this.deadlines = deadlines;
+        this.members = members;
     }
 
     @Override
@@ -30,6 +33,10 @@ class TrackChargeDeadlineUseCase implements TrackChargeDeadline {
         var source = new SourceId(command.chargeId());
         if (command.nextDueOn() == null) {
             deadlines.replaceForSource(source, List.of());
+            return;
+        }
+        // Foyer supprimé entre-temps (événement arrivé en retard) : aucun rappel à créer.
+        if (!members.isKnown(new HouseholdId(command.householdId()))) {
             return;
         }
         var kind = command.awaitingConfirmation() ? DeadlineKind.CHARGE_TO_CONFIRM : DeadlineKind.CHARGE;

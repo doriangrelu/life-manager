@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * Détail de la rentrée d'une échéance de rentrée récurrente : catégorie de la charge, ou « Autre » (rentrée)
  * si elle n'est plus utilisable ; reçue par le foyer entier si le membre qui la recevait est parti.
- * Vide si le montant est nul.
+ * Vide si le montant est nul ou si le foyer a été supprimé.
  */
 @Singleton
 public class ChargeIncomeDetails {
@@ -34,10 +34,11 @@ public class ChargeIncomeDetails {
     }
 
     public Optional<IncomeDetails> of(RecordChargeExpenseCommand command) {
-        if (command.amountCents() == 0) {
+        var household = new HouseholdId(command.householdId());
+        // Foyer supprimé entre-temps (événement arrivé en retard) : rien à créer.
+        if (command.amountCents() == 0 || !members.isKnown(household)) {
             return Optional.empty();
         }
-        var household = new HouseholdId(command.householdId());
         return Optional.of(new IncomeDetails(Money.ofCents(command.amountCents()), category(household, command),
                 command.paidOn(), receiver(household, command), ExpenseLabel.ofNullable(command.chargeName())));
     }

@@ -24,6 +24,11 @@ class HouseholdMembersAdapter implements HouseholdMembers {
     }
 
     @Override
+    public boolean isKnown(HouseholdId householdId) {
+        return table.existsByHouseholdId(householdId.value());
+    }
+
+    @Override
     public void add(HouseholdId householdId, MemberId memberId) {
         table.insertIfAbsent(UUID.randomUUID(), householdId.value(), memberId.value());
     }
