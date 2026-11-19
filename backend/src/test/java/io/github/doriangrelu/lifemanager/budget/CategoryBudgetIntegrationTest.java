@@ -121,6 +121,19 @@ class CategoryBudgetIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    void an_archived_category_is_no_longer_planned_from_the_current_month() {
+        var now = java.time.YearMonth.now(java.time.ZoneId.of("Europe/Paris"));
+        set(groceries, now.minusMonths(2).toString(), FROM_MONTH, 20_000L);
+
+        budget.archive(alice.token(), household, groceries);
+
+        // Les mois passés gardent leur prévu ; plus rien à partir du mois de l'archivage.
+        var report = budget.report(alice.token(), household, now.minusMonths(2).toString(), now.plusMonths(1).toString());
+        assertThat(report.monthPlans()).extracting("month")
+                .containsExactly(now.minusMonths(2).toString(), now.minusMonths(1).toString());
+    }
+
+    @Test
     void invalid_plans_are_refused() {
         var salary = budget.incomeCategory(alice.token(), household, "Salaire");
         var archived = budget.category(alice.token(), household, "Santé");
