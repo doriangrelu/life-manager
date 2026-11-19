@@ -52,6 +52,8 @@ En plus : renommage du foyer ; invitations réservées au propriétaire (choix d
 
 ### Lot 4 — Rentrées d'argent, budget prévisionnel et crédits
 
+Découpé en deux changes : **4a « Rentrées et épargne »** (proposition `openspec/changes/rentrees-epargne`, en relecture), puis **4b « Prévisionnel et crédits »**.
+
 - **Rentrées d'argent** (idée du frère de Dorian, à mûrir à l'implémentation) : salaires, primes, remboursements, aides… saisis à la main ou **récurrents** (comme les charges), par membre ou pour le foyer. Dans l'espace Argent. Le mois affiche alors rentrées, dépenses et **solde**.
 - **Épargne mensuelle** : une case dédiée chaque mois, avec le montant mis de côté (fixe et récurrent, ou saisi). Elle est comptée à part des dépenses, pour suivre l'épargne cumulée et, au lot 5, son évolution.
 - Budget prévisionnel du mois par catégorie : rentrées prévues, charges récurrentes (lot 1), mensualités, donc **reste à vivre**.
