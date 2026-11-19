@@ -43,7 +43,18 @@
   let { householdId, profile }: { householdId: string; profile: UserProfile } = $props()
 
   // Le mois vient de l'adresse ; mois courant par défaut.
-  const month = $derived($route.month ?? currentMonth())
+  // Mois en cours, relu au retour sur l'application : laissée ouverte le 31 au soir, elle passe au mois suivant.
+  let thisMonth = $state(currentMonth())
+  onMount(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        thisMonth = currentMonth()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  })
+  const month = $derived($route.month ?? thisMonth)
   let budget = $state<MonthlyBudget | null>(null)
   // Dépenses et rentrées récurrentes encore attendues ce mois (aucune pour un mois passé).
   let upcoming = $state<ForecastItem[]>([])
@@ -106,7 +117,7 @@
       const days = periodDays({ from: shown, to: shown })
       const [loaded, expected] = await Promise.all([
         monthlyBudget(householdId, shown),
-        shown >= currentMonth() ? upcomingOf(days) : Promise.resolve([]),
+        shown >= thisMonth ? upcomingOf(days) : Promise.resolve([]),
       ])
       // Réponse d'un mois quitté entre-temps : ignorée.
       if (shown === month) {
@@ -142,16 +153,16 @@
     planOpen = true
   }
 
+  // Un refus remonte à la fenêtre du budget prévu, qui l'affiche ; une fois enregistré, la fenêtre se ferme.
   async function savePlan(categoryId: string, plan: CategoryPlanInput): Promise<boolean> {
+    await setCategoryPlan(householdId, categoryId, plan)
     error = null
     try {
-      await setCategoryPlan(householdId, categoryId, plan)
       await loadMonth()
-      return true
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
-      return false
     }
+    return true
   }
 
   // Après une saisie : le mois, et les catégories (une précision sous « Autre » a pu en créer une).
@@ -167,7 +178,7 @@
 
   function changeMonth(delta: number) {
     const next = shiftMonth(month, delta)
-    navigate({ section: 'budget', month: next === currentMonth() ? undefined : next })
+    navigate({ section: 'budget', month: next === thisMonth ? undefined : next })
   }
 
   function openEditor(expense: Expense | null) {
@@ -238,7 +249,7 @@
   </button>
   <div class="month-title">
     <h1>{monthLabel(month)}</h1>
-    {#if month !== currentMonth()}
+    {#if month !== thisMonth}
       <button class="today soft" transition:scale={{ duration: ms(150), start: 0.8 }} onclick={() => navigate({ section: 'budget' })}>
         <CalendarCheck size={15} strokeWidth={2.4} /> Aujourd'hui
       </button>

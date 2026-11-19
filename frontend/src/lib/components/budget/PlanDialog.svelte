@@ -53,9 +53,16 @@
   async function save(plannedCents: number | null) {
     if (line) {
       busy = true
-      const saved = await onsave(line.categoryId, { month, scope, plannedCents })
-      busy = false
-      open = !saved
+      error = null
+      try {
+        const saved = await onsave(line.categoryId, { month, scope, plannedCents })
+        open = !saved
+      } catch (e) {
+        // Refus du serveur : montré dans la fenêtre (l'écran derrière est caché).
+        error = e instanceof Error ? e.message : String(e)
+      } finally {
+        busy = false
+      }
     }
   }
 

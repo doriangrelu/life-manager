@@ -130,13 +130,18 @@
     }
   }
 
-  function skip(charge: Charge) {
+  // Un seul « Sauter » à la fois : un double toucher renverrait l'échéance déjà sautée (erreur affichée à tort).
+  let skipping = $state(false)
+
+  async function skip(charge: Charge) {
     const next = charge.next
-    if (next) {
-      run(async () => {
+    if (next && !skipping) {
+      skipping = true
+      await run(async () => {
         await skipOccurrence(householdId, charge.id, next.id)
         await reload()
       })
+      skipping = false
     }
   }
 
@@ -147,6 +152,8 @@
 
 {#if opened}
   <div class="stack" in:rise>
+    <!-- Fiche recréée si l'adresse passe directement d'une charge à une autre (Précédent, lien). -->
+    {#key opened.id}
     <ChargeDetail
       {householdId}
       charge={opened}
@@ -156,6 +163,7 @@
       onchanged={() => run(reload)}
       onclose={() => navigate({ section: 'charges' })}
     />
+    {/key}
   </div>
 {:else}
   <div class="stack" in:rise>
@@ -212,7 +220,7 @@
                 </div>
                 <div class="pending-actions">
                   <button onclick={() => askConfirm(charge)}>Confirmer</button>
-                  <button class="soft" onclick={() => skip(charge)}>Sauter</button>
+                  <button class="soft" disabled={skipping} onclick={() => skip(charge)}>Sauter</button>
                 </div>
               </article>
             {/if}

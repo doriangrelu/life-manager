@@ -58,12 +58,11 @@
     }
   }
 
+  // Un refus remonte au formulaire, qui l'affiche dans sa fenêtre.
   async function add(input: VehicleInput) {
-    await run(async () => {
-      await registerVehicle(householdId, input)
-      adding = false
-      await load()
-    })
+    await registerVehicle(householdId, input)
+    adding = false
+    await run(load)
   }
 
   function open(vehicleId: string) {

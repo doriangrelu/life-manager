@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte'
   import { flip } from 'svelte/animate'
   import { slide } from 'svelte/transition'
   import { listMove, ms } from '../../motion'
@@ -29,11 +30,16 @@
   let error = $state<string | null>(null)
   const allSelected = $derived(entries.length > 0 && selected.length === entries.length)
 
-  // À chaque ouverture : historique rechargé, sélection vide.
+  let restocking = $state(false)
+
+  // À chaque ouverture : historique rechargé, sélection vide. Seule l'ouverture relance l'effet :
+  // la liste reçue change d'objet à chaque rafraîchissement des courses (toutes les 5 s).
   $effect(() => {
     if (open) {
-      selected = []
-      load()
+      untrack(() => {
+        selected = []
+        load()
+      })
     }
   })
 
@@ -69,6 +75,10 @@
   }
 
   async function restock() {
+    if (restocking) {
+      return
+    }
+    restocking = true
     error = null
     try {
       await restockFromHistory(householdId, list.id, selected)
@@ -77,6 +87,8 @@
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
       await load()
+    } finally {
+      restocking = false
     }
   }
 </script>
@@ -116,7 +128,7 @@
   {/if}
 
   {#snippet footer()}
-    <button class="large" disabled={selected.length === 0} onclick={restock}>
+    <button class="large" disabled={selected.length === 0 || restocking} aria-busy={restocking} onclick={restock}>
       Remettre en liste{selected.length > 0 ? ` (${selected.length})` : ''}
     </button>
   {/snippet}

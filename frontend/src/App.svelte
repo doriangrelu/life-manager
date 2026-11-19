@@ -43,7 +43,12 @@
    */
   async function recheckHouseholds(message?: string) {
     const lost = households.find((h) => h.id === selectedId)
-    households = await listHouseholds()
+    try {
+      households = await listHouseholds()
+    } catch {
+      // Réseau coupé : on garde la liste connue, la prochaine action réessaiera.
+      return
+    }
     if (!households.some((h) => h.id === selectedId)) {
       notice = message ?? `Vous n'avez plus accès au foyer « ${lost ? displayName(lost.name) : ''} ».`
       selectedId = null

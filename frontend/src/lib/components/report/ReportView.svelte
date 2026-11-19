@@ -78,21 +78,26 @@
   async function load(shown: typeof period, future: boolean) {
     loading = true
     error = null
+    // Réponse (ou erreur) d'une période quittée entre-temps : ignorée, la période affichée a sa propre requête.
+    const stillShown = () => shown.from === period.from && shown.to === period.to
     try {
       const days = periodDays(shown)
       const [loaded, items] = await Promise.all([
         budgetReport(householdId, shown.from, shown.to),
         future ? loadForecast(householdId, days.from, days.to) : Promise.resolve([]),
       ])
-      // Réponse d'une période quittée entre-temps : ignorée.
-      if (shown.from === period.from && shown.to === period.to) {
+      if (stillShown()) {
         report = loaded
         expected = items
       }
     } catch (e) {
-      error = e instanceof Error ? e.message : String(e)
+      if (stillShown()) {
+        error = e instanceof Error ? e.message : String(e)
+      }
     } finally {
-      loading = false
+      if (stillShown()) {
+        loading = false
+      }
     }
   }
 

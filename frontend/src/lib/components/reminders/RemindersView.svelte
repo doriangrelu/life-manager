@@ -76,12 +76,20 @@
     await reload()
   }
 
-  function done(id: string) {
-    run(async () => {
+  // Un seul « c'est fait » à la fois : un double toucher ferait avancer un rappel récurrent de deux échéances.
+  let completing = $state<string | null>(null)
+
+  async function done(id: string) {
+    if (completing) {
+      return
+    }
+    completing = id
+    await run(async () => {
       await completePersonalReminder(householdId, id)
       await reload()
       historyKey++
     })
+    completing = null
   }
 
   function askDelete(reminder: PersonalReminder) {
@@ -126,7 +134,7 @@
                 <span class="when">{formatDay(reminder.dueOn)} · {whenText(reminder.daysLeft)}</span>
               </span>
               {#if own}
-                <button class="soft done" onclick={() => done(own.id)}><Check size={16} /> C'est fait</button>
+                <button class="soft done" disabled={completing !== null} aria-busy={completing === own.id} onclick={() => done(own.id)}><Check size={16} /> C'est fait</button>
               {/if}
             </li>
           {/each}
@@ -158,7 +166,7 @@
                 {#if reminder.note}<span class="note">{reminder.note}</span>{/if}
               </span>
               <span class="actions">
-                <button class="icon ghost" aria-label="C'est fait : {reminder.title}" title="C'est fait" onclick={() => done(reminder.id)}>
+                <button class="icon ghost" aria-label="C'est fait : {reminder.title}" title="C'est fait" disabled={completing !== null} aria-busy={completing === reminder.id} onclick={() => done(reminder.id)}>
                   <Check size={18} />
                 </button>
                 <button class="icon ghost" aria-label="Modifier {reminder.title}" title="Modifier" onclick={() => openEditor(reminder)}>

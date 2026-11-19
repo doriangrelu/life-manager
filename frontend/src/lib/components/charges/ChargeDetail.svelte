@@ -113,11 +113,19 @@
     }
   }
 
-  function skip(occurrence: Occurrence) {
-    run(async () => {
+  // Un seul « Sauter » à la fois : un double toucher renverrait l'échéance déjà sautée (erreur affichée à tort).
+  let skipping = $state(false)
+
+  async function skip(occurrence: Occurrence) {
+    if (skipping) {
+      return
+    }
+    skipping = true
+    await run(async () => {
       await skipOccurrence(householdId, charge.id, occurrence.id)
       await refresh()
     })
+    skipping = false
   }
 
   function terminate() {
@@ -212,7 +220,7 @@
               <button class="link" onclick={() => askConfirm(occurrence)}>
                 {occurrence.status === 'TO_CONFIRM' ? 'Confirmer' : 'Payer maintenant'}
               </button>
-              <button class="link" onclick={() => skip(occurrence)}>Sauter</button>
+              <button class="link" disabled={skipping} onclick={() => skip(occurrence)}>Sauter</button>
             {/if}
           </div>
         </li>

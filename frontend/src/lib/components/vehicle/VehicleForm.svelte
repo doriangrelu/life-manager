@@ -15,6 +15,7 @@
   let serviceDue = $state(initial?.serviceDue ?? '')
   let busy = $state(false)
   let revealed = $state(false)
+  let error = $state<string | null>(null)
   const nameError = $derived(check(name, required('Donnez un nom au véhicule')))
 
   async function submit(event: SubmitEvent) {
@@ -27,6 +28,7 @@
       return
     }
     busy = true
+    error = null
     try {
       await onsave({
         name: name.trim(),
@@ -34,6 +36,9 @@
         technicalInspectionDue: technicalInspectionDue || null,
         serviceDue: serviceDue || null,
       })
+    } catch (e) {
+      // Refus du serveur : montré dans la fenêtre (l'écran derrière est caché).
+      error = e instanceof Error ? e.message : String(e)
     } finally {
       busy = false
     }
@@ -70,6 +75,9 @@
       {/snippet}
     </Field>
   </div>
+  {#if error}
+    <p class="error" role="alert">{error}</p>
+  {/if}
   <button class="large" disabled={busy} aria-busy={busy}>Enregistrer</button>
 </form>
 

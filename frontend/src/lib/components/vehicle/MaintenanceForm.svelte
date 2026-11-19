@@ -56,8 +56,15 @@
     const input = toInput()
     if (input) {
       busy = true
-      await onsave(input)
-      busy = false
+      error = null
+      try {
+        await onsave(input)
+      } catch (e) {
+        // Refus du serveur : montré dans la fenêtre (l'écran derrière est caché).
+        error = e instanceof Error ? e.message : String(e)
+      } finally {
+        busy = false
+      }
     }
   }
 

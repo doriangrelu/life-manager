@@ -87,14 +87,19 @@
     if (pending > 0) {
       return
     }
+    // Sous-liste affichée au départ : si le membre en change pendant un rafraîchissement automatique,
+    // la réponse (calculée pour l'ancienne) est ignorée.
+    const startedOn = currentId
     try {
       const latestLists = await listShoppingLists(householdId)
       const chosen = pickList(latestLists, selectId ?? currentId ?? rememberedShoppingListId(householdId))
       const latestItems = chosen ? await listShoppingItems(householdId, chosen.id) : []
-      if (pending === 0) {
+      if (pending === 0 && (selectId !== undefined || currentId === startedOn)) {
         lists = latestLists
         select(chosen)
         items = latestItems
+        // Un rafraîchissement réussi efface l'erreur d'un précédent (réseau revenu).
+        error = null
       }
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)

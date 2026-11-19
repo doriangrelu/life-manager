@@ -61,7 +61,9 @@ export function remainingInstalments(charge: Pick<Charge, 'next' | 'lastDueOn' |
   }
   const [fromYear, fromMonth, fromDay] = charge.next.dueOn.split('-').map(Number)
   const [toYear, toMonth, toDay] = charge.lastDueOn.split('-').map(Number)
-  const months = (toYear - fromYear) * 12 + (toMonth - fromMonth) - (toDay < fromDay ? 1 : 0)
+  // Dernier jour de son mois : échéance recalée (le 31 tombe le 28 février), son mois compte entier.
+  const endOfMonth = toDay === new Date(toYear, toMonth, 0).getDate()
+  const months = (toYear - fromYear) * 12 + (toMonth - fromMonth) - (toDay < fromDay && !endOfMonth ? 1 : 0)
   const step = FREQUENCIES.find((f) => f.value === charge.frequency)?.months ?? 1
   return months < 0 ? 0 : Math.floor(months / step) + 1
 }

@@ -32,6 +32,12 @@ describe('crédits', () => {
     expect(remainingInstalments(loan({ next: null }))).toBeNull()
   })
 
+  it('compte une échéance recalée en fin de mois (31 janvier puis 28 février)', () => {
+    expect(remainingInstalments(loan({ next: next('2027-01-31'), lastDueOn: '2027-02-28' }))).toBe(2)
+    expect(remainingInstalments(loan({ next: next('2028-01-31'), lastDueOn: '2028-02-29' }))).toBe(2)
+    expect(remainingInstalments(loan({ next: next('2027-01-31'), lastDueOn: '2027-04-30' }))).toBe(4)
+  })
+
   it('nomme le mois de fin et reconnaît un crédit terminé', () => {
     expect(endMonthLabel('2049-03-05')).toBe('mars 2049')
     expect(isFinished(loan({ active: false, lastDueOn: '2026-11-05' }), '2026-11-19')).toBe(true)

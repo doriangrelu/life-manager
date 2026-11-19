@@ -65,10 +65,10 @@
     }
   }
 
+  // Un refus remonte au formulaire, qui l'affiche dans sa fenêtre.
   async function save(input: VehicleInput) {
-    if (await run(async () => (vehicle = await updateVehicle(householdId, vehicle.id, input)))) {
-      editing = false
-    }
+    vehicle = await updateVehicle(householdId, vehicle.id, input)
+    editing = false
   }
 
   function remove() {
@@ -78,17 +78,17 @@
     })
   }
 
+  // L'écriture d'abord : un refus remonte au formulaire. Une fois enregistrée, la fenêtre se ferme
+  // tout de suite (un nouvel envoi créerait un doublon), puis l'écran se recharge.
   async function addEntry(input: MaintenanceInput): Promise<boolean> {
-    const done = await run(async () => {
-      await recordMaintenance(householdId, vehicle.id, input)
+    await recordMaintenance(householdId, vehicle.id, input)
+    addingEntry = false
+    await run(async () => {
       entries = await listMaintenance(householdId, vehicle.id)
       // Un contrôle technique ou une révision a pu reporter une échéance : on relit le véhicule.
       vehicle = (await listVehicles(householdId)).find((v) => v.id === vehicle.id) ?? vehicle
     })
-    if (done) {
-      addingEntry = false
-    }
-    return done
+    return true
   }
 
   function showAttachments(entry: MaintenanceEntry) {
