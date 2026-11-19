@@ -3,7 +3,7 @@
 # Attrape ce que les tests JVM ne voient pas (réflexion, ressources, classes chargées dynamiquement…).
 #
 # Prérequis : PostgreSQL et Keycloak de développement lancés (docker compose up -d postgres keycloak),
-# comptes de test créés (infra/keycloak/create-dev-users.sh), API native joignable sur $API.
+# comptes de passage créés et supprimés par le script, API native joignable sur $API.
 # Usage : API=http://localhost:8081 infra/ci/native-smoke.sh
 set -Eeuo pipefail
 # Toute erreur devient une annotation GitHub, lisible sans ouvrir les journaux.
@@ -23,14 +23,30 @@ kcadm() { docker compose -f "$REPO/docker-compose.yml" exec -T keycloak /opt/key
 kcadm config credentials --server http://localhost:8180 --realm master --user admin --password admin >/dev/null
 PWA_CLIENT=$(kcadm get clients -r life-manager -q clientId=life-manager-pwa --fields id --format csv --noquotes)
 kcadm update "clients/$PWA_CLIENT" -r life-manager -s directAccessGrantsEnabled=true
-trap 'kcadm update "clients/$PWA_CLIENT" -r life-manager -s directAccessGrantsEnabled=false; rm -rf "$WORK"' EXIT
-
 token() {
   curl -sSf -d grant_type=password -d client_id=life-manager-pwa -d scope=openid -d "username=$1" -d password=dev-password \
     "$KEYCLOAK/realms/life-manager/protocol/openid-connect/token" | json "['access_token']"
 }
-ALICE=$(token alice@example.org)
-BOB=$(token bob@example.org)
+# Comptes neufs à chaque passage : le parcours ne dépend pas de l'état des comptes de dev (limite de 10 foyers…).
+new_user() { # email prénom
+  kcadm create users -r life-manager -s "username=$1" -s "email=$1" -s emailVerified=true -s enabled=true \
+    -s "firstName=$2" -s lastName=Smoke >/dev/null
+  kcadm set-password -r life-manager --username "$1" --new-password dev-password
+}
+# Ménage final : comptes de passage supprimés (s'ils existent encore), mot de passe direct refermé.
+forget_user() {
+  local id
+  id=$(kcadm get users -r life-manager -q "email=$1" --fields id --format csv --noquotes || true)
+  [ -z "$id" ] || kcadm delete "users/$id" -r life-manager || true
+}
+STAMP="$(date +%s)-$RANDOM"
+ALICE_EMAIL="smoke-alice-$STAMP@example.org"
+BOB_EMAIL="smoke-bob-$STAMP@example.org"
+trap 'forget_user "$ALICE_EMAIL"; forget_user "$BOB_EMAIL"; kcadm update "clients/$PWA_CLIENT" -r life-manager -s directAccessGrantsEnabled=false; rm -rf "$WORK"' EXIT
+new_user "$ALICE_EMAIL" Alice
+new_user "$BOB_EMAIL" Bob
+ALICE=$(token "$ALICE_EMAIL")
+BOB=$(token "$BOB_EMAIL")
 
 # Appel de l'API : vrai si le code HTTP est celui attendu ; la réponse est gardée dans $WORK/body.
 attempt() { # jeton méthode chemin code-attendu [corps-json]
@@ -189,7 +205,7 @@ TERMS=$(body "['termsVersion']")
 call "$ALICE" PUT /me/terms 400 '{"version":"2000-01-01"}'
 call "$ALICE" PUT /me/terms 204 "{\"version\":\"$TERMS\"}"
 call "$ALICE" GET /me/export 200
-[ "$(body "['profil']['email']")" = "alice@example.org" ] || fail "export inattendu : $(head -c 400 "$WORK/body")"
+[ "$(body "['profil']['email']")" = "$ALICE_EMAIL" ] || fail "export inattendu : $(head -c 400 "$WORK/body")"
 SPARE_EMAIL="jetable-$RANDOM-$(date +%s)@example.org"
 kcadm create users -r life-manager -s "username=$SPARE_EMAIL" -s "email=$SPARE_EMAIL" -s emailVerified=true \
   -s enabled=true -s firstName=Jetable -s lastName=Test >/dev/null
