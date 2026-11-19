@@ -28,7 +28,9 @@ Lots terminés : lot 0 (finitions de mise en production, v0.2.x), lot 1 (facture
 
 ## Ordre proposé
 
-### Lot 2 — Finitions d'usage (petit, rapide, visible au quotidien)
+### Lot 2 — Finitions d'usage ✅ (livré le 2026-11-19, v0.4.0, en recette)
+
+En plus : cloisonnement des foyers vérifié automatiquement sur toutes les routes (demande de Dorian).
 
 - Budget : bouton **« Aujourd'hui »** pour revenir au mois en cours.
 - Mobile : à l'ouverture d'un formulaire (nouvelle dépense…), la page et la fenêtre repartent **en haut**.

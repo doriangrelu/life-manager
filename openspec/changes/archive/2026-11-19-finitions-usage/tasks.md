@@ -30,4 +30,4 @@
 
 - [x] 6.1 [frontend] Vérification dans le navigateur : mobile et bureau, clair et sombre, glisser-déposer au clavier
 - [x] 6.2 [doc] Règles PWA (Atomic Design, navigation, glisser-déposer) et cloisonnement dans `docs/architecture.md`
-- [ ] 6.3 [ci + infra/vps] CI verte, version publiée et déployée
+- [x] 6.3 [ci + infra/vps] CI verte, version publiée et déployée (v0.4.0, 2026-11-19)
