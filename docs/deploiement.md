@@ -63,9 +63,13 @@ Le thème `life-manager` (types `login` et `account`) vit dans [`infra/keycloak/
 ```bash
 # Depuis le dépôt, sur le PC :
 tar -C infra/keycloak/themes -cf - life-manager | ssh ubuntu@152.228.237.190 'rm -rf ~/keycloak/themes/life-manager && tar -C ~/keycloak/themes -xf -'
-# Sur le VPS (≈ 1 minute de coupure de la connexion pour toutes les applications du serveur) :
+# Sur le VPS : vider les copies gzip du thème, que Keycloak garde même après un redémarrage
+docker exec keycloak-keycloak-1 sh -c 'rm -rf /opt/keycloak/data/tmp/kc-gzip-cache/*/*/life-manager'
+# puis redémarrer (≈ 1 minute de coupure de la connexion pour toutes les applications du serveur) :
 docker compose -f ~/keycloak/docker-compose.yml restart
 ```
+
+Sans la purge, le proxy (qui demande des fichiers compressés) continue de recevoir l'**ancien** CSS. Le navigateur garde aussi les ressources 30 jours sous la même adresse : après une mise à jour, forcer le rechargement (Ctrl + Maj + R) ou vider le cache du site.
 
 Le thème est choisi dans la console : realm `life-manager` → *Realm settings* → *Themes* → *Login theme* et *Account theme* (`life-manager` pour les deux).
 
