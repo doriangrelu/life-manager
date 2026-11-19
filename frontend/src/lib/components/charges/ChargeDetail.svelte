@@ -15,7 +15,17 @@
   } from '../../api/billsApi'
   import type { Category, Charge, ChargeInput, Member, Occurrence } from '../../api/types'
   import { attachmentCountLabel } from '../../attachments'
-  import { frequencyLabel, occurrenceCents, statusLabel } from '../../charges'
+  import {
+    endMonthLabel,
+    frequencyLabel,
+    isFinished,
+    isLoan,
+    loanBreakdown,
+    occurrenceCents,
+    remainingInstalments,
+    statusLabel,
+  } from '../../charges'
+  import { today } from '../../month'
   import { formatDay } from '../../dates'
   import { memberName } from '../../members'
   import { formatCents } from '../../money'
@@ -137,9 +147,18 @@
 
 <section class="card facts">
   <div>
-    <span class="caption">{charge.amountKind === 'FIXED' ? 'Montant' : 'Montant prévu'}</span>
+    <span class="caption">{isLoan(charge) ? 'Mensualité' : charge.amountKind === 'FIXED' ? 'Montant' : 'Montant prévu'}</span>
     <strong class="amount">{formatCents(charge.amountCents)}</strong>
+    {#if loanBreakdown(charge)}<span class="caption">{loanBreakdown(charge)}</span>{/if}
   </div>
+  {#if charge.lastDueOn}
+    {@const remaining = remainingInstalments(charge)}
+    <div>
+      <span class="caption">Fin</span>
+      <strong class="end">{endMonthLabel(charge.lastDueOn)}</strong>
+      {#if remaining !== null}<span class="caption">encore {remaining} mensualité{remaining > 1 ? 's' : ''}</span>{/if}
+    </div>
+  {/if}
   <div>
     <span class="caption">Fréquence</span>
     <strong>{frequencyLabel(charge.frequency)}</strong>
@@ -158,7 +177,9 @@
     {/if}
   </div>
   <p class="muted note">
-    {#if !charge.active}
+    {#if isFinished(charge, today())}
+      Terminé : la dernière échéance est passée.
+    {:else if !charge.active}
       Charge résiliée : plus aucune échéance ne sera créée.
     {:else if charge.amountKind === 'FIXED'}
       Chaque échéance est ajoutée seule au budget.

@@ -1,27 +1,27 @@
 ## Pourquoi
 
-Un crédit pèse chaque mois sur le budget, mais il a une fin et un capital restant dû qu'aucun écran ne montre. Aujourd'hui on peut seulement le saisir comme une dépense récurrente ordinaire, sans échéancier et sans date de fin.
+Un crédit pèse chaque mois sur le budget et il a une fin. Aujourd'hui on peut seulement le saisir comme une dépense récurrente ordinaire, sans distinguer le prêt de son assurance et sans date de fin.
 
 C'est le lot **4b2 « Crédits »** (v0.8.0), dernier morceau du lot 4.
 
-## Ce qui change (proposition, à valider par Dorian)
+## Ce qui change
 
-Un crédit est une **dépense récurrente d'un type particulier**, dans l'écran Récurrents (choix de Dorian). Tout le reste fonctionne déjà pour lui : la mensualité arrive seule dans le Budget, compte dans le reste à vivre et dans le prévu du Bilan.
+Version volontairement simple (choix de Dorian le 2026-11-19) : **pas de capital, pas de taux, pas d'échéancier d'amortissement**. On saisit ce qu'on paie chaque mois.
 
-1. **Saisie** : dans Récurrents, « Ajouter » propose **Dépense** ou **Crédit**. Pour un crédit : nom, capital emprunté, taux annuel, durée en mois, date de la première mensualité (elle peut être passée : la plupart des crédits sont déjà en cours), assurance mensuelle facultative, catégorie, qui paie.
-2. **Mensualité** : calculée à partir du capital, du taux et de la durée, puis **affichée et modifiable** avant d'enregistrer, car l'offre de prêt fait foi (arrondis de la banque).
-3. **Un crédit déjà en cours ne crée rien dans le passé** : les mensualités d'avant aujourd'hui servent seulement à calculer le capital restant dû. Les dépenses commencent à la prochaine échéance.
-4. **Suivi** : sur la ligne du crédit, le capital restant dû, l'avancement (« 42 échéances sur 300 ») et la date de fin. Un bouton ouvre l'**échéancier** : pour chaque mensualité, la part d'intérêts, la part de capital, l'assurance et le capital restant.
-5. **Fin automatique** : après la dernière mensualité, le crédit s'arrête seul et reste visible comme « terminé ».
+- Dans Récurrents, panneau Dépenses, « Ajouter » propose **Dépense** ou **Crédit**.
+- Un crédit se saisit avec : son nom, la **mensualité du prêt**, la **mensualité de l'assurance** (facultative), la prochaine échéance, la **date de la dernière mensualité** (facultative), la catégorie et qui paie.
+- Chaque mois, **une seule dépense** arrive dans le Budget, égale à prêt + assurance. Le détail prêt / assurance reste visible dans Récurrents.
+- Avec une date de fin : la ligne du crédit affiche « encore N mensualités, fin en mars 2049 », et le crédit **s'arrête seul** après la dernière mensualité.
+- Sans date de fin : le crédit se comporte comme une dépense récurrente normale, à résilier à la main.
+- Un crédit est toujours mensuel, à montant fixe. Il compte déjà dans le prévu du Bilan et dans le reste à vivre, comme tout récurrent.
 
-## Hors périmètre de cette version
+## Hors périmètre
 
-Remboursement anticipé, renégociation du taux, différé, prêts à taux variable ou à paliers. Si l'un d'eux te concerne, dis-le : cela change le modèle.
+Capital restant dû, taux, tableau d'amortissement, remboursement anticipé, renégociation. À reprendre plus tard si le besoin apparaît.
 
 ## Impact
 
-- Backend `bills` : conditions du prêt attachées à la charge (migration `bills/V4`), calcul de l'échéancier, arrêt après la dernière échéance. Aucun autre domaine touché.
-- PWA : Récurrents (type Crédit, ligne de suivi, fenêtre de l'échéancier).
+- Backend `bills` : assurance du crédit et dernière échéance sur la charge récurrente (migration `bills/V4`) ; le calendrier s'arrête après la dernière échéance et la charge passe alors à « terminée ». Aucun autre domaine touché.
+- PWA : Récurrents (choix Dépense / Crédit, formulaire du crédit, ligne et détail d'un crédit).
 - Version **v0.8.0**.
-
-Les questions sont dans `design.md`. **Rien ne sera implémenté avant les réponses de Dorian.**
+- Specs : `charges-recurrentes` complété.

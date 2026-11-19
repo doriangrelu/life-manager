@@ -6,8 +6,10 @@ import io.github.doriangrelu.lifemanager.bills.domain.exception.PastFirstDueDate
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeDetails;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeId;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeSchedule;
+import io.github.doriangrelu.lifemanager.bills.domain.valueobject.Frequency;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.kernel.domain.aggregate.AggregateRoot;
+import io.github.doriangrelu.lifemanager.kernel.domain.exception.InvalidValueException;
 import io.github.doriangrelu.lifemanager.kernel.domain.validation.Require;
 
 import java.time.Clock;
@@ -15,7 +17,8 @@ import java.time.LocalDate;
 
 /**
  * Charge récurrente d'un foyer (internet, électricité, assurance…).
- * Invariants : un calendrier qui ne commence pas dans le passé ; une charge résiliée ne change plus.
+ * Invariants : un calendrier qui ne commence pas dans le passé ; une charge résiliée ne change plus ;
+ * un crédit est mensuel.
  * Les échéances sont des agrégats à part ({@link ChargeOccurrence}).
  */
 public final class RecurringCharge extends AggregateRoot<ChargeId> {
@@ -38,6 +41,7 @@ public final class RecurringCharge extends AggregateRoot<ChargeId> {
     public static RecurringCharge create(ChargeId id, HouseholdId householdId, ChargeDetails details,
                                          ChargeSchedule schedule, Clock clock) {
         ensureNotPast(schedule, clock);
+        ensureLoanIsMonthly(details, schedule);
         return new RecurringCharge(id, householdId, details, schedule, true);
     }
 
@@ -58,6 +62,7 @@ public final class RecurringCharge extends AggregateRoot<ChargeId> {
         if (!newSchedule.equals(schedule)) {
             ensureNotPast(newSchedule, clock);
         }
+        ensureLoanIsMonthly(newDetails, newSchedule);
         details = newDetails;
         schedule = newSchedule;
     }
@@ -65,6 +70,11 @@ public final class RecurringCharge extends AggregateRoot<ChargeId> {
     /** Résilie la charge : plus aucune échéance ne sera créée. */
     public void terminate() {
         ensureActive();
+        active = false;
+    }
+
+    /** Fin naturelle : la dernière échéance du calendrier est passée, plus rien ne sera prévu. Sans effet si déjà inactive. */
+    public void complete() {
         active = false;
     }
 
@@ -81,6 +91,12 @@ public final class RecurringCharge extends AggregateRoot<ChargeId> {
     private void ensureActive() {
         if (!active) {
             throw new ChargeTerminatedException();
+        }
+    }
+
+    private static void ensureLoanIsMonthly(ChargeDetails details, ChargeSchedule schedule) {
+        if (details.optionalLoan().isPresent() && schedule.frequency() != Frequency.MONTHLY) {
+            throw new InvalidValueException("Un crédit a une mensualité : sa fréquence est mensuelle");
         }
     }
 

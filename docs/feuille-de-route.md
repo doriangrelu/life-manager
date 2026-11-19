@@ -52,7 +52,9 @@ En plus : renommage du foyer ; invitations réservées au propriétaire (choix d
 
 ### Lot 4 — Rentrées d'argent, budget prévisionnel et crédits
 
-Découpé en trois changes : **4a « Rentrées et bilan »** ✅ (livré le 2026-11-19, v0.6.0), **4b1 « Budget prévu et reste à vivre »** ✅ (v0.7.0, en recette), puis **4b2 « Crédits »** (un type de dépense récurrente : capital, taux, durée, échéancier, capital restant dû).
+Découpé en trois changes : **4a « Rentrées et bilan »** ✅ (livré le 2026-11-19, v0.6.0), **4b1 « Budget prévu et reste à vivre »** ✅ (v0.7.0, en recette), puis **4b2 « Crédits »** ✅ (v0.8.0, en recette).
+
+4b2, tel que livré, en version simple à la demande de Dorian : dans Récurrents, « Ajouter » propose Dépense ou **Crédit** ; un crédit se saisit avec la mensualité du prêt, celle de l'assurance (facultative) et la date de la dernière mensualité (facultative) ; une seule dépense par mois (prêt + assurance) ; avec une date de fin, la ligne affiche les mensualités restantes et le crédit s'arrête seul. Capital restant dû, taux et tableau d'amortissement : non faits, à reprendre si le besoin apparaît.
 
 4b1, tel que livré : budget prévu par catégorie de dépenses, réglé en touchant la catégorie dans le Budget, pour **tous les mois** (à partir du mois affiché, sans toucher aux mois passés) ou pour **ce mois seulement** ; barre dépensé / prévu orange à 80 %, rouge au-delà, avec les dépenses récurrentes à venir en plus clair ; **reste à vivre** (rentrées prévues moins dépenses récurrentes, puis moins les dépenses courantes) dans le bandeau du Budget et dans le Bilan, quand le foyer suit ses rentrées. Notifications de dépassement : lot 6.
 

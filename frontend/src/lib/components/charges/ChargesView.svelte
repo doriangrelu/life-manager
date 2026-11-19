@@ -8,10 +8,20 @@
   import { getHousehold } from '../../api/householdApi'
   import type { Category, Charge, ChargeInput, FlowDirection, Member, Occurrence, UserProfile } from '../../api/types'
   import { categoryStyle } from '../../categoryStyle'
-  import { frequencyLabel, monthlyEstimateCents, sortCharges, statusLabel } from '../../charges'
+  import {
+    endMonthLabel,
+    frequencyLabel,
+    isFinished,
+    isLoan,
+    monthlyEstimateCents,
+    remainingInstalments,
+    sortCharges,
+    statusLabel,
+  } from '../../charges'
   import { formatDay } from '../../dates'
   import { incomeTracking } from '../../householdSettings'
   import { formatCents } from '../../money'
+  import { today } from '../../month'
   import { listMove, ms, rise } from '../../motion'
   import { navigate, route } from '../../route'
   import { displayName } from '../../text'
@@ -34,6 +44,8 @@
   let loaded = $state(false)
   let error = $state<string | null>(null)
   let adding = $state(false)
+  // Nouvelle dépense récurrente : ordinaire, ou crédit (mensualité de prêt et assurance).
+  let addingKind = $state<'CHARGE' | 'LOAN'>('CHARGE')
   let confirming = $state<{ charge: Charge; occurrence: Occurrence } | null>(null)
   let confirmOpen = $state(false)
   // Avec le suivi des rentrées : deux panneaux, dépenses fixes et rentrées fixes (salaires, aides…).
@@ -221,7 +233,15 @@
                   <strong>{displayName(charge.name)}</strong>
                   <span class="muted">
                     {#if !charge.active}
-                      Résiliée
+                      {isFinished(charge, today()) ? 'Terminé' : 'Résiliée'}
+                    {:else if isLoan(charge)}
+                      {@const remaining = remainingInstalments(charge)}
+                      Crédit
+                      {#if remaining !== null && charge.lastDueOn}
+                        · encore {remaining} mensualité{remaining > 1 ? 's' : ''} · fin en {endMonthLabel(charge.lastDueOn)}
+                      {:else if charge.next}
+                        · {statusLabel(charge.next.status).toLowerCase()} le {formatDay(charge.next.dueOn)}
+                      {/if}
                     {:else if charge.next}
                       {frequencyLabel(charge.frequency)} · {statusLabel(charge.next.status).toLowerCase()} le {formatDay(charge.next.dueOn)}
                     {:else}
@@ -265,13 +285,27 @@
 {/if}
 
 <Modal bind:open={adding} title={isIncome ? 'Nouvelle rentrée récurrente' : 'Nouvelle charge'}>
-  {#key shownDirection}
+  {#if !isIncome}
+    <div class="add-kind">
+      <Segmented
+        label="Type de dépense récurrente"
+        hideLabel
+        options={[
+          { value: 'CHARGE', label: 'Dépense' },
+          { value: 'LOAN', label: 'Crédit' },
+        ]}
+        bind:value={addingKind}
+      />
+    </div>
+  {/if}
+  {#key `${shownDirection}-${addingKind}`}
     <ChargeForm
       charge={null}
       categories={categoriesOf(shownDirection)}
       {members}
       currentUserId={profile.userId}
       direction={shownDirection}
+      loan={!isIncome && addingKind === 'LOAN'}
       onsave={add}
     />
   {/key}
@@ -287,6 +321,9 @@
 {/if}
 
 <style>
+  .add-kind {
+    margin-bottom: 16px;
+  }
   .summary {
     display: grid;
     gap: 4px;

@@ -17,4 +17,4 @@
 - [x] 3.1 [frontend] Vérification au navigateur : sans prévu (rien ne change), avec prévu, mois passé, option « Rentrées et bilan » active ou non ; mobile et bureau, clair et sombre
 - [x] 3.2 [infra/ci] Parcours natif étendu (régler un prévu, le relire dans la vue du mois)
 - [x] 3.3 [doc] Feuille de route à jour
-- [ ] 3.4 [infra/vps] Version v0.7.0 publiée et déployée
+- [x] 3.4 [infra/vps] Version v0.7.0 publiée et déployée

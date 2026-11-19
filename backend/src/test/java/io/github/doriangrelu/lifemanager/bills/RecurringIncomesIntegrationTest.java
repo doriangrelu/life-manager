@@ -106,7 +106,7 @@ class RecurringIncomesIntegrationTest extends IntegrationTestSupport {
 
     private ChargeResponse add(String name, long cents, LocalDate firstDueOn, String direction, UUID category) {
         var request = new ChargeRequest(name, cents, "FIXED", "MONTHLY", firstDueOn, category, ownerId, null,
-                direction);
+                direction, null, null);
         return http.retrieve(HttpRequest.POST(charges(), request).bearerAuth(owner), ChargeResponse.class);
     }
 

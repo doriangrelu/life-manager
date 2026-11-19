@@ -242,6 +242,10 @@ export interface ChargeInput {
   beneficiaryId: string | null
   /** Absent = dépense. */
   direction?: FlowDirection
+  /** Dernière échéance (fin d'un crédit) ; absente ou null = sans fin. */
+  lastDueOn?: string | null
+  /** Présent = crédit : amountCents est le total, assurance comprise (0 = sans assurance). */
+  loan?: { insuranceCents: number } | null
 }
 
 /** Une échéance d'une charge. */

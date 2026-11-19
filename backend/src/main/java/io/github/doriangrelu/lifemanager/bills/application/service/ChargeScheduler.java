@@ -1,5 +1,6 @@
 package io.github.doriangrelu.lifemanager.bills.application.service;
 
+import io.github.doriangrelu.lifemanager.bills.application.port.out.ChargeRepository;
 import io.github.doriangrelu.lifemanager.bills.application.port.out.OccurrenceRepository;
 import io.github.doriangrelu.lifemanager.bills.domain.aggregate.ChargeOccurrence;
 import io.github.doriangrelu.lifemanager.bills.domain.aggregate.RecurringCharge;
@@ -18,7 +19,8 @@ import java.util.List;
  * Fait avancer le calendrier d'une charge, dans la transaction de l'appelant :
  * <ol>
  *   <li>les échéances arrivées à date passent payées (montant fixe) ou à confirmer (montant variable) ;</li>
- *   <li>les échéances manquées pendant un arrêt sont rattrapées, puis la suivante est prévue ;</li>
+ *   <li>les échéances manquées pendant un arrêt sont rattrapées, puis la suivante est prévue
+ *       (après la dernière échéance du calendrier, la charge est terminée) ;</li>
  *   <li>la prochaine échéance ouverte est annoncée aux rappels.</li>
  * </ol>
  * Idempotent : relancé le même jour, il ne crée rien de plus (et la base refuse deux échéances à la même date).
@@ -30,11 +32,14 @@ public class ChargeScheduler {
     private static final int MAX_STEPS = 1200;
 
     private final OccurrenceRepository occurrences;
+    private final ChargeRepository charges;
     private final DomainEventPublisher events;
     private final Clock clock;
 
-    ChargeScheduler(OccurrenceRepository occurrences, DomainEventPublisher events, Clock clock) {
+    ChargeScheduler(OccurrenceRepository occurrences, ChargeRepository charges, DomainEventPublisher events,
+                    Clock clock) {
         this.occurrences = occurrences;
+        this.charges = charges;
         this.events = events;
         this.clock = clock;
     }
@@ -71,6 +76,10 @@ public class ChargeScheduler {
             if (last != null && !dueOn.isAfter(last)) {
                 continue;
             }
+            if (charge.schedule().endsBefore(dueOn)) {
+                finish(charge);
+                return;
+            }
             var occurrence = ChargeOccurrence.plan(OccurrenceId.newId(), charge, dueOn);
             known.add(occurrence);
             if (dueOn.isAfter(today)) {
@@ -79,6 +88,12 @@ public class ChargeScheduler {
             }
             arrive(occurrence, charge); // échéance manquée pendant un arrêt
         }
+    }
+
+    /** Dernière échéance passée (fin d'un crédit) : la charge se termine d'elle-même. */
+    private void finish(RecurringCharge charge) {
+        charge.complete();
+        charges.save(charge);
     }
 
     private void arrive(ChargeOccurrence occurrence, RecurringCharge charge) {

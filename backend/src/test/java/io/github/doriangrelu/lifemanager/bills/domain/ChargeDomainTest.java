@@ -42,6 +42,14 @@ class ChargeDomainTest {
 
         assertThat(monthly.dueOn(1)).isEqualTo(LocalDate.of(2027, 2, 28));
         assertThat(monthly.dueOn(2)).isEqualTo(LocalDate.of(2027, 3, 31));
+        // Avec une dernière échéance, le calendrier s'arrête à elle.
+        var bounded = new ChargeSchedule(LocalDate.of(2027, 1, 5), Frequency.MONTHLY, LocalDate.of(2027, 3, 5));
+        assertThat(bounded.dueDatesBetween(LocalDate.of(2027, 1, 1), LocalDate.of(2027, 12, 31))).hasSize(3);
+        assertThat(bounded.endsBefore(LocalDate.of(2027, 3, 5))).isFalse();
+        assertThat(bounded.endsBefore(LocalDate.of(2027, 4, 5))).isTrue();
+        assertThat(monthly.endsBefore(LocalDate.of(2099, 1, 1))).isFalse();
+        assertThatThrownBy(() -> new ChargeSchedule(TODAY, Frequency.MONTHLY, TODAY.minusDays(1)))
+                .isInstanceOf(InvalidValueException.class);
         assertThat(new ChargeSchedule(TODAY, Frequency.QUARTERLY).dueOn(1)).isEqualTo(LocalDate.of(2027, 2, 18));
         assertThat(new ChargeSchedule(TODAY, Frequency.YEARLY).dueOn(2)).isEqualTo(LocalDate.of(2028, 11, 18));
     }

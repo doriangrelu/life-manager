@@ -1,24 +1,20 @@
 ## Contexte
 
-Faits établis dans le code (2026-11-19) :
+- Une charge récurrente (`bills`) a un montant fixe ou variable, une fréquence, une première échéance, une catégorie de budget, un payeur. Elle n'a pas de fin : on la résilie à la main.
+- Ses échéances payées deviennent des dépenses du Budget (`ChargePaidV1`) ; ses échéances à venir alimentent le prévu et le reste à vivre (`/charges/forecast`).
 
-- Une charge récurrente (`bills`) a un montant, fixe ou variable, une fréquence, une première échéance qui **ne peut pas être dans le passé**, une catégorie de budget, un payeur. Elle n'a pas de fin : on la résilie à la main.
-- Ses échéances payées deviennent des dépenses du Budget (`ChargePaidV1`), et ses échéances à venir alimentent le prévu et le reste à vivre (`/charges/forecast`).
-- Aucune notion de crédit n'existe.
+## Réponses de Dorian (2026-11-19)
 
-## Choix proposés
+- Pas d'amortissement dans cette version : il donne la mensualité du prêt et celle de l'assurance.
+- Date de la dernière mensualité : oui, facultative.
+- Une seule dépense par mois (prêt + assurance).
 
-- **Conditions du prêt portées par la charge** : value object `LoanTerms` (capital en centimes, taux annuel en points de base, 3,45 % = 345, nombre de mensualités, date de la première mensualité du prêt, assurance mensuelle en centimes). Facultatif : une charge sans `LoanTerms` reste une charge ordinaire. Jamais de nombre à virgule stocké.
-- **La charge d'un crédit** est mensuelle, à montant fixe (mensualité + assurance). Son calendrier commence à la prochaine mensualité à venir : la règle « pas de première échéance dans le passé » reste vraie, et rien n'est créé rétroactivement.
-- **Échéancier calculé, jamais stocké** : amortissement à mensualités constantes. Intérêts du mois = capital restant × taux mensuel, arrondis au centime ; la dernière mensualité solde le capital restant (elle absorbe les écarts d'arrondi). Le calcul se fait en entiers (centimes et points de base).
-- **Mensualité saisie** : si l'utilisateur la corrige, c'est elle qui est payée chaque mois ; l'échéancier l'utilise et ajuste la dernière mensualité.
-- **Fin** : la tâche quotidienne qui avance les échéances n'en crée plus après la dernière et marque la charge terminée.
-- API : `LoanTerms` facultatif dans l'ajout et la modification d'une charge ; `GET /charges/{id}/loan-schedule` renvoie l'échéancier et le résumé (capital restant dû, mensualités payées, date de fin).
+## Décisions
 
-## Questions pour Dorian
-
-1. **Mensualité** : calculée puis modifiable avant d'enregistrer (ma proposition), ou toujours recopiée depuis l'offre de prêt sans calcul ?
-2. **Crédit déjà en cours** : d'accord pour ne rien créer dans le passé (les anciennes mensualités ne servent qu'au capital restant dû) ?
-3. **Assurance emprunteur** : un montant mensuel fixe ajouté à la mensualité, ça suffit ?
-4. **Cas particuliers** : as-tu un prêt avec différé, taux variable, paliers, ou un remboursement anticipé prévu ? Sinon je les laisse hors de cette version.
-5. **Affichage** : le capital restant dû sur la ligne du crédit et l'échéancier dans une fenêtre, comme sur la maquette du 19/11 ?
+- **Crédit = charge récurrente avec un `Loan`** : value object facultatif dans `ChargeDetails`, qui porte la mensualité d'assurance (0 si aucune). Le montant de la charge reste le total payé chaque mois ; la part du prêt est le total moins l'assurance.
+  - Invariants : un crédit est une dépense, à montant fixe ; l'assurance ne dépasse pas le total. Le calendrier d'un crédit est mensuel (vérifié à la saisie).
+- **Dernière échéance dans le calendrier** : `ChargeSchedule.lastDueOn`, facultative, jamais avant la première échéance. Les dates calculées s'arrêtent à elle ; les prévisions (`/charges/forecast`) aussi. Elle est acceptée pour toute charge par l'API, mais la PWA ne la propose que pour un crédit.
+- **Fin automatique** : quand le planificateur ne peut plus prévoir d'échéance (la suivante dépasserait la dernière), la charge passe inactive, comme une charge résiliée. Idempotent.
+- **API** : `lastDueOn` et `loan: { insuranceCents }` facultatifs dans l'ajout et la modification d'une charge, renvoyés dans sa lecture. Les charges existantes ne changent pas.
+- **PWA** : le nombre de mensualités restantes est calculé à l'affichage (de la prochaine échéance à la dernière).
+- Migration `bills/V4` : colonnes `last_due_on` et `loan_insurance_cents` (absente = ce n'est pas un crédit), toutes deux facultatives.

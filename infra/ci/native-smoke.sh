@@ -164,6 +164,10 @@ call "$ALICE" GET "/households/$HOUSEHOLD/report?from=$MONTH&to=$MONTH" 200
 [ "$(body "['resultCents']")" = "285527" ] || fail "bilan inattendu : $(head -c 400 "$WORK/body")"
 call "$ALICE" GET "/households/$HOUSEHOLD/charges/forecast?from=$TODAY&to=$(date -d '+2 months' +%F)" 200
 [ "$(body "[0]['status']")" != "" ] || fail "prévisions vides : $(head -c 400 "$WORK/body")"
+# Crédit : prêt + assurance en une mensualité, avec une dernière échéance (première dans 40 jours : rien n'est payé ici).
+call "$ALICE" POST "/households/$HOUSEHOLD/charges" 201 \
+  "{\"name\":\"Pret\",\"amountCents\":61240,\"amountKind\":\"FIXED\",\"frequency\":\"MONTHLY\",\"firstDueOn\":\"$(date -d '+40 days' +%F)\",\"budgetCategoryId\":\"$CATEGORY\",\"payerId\":\"$ALICE_ID\",\"beneficiaryId\":null,\"lastDueOn\":\"$(date -d '+400 days' +%F)\",\"loan\":{\"insuranceCents\":2400}}"
+[ "$(body "['loan']['insuranceCents']")" = "2400" ] || fail "crédit mal enregistré : $(head -c 400 "$WORK/body")"
 
 echo "== Rappels"
 eventually 10 call "$ALICE" GET "/households/$HOUSEHOLD/reminders" 200

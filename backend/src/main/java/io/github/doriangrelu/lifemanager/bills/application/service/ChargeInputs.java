@@ -11,6 +11,7 @@ import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeSchedule
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.FlowDirection;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.Frequency;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.HouseholdId;
+import io.github.doriangrelu.lifemanager.bills.domain.valueobject.Loan;
 import io.github.doriangrelu.lifemanager.bills.domain.valueobject.MemberId;
 import jakarta.inject.Singleton;
 
@@ -34,11 +35,11 @@ public class ChargeInputs {
         }
         return new ChargeDetails(new ChargeName(input.name()), Amount.ofCents(input.amountCents()),
                 AmountKind.of(input.amountKind()), input.budgetCategoryId(), payer, beneficiary,
-                FlowDirection.of(input.direction()));
+                FlowDirection.of(input.direction()), Loan.ofNullable(input.loanInsuranceCents()));
     }
 
     public static ChargeSchedule schedule(ChargeInput input) {
-        return new ChargeSchedule(input.firstDueOn(), Frequency.of(input.frequency()));
+        return new ChargeSchedule(input.firstDueOn(), Frequency.of(input.frequency()), input.lastDueOn());
     }
 
     private void ensureMember(HouseholdId householdId, MemberId memberId) {

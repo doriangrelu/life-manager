@@ -12,8 +12,11 @@ import java.util.UUID;
  * @param frequency     {@code MONTHLY}, {@code BIMONTHLY}, {@code QUARTERLY} ou {@code YEARLY}
  * @param beneficiaryId membre pour qui, {@code null} pour tout le foyer
  * @param direction     {@code EXPENSE} (ou {@code null}) ou {@code INCOME}
+ * @param lastDueOn     dernière échéance, {@code null} pour une charge sans fin
+ * @param loanInsuranceCents assurance d'un crédit en centimes (0 = aucune), {@code null} si ce n'est pas un crédit
  */
 public record ChargeInput(String name, long amountCents, String amountKind, String frequency, LocalDate firstDueOn,
                           UUID budgetCategoryId, UUID payerId, @Nullable UUID beneficiaryId,
-                          @Nullable String direction) {
+                          @Nullable String direction, @Nullable LocalDate lastDueOn,
+                          @Nullable Long loanInsuranceCents) {
 }
