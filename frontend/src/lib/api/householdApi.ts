@@ -16,7 +16,37 @@ export async function getHousehold(householdId: string): Promise<HouseholdDetail
   return { ...household, members: household.members.map((m) => ({ ...m, displayName: personName(m.displayName) })) }
 }
 
-/** Nouveau code d'invitation ; le code précédent ne fonctionne plus. */
+/** Renomme le foyer (propriétaire). */
+export function renameHousehold(householdId: string, name: string): Promise<HouseholdDetails> {
+  return apiRequest('PUT', `/households/${householdId}`, { name })
+}
+
+/** Supprime définitivement le foyer et toutes ses données (propriétaire, nom retapé). */
+export function deleteHousehold(householdId: string, confirmName: string): Promise<void> {
+  return apiRequest('DELETE', `/households/${householdId}`, { confirmName })
+}
+
+/** Le propriétaire passe la main à un autre membre. */
+export function transferOwnership(householdId: string, memberId: string): Promise<void> {
+  return apiRequest('PUT', `/households/${householdId}/owner`, { memberId })
+}
+
+/** Le propriétaire retire un membre, qui perd aussitôt l'accès au foyer. */
+export function removeMember(householdId: string, memberId: string): Promise<void> {
+  return apiRequest('DELETE', `/households/${householdId}/members/${memberId}`)
+}
+
+/** Le membre connecté quitte le foyer (pas le propriétaire). */
+export function leaveHousehold(householdId: string): Promise<void> {
+  return apiRequest('POST', `/households/${householdId}/leave`)
+}
+
+/** Annule le code d'invitation en cours (propriétaire). */
+export function cancelInvitation(householdId: string): Promise<void> {
+  return apiRequest('DELETE', `/households/${householdId}/invitations`)
+}
+
+/** Nouveau code d'invitation (propriétaire) ; le code précédent ne fonctionne plus. */
 export function issueInvitation(householdId: string): Promise<Invitation> {
   return apiRequest('POST', `/households/${householdId}/invitations`)
 }

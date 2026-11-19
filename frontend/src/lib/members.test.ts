@@ -11,7 +11,7 @@ describe('membres', () => {
   it('nomme un membre, le foyer entier ou un membre parti', () => {
     expect(memberName(members, 'b')).toBe('Bob')
     expect(memberName(members, null)).toBe('Commun')
-    expect(memberName(members, 'z')).toBe('Membre')
+    expect(memberName(members, 'z')).toBe('Ancien membre')
   })
 
   it('propose les payeurs, puis le foyer entier en premier bénéficiaire', () => {

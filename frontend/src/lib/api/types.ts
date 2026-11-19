@@ -148,7 +148,10 @@ export interface PurchaseHistoryEntry {
 export interface HouseholdDetails {
   id: string
   name: string
+  /** Propriétaire : lui seul renomme, invite, retire un membre, transmet ou supprime le foyer. */
+  ownerId: string
   members: Member[]
+  /** Code actif ; toujours null pour un membre qui n'est pas propriétaire. */
   activeInvitation: Invitation | null
 }
 

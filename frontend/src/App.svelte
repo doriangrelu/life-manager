@@ -6,7 +6,9 @@
   import { listHouseholds } from './lib/api/householdApi'
   import { whoami } from './lib/api/identityApi'
   import type { HouseholdSummary, UserProfile } from './lib/api/types'
+  import { HOUSEHOLD_MAYBE_LOST } from './lib/householdAccess'
   import { rememberedHouseholdId, rememberHouseholdId } from './lib/preferences'
+  import { displayName } from './lib/text'
   import AppHeader from './lib/components/AppHeader.svelte'
   import CreateOrJoin from './lib/components/CreateOrJoin.svelte'
   import HouseholdTabs from './lib/components/HouseholdTabs.svelte'
@@ -18,6 +20,33 @@
   let selectedId = $state<string | null>(null)
   let addingHousehold = $state(false)
   let error = $state<string | null>(null)
+  // Message après la perte d'un foyer (retiré, supprimé, quitté).
+  let notice = $state<string | null>(null)
+
+  // Une réponse 404 sur un foyer : on vérifie qu'on y a toujours accès.
+  onMount(() => {
+    const onMaybeLost = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === selectedId) {
+        recheckHouseholds()
+      }
+    }
+    window.addEventListener(HOUSEHOLD_MAYBE_LOST, onMaybeLost)
+    return () => window.removeEventListener(HOUSEHOLD_MAYBE_LOST, onMaybeLost)
+  })
+
+  /**
+   * Recharge les foyers ; si celui affiché n'en fait plus partie, bascule sur un autre (ou sur l'accueil).
+   * @param message texte à afficher, sinon un message par défaut s'il a disparu
+   */
+  async function recheckHouseholds(message?: string) {
+    const lost = households.find((h) => h.id === selectedId)
+    households = await listHouseholds()
+    if (!households.some((h) => h.id === selectedId)) {
+      notice = message ?? `Vous n'avez plus accès au foyer « ${lost ? displayName(lost.name) : ''} ».`
+      selectedId = null
+      select(initialHouseholdId())
+    }
+  }
 
   // Au lancement : connexion si besoin, puis profil (domaine identité) et foyers (domaine foyer).
   onMount(async () => {
@@ -65,6 +94,9 @@
   <main class="content stack"><Skeleton variant="hero" /><Skeleton variant="rows" /></main>
 {:else if !selectedId}
   <main class="content welcome">
+    {#if notice}
+      <p class="notice" role="status">{notice}</p>
+    {/if}
     <h1>Bienvenue, {profile.displayName}</h1>
     <p class="muted">Créez votre foyer ou rejoignez celui d'un proche avec son code d'invitation.</p>
     <CreateOrJoin onadded={onHouseholdAdded} />
@@ -73,8 +105,20 @@
   <div class="shell">
     <AppHeader {profile} {households} {selectedId} onselect={select} onadd={() => (addingHousehold = true)} />
     <main class="content">
+      {#if notice}
+        <div class="notice" role="status">
+          <span>{notice}</span>
+          <button class="link" onclick={() => (notice = null)}>OK</button>
+        </div>
+      {/if}
       {#key selectedId}
-        <HouseholdTabs householdId={selectedId} {profile} onaddhousehold={() => (addingHousehold = true)} />
+        <HouseholdTabs
+          householdId={selectedId}
+          {profile}
+          onaddhousehold={() => (addingHousehold = true)}
+          onhouseholdgone={(message) => recheckHouseholds(message)}
+          onhouseholdchanged={() => recheckHouseholds()}
+        />
       {/key}
     </main>
   </div>
@@ -93,6 +137,19 @@
   }
   .welcome {
     padding-top: 48px;
+  }
+  /* Information après la perte d'un foyer : visible, sans alarmer. */
+  .notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: var(--radius-lg);
+    background: var(--color-warning-soft);
+    color: var(--color-on-warning-soft);
+    font-weight: 600;
   }
   @media (min-width: 900px) {
     /* Place pour le menu latéral. */

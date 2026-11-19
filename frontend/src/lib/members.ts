@@ -4,12 +4,15 @@ import type { Member } from './api/types'
 /** Libellé du foyer entier comme bénéficiaire. */
 export const SHARED = 'Commun'
 
-/** Nom d'un membre ; null désigne le foyer entier. Un membre parti s'affiche « Membre ». */
+/** Nom affiché d'une personne qui a quitté le foyer (ses dépenses passées restent). */
+export const FORMER_MEMBER = 'Ancien membre'
+
+/** Nom d'un membre ; null désigne le foyer entier. Un membre parti s'affiche « Ancien membre ». */
 export function memberName(members: Member[], memberId: string | null): string {
   if (memberId === null) {
     return SHARED
   }
-  return members.find((m) => m.memberId === memberId)?.displayName ?? 'Membre'
+  return members.find((m) => m.memberId === memberId)?.displayName ?? FORMER_MEMBER
 }
 
 /** Choix « payé par » : un bouton par membre. */

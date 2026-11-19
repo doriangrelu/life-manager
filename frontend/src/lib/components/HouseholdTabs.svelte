@@ -19,7 +19,17 @@
     householdId,
     profile,
     onaddhousehold,
-  }: { householdId: string; profile: UserProfile; onaddhousehold: () => void } = $props()
+    onhouseholdgone,
+    onhouseholdchanged,
+  }: {
+    householdId: string
+    profile: UserProfile
+    onaddhousehold: () => void
+    /** Foyer quitté ou supprimé depuis cet appareil : l'application bascule, avec ce message. */
+    onhouseholdgone: (message: string) => void
+    /** Foyer renommé : la liste des foyers (en-tête) est rechargée. */
+    onhouseholdchanged: () => void
+  } = $props()
 
   // L'écran vient de l'adresse.
   const section = $derived($route.section)
@@ -49,7 +59,13 @@
     {:else if section === 'vehicles'}
       <VehiclesView {householdId} />
     {:else}
-      <HouseholdView {householdId} {onaddhousehold} />
+      <HouseholdView
+        {householdId}
+        currentUserId={profile.userId}
+        {onaddhousehold}
+        ongone={onhouseholdgone}
+        onrenamed={onhouseholdchanged}
+      />
     {/if}
   </div>
 {/key}

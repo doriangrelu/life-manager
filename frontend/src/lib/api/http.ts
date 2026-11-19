@@ -1,4 +1,5 @@
 import { accessToken, login } from '../auth/auth'
+import { reportNotFound } from '../householdAccess'
 
 /** Erreur renvoyée par l'API, avec un message lisible par l'utilisateur. */
 export class ApiError extends Error {
@@ -32,6 +33,9 @@ export async function apiRequest<T>(
     await login()
   }
   if (!response.ok) {
+    if (response.status === 404) {
+      reportNotFound(path)
+    }
     throw new ApiError(response.status, await errorMessage(response))
   }
   // 204 : succès sans contenu (ex. suppression).
