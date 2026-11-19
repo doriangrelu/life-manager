@@ -78,10 +78,13 @@ Placé avant les graphiques (choix de Dorian) : ils pourront ainsi montrer à la
 
 ### Lot 6 — Rappels libres et e-mails
 
-- Rappels saisis à la main : date, récurrence, note (impôts, ramonage, mutuelle…).
-- **Rappels par e-mail via Brevo**, au choix de chaque membre.
-- **E-mails de Keycloak aux couleurs de l'application** (mot de passe oublié, vérification), envoyés par Brevo.
-- Prérequis technique : réparer le HTTPS sortant de l'exécutable natif (voir dette).
+Découpé en deux à la demande de Dorian (2026-11-19) :
+
+- **6a « Rappels libres »** (en cours de cadrage) : rappels saisis à la main, avec une date, une récurrence et une note (impôts, ramonage, mutuelle…), dans le même bandeau et les mêmes notifications que les rappels automatiques.
+- **6b « E-mails » — planifié plus tard** :
+  - **rappels par e-mail via Brevo**, au choix de chaque membre ;
+  - **e-mails de Keycloak aux couleurs de l'application** (mot de passe oublié, vérification), envoyés par Brevo ;
+  - prérequis technique : réparer le HTTPS sortant de l'exécutable natif (voir dette).
 
 ### Lot 7 — Comptes entre membres
 
