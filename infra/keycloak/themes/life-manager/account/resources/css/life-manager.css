@@ -174,7 +174,7 @@ body {
   --pf-v5-c-nav--BackgroundColor: transparent;
   --pf-v5-c-nav__link--Color: var(--lm-text-muted);
   --pf-v5-c-nav__link--hover--Color: var(--lm-primary-text);
-  --pf-v5-c-nav__link--focus--Color: var(--lm-text);
+  --pf-v5-c-nav__link--focus--Color: var(--lm-primary-text);
   --pf-v5-c-nav__link--active--Color: var(--lm-primary-text);
   --pf-v5-c-nav__link--m-current--Color: var(--lm-primary-text);
   --pf-v5-c-nav__link--BackgroundColor: transparent;
@@ -182,6 +182,9 @@ body {
   --pf-v5-c-nav__link--hover--BackgroundColor: color-mix(in srgb, var(--lm-primary-soft) 55%, transparent);
   --pf-v5-c-nav__link--m-current--BackgroundColor: var(--lm-primary-soft);
   --pf-v5-c-nav__link--active--BackgroundColor: var(--lm-primary-soft);
+  /* Focus (après un clic ou au clavier) : même teinte que le survol, au lieu du gris de PatternFly */
+  --pf-v5-c-nav__link--focus--BackgroundColor: var(--pf-v5-c-nav__link--hover--BackgroundColor);
+  --pf-v5-c-nav__item--m-current--not--m-expanded__link--BackgroundColor: var(--lm-primary-soft);
   --pf-v5-c-nav__section-title--Color: var(--lm-text-muted);
   --pf-v5-c-nav__toggle--Color: var(--lm-text-muted);
   padding-inline: 10px;
