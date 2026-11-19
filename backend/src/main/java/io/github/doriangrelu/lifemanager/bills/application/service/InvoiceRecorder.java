@@ -27,6 +27,12 @@ public class InvoiceRecorder {
         this.clock = clock;
     }
 
+    /** Vérifie, avant d'écrire le moindre fichier, que le demandeur voit cette échéance (sinon 404). */
+    @Transactional(transactionManager = "bills", readOnly = true)
+    public void checkAccess(AttachInvoiceCommand command) {
+        access.occurrenceForMember(command.target());
+    }
+
     /** @throws TooManyInvoicesException si l'échéance a déjà son maximum de factures */
     @Transactional(transactionManager = "bills")
     public InvoiceView record(AttachInvoiceCommand command, AttachedFile file) {

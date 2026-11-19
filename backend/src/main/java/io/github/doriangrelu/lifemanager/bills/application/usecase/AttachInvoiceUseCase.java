@@ -32,6 +32,8 @@ class AttachInvoiceUseCase implements AttachInvoice {
 
     @Override
     public InvoiceView attach(AttachInvoiceCommand command) {
+        // Un non-membre est refusé avant toute écriture sur le disque.
+        recorder.checkAccess(command);
         var content = command.content();
         var file = new AttachedFile(AttachmentFileName.clean(command.fileName()),
                 AttachmentMediaType.ofMimeType(detector.detect(content)), new FileSize(content.length),

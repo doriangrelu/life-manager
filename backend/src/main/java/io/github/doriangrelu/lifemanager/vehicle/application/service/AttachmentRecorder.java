@@ -27,6 +27,12 @@ public class AttachmentRecorder {
         this.clock = clock;
     }
 
+    /** Vérifie, avant d'écrire le moindre fichier, que le demandeur voit cette opération (sinon 404). */
+    @Transactional(transactionManager = "vehicle", readOnly = true)
+    public void checkAccess(AttachFileCommand command) {
+        access.entryForMember(command.householdId(), command.vehicleId(), command.entryId(), command.requesterId());
+    }
+
     /** @throws TooManyAttachmentsException si l'opération a déjà son maximum de pièces jointes */
     @Transactional(transactionManager = "vehicle")
     public AttachmentView record(AttachFileCommand command, AttachedFile file) {

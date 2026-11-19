@@ -9,9 +9,11 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleNameEndingWith;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
@@ -87,6 +89,32 @@ class ArchitectureTest {
                     .allowEmptyShould(true)
                     .check(CLASSES);
         }
+    }
+
+    /**
+     * Use cases sans foyer à contrôler : déclenchés par un événement ou une tâche planifiée, ou ne portant que
+     * sur le demandeur lui-même (son compte, ses foyers, l'adhésion par code). Tout autre use case est appelé
+     * avec un foyer venu de l'adresse : il DOIT vérifier que le demandeur en est membre.
+     */
+    private static final Set<String> USE_CASES_WITHOUT_HOUSEHOLD_CHECK = Set.of(
+            "AdvanceChargeSchedulesUseCase", "RegisterHouseholdMemberUseCase", "CreateDefaultCategoriesUseCase",
+            "CreateDefaultShoppingListsUseCase", "RecordChargeExpenseUseCase", "CreateHouseholdUseCase",
+            "JoinHouseholdUseCase", "ListMembershipsUseCase", "ListMyHouseholdsUseCase", "UpdateMemberProfileUseCase",
+            "GetCurrentUserUseCase", "SyncUserAccountUseCase", "ForgetVehicleDeadlinesUseCase",
+            "TrackChargeDeadlineUseCase", "TrackVehicleDeadlinesUseCase");
+
+    @Test
+    void use_cases_check_household_membership() {
+        // Les services *Access (et les *Recorder qui les appellent avant tout fichier) font le cloisonnement.
+        DescribedPredicate<JavaClass> accessCheck = simpleNameEndingWith("Access").or(simpleNameEndingWith("Recorder"));
+        DescribedPredicate<JavaClass> exempted = DescribedPredicate.describe("internes (sans foyer à contrôler)",
+                javaClass -> USE_CASES_WITHOUT_HOUSEHOLD_CHECK.contains(javaClass.getSimpleName()));
+        classes().that().resideInAPackage(ROOT + "..application.usecase..")
+                .and().haveSimpleNameEndingWith("UseCase")
+                .and(not(exempted))
+                .should().dependOnClassesThat(accessCheck)
+                .because("un foyer reçu dans l'adresse doit appartenir au demandeur (cloisonnement des foyers)")
+                .check(CLASSES);
     }
 
     @Test
