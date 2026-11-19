@@ -17,7 +17,7 @@ import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.random.RandomGenerator;
 
-/** Génère un nouveau code d'invitation ; le code précédent encore en attente est annulé. */
+/** Le propriétaire génère un nouveau code d'invitation ; le code précédent encore en attente est annulé. */
 @Singleton
 class IssueInvitationUseCase implements IssueInvitation {
 
@@ -37,7 +37,10 @@ class IssueInvitationUseCase implements IssueInvitation {
     @Override
     @Transactional(transactionManager = "household")
     public InvitationDetails issue(IssueInvitationCommand command) {
-        var household = access.loadForMember(new HouseholdId(command.householdId()), MemberId.of(command.requesterId()));
+        var requester = MemberId.of(command.requesterId());
+        var household = access.loadForMember(new HouseholdId(command.householdId()), requester);
+        // Seul le propriétaire invite (choix de Dorian, lot 3).
+        household.requireOwner(requester);
 
         invitations.findPendingByHousehold(household.id()).ifPresent(previous -> {
             previous.revoke();

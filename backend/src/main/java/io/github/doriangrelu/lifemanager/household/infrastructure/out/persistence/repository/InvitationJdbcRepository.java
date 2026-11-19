@@ -26,4 +26,6 @@ public interface InvitationJdbcRepository extends CrudRepository<InvitationEntit
      */
     @Query("UPDATE invitation SET status = :status, accepted_by = :acceptedBy WHERE id = :id AND status = 'PENDING'")
     long closeIfPending(UUID id, String status, @Nullable UUID acceptedBy);
+
+    void deleteByHouseholdId(UUID householdId);
 }

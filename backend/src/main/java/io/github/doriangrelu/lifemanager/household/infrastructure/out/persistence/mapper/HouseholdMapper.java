@@ -18,7 +18,8 @@ public final class HouseholdMapper {
     }
 
     public static HouseholdEntity toEntity(Household household) {
-        return new HouseholdEntity(household.id().value(), household.name().value(), household.createdAt());
+        return new HouseholdEntity(household.id().value(), household.name().value(), household.createdAt(),
+                household.owner().value());
     }
 
     /** Nouvelle ligne d'appartenance (l'identifiant technique est tiré au hasard). */
@@ -32,6 +33,6 @@ public final class HouseholdMapper {
                 .map(row -> new Membership(new MemberId(row.memberId()), row.joinedAt()))
                 .toList();
         return Household.restore(new HouseholdId(household.id()), new HouseholdName(household.name()),
-                household.createdAt(), members);
+                household.createdAt(), new MemberId(household.ownerId()), members);
     }
 }

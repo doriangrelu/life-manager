@@ -47,4 +47,9 @@ class InvitationRepositoryAdapter implements InvitationRepository {
             throw new InvalidInvitationException();
         }
     }
+
+    @Override
+    public void deleteByHousehold(HouseholdId householdId) {
+        invitations.deleteByHouseholdId(householdId.value());
+    }
 }

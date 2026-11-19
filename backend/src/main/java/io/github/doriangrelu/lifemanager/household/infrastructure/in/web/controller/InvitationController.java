@@ -1,7 +1,9 @@
 package io.github.doriangrelu.lifemanager.household.infrastructure.in.web.controller;
 
+import io.github.doriangrelu.lifemanager.household.application.port.in.CancelInvitation;
 import io.github.doriangrelu.lifemanager.household.application.port.in.IssueInvitation;
 import io.github.doriangrelu.lifemanager.household.application.port.in.JoinHousehold;
+import io.github.doriangrelu.lifemanager.household.application.port.in.command.HouseholdCommand;
 import io.github.doriangrelu.lifemanager.household.application.port.in.command.IssueInvitationCommand;
 import io.github.doriangrelu.lifemanager.household.application.port.in.command.JoinHouseholdCommand;
 import io.github.doriangrelu.lifemanager.household.infrastructure.in.web.dto.HouseholdSummaryResponse;
@@ -11,6 +13,7 @@ import io.github.doriangrelu.lifemanager.household.infrastructure.in.web.ratelim
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.scheduling.annotation.ExecuteOn;
@@ -28,14 +31,23 @@ import java.util.UUID;
 class InvitationController {
 
     private final IssueInvitation issueInvitation;
+    private final CancelInvitation cancelInvitation;
     private final JoinHousehold joinHousehold;
     private final JoinAttemptLimiter joinAttempts;
 
-    InvitationController(IssueInvitation issueInvitation, JoinHousehold joinHousehold,
-                         JoinAttemptLimiter joinAttempts) {
+    InvitationController(IssueInvitation issueInvitation, CancelInvitation cancelInvitation,
+                         JoinHousehold joinHousehold, JoinAttemptLimiter joinAttempts) {
         this.issueInvitation = issueInvitation;
+        this.cancelInvitation = cancelInvitation;
         this.joinHousehold = joinHousehold;
         this.joinAttempts = joinAttempts;
+    }
+
+    /** Annule le code en attente du foyer (propriétaire seulement). */
+    @Delete("/{householdId}/invitations")
+    HttpResponse<Void> cancel(Authentication user, UUID householdId) {
+        cancelInvitation.cancel(new HouseholdCommand(user.getName(), householdId));
+        return HttpResponse.noContent();
     }
 
     @Post("/{householdId}/invitations")

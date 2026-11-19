@@ -21,6 +21,9 @@ public interface HouseholdRepository {
     /** Nombre de foyers dont l'utilisateur est membre. */
     int countByMember(MemberId member);
 
-    /** Crée le foyer ou enregistre ses nouveaux membres. */
+    /** Crée le foyer ou enregistre ses changements (nom, propriétaire, membres arrivés ou partis). */
     void save(Household household);
+
+    /** Efface le foyer et ses appartenances (les invitations sont effacées à part, avant). */
+    void delete(Household household);
 }

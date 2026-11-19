@@ -19,7 +19,7 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
-/** Détail d'un foyer pour l'un de ses membres : membres nommés et code d'invitation actif. */
+/** Détail d'un foyer pour l'un de ses membres : propriétaire, membres nommés, code d'invitation (propriétaire seul). */
 @Singleton
 class GetHouseholdUseCase implements GetHousehold {
 
@@ -42,9 +42,12 @@ class GetHouseholdUseCase implements GetHousehold {
     @Override
     @Transactional(transactionManager = "household", readOnly = true)
     public HouseholdDetails get(GetHouseholdQuery query) {
-        var household = access.loadForMember(new HouseholdId(query.householdId()), MemberId.of(query.requesterId()));
-        return new HouseholdDetails(household.id().value(), household.name().value(),
-                namedMembers(household), activeInvitation(household).orElse(null));
+        var requester = MemberId.of(query.requesterId());
+        var household = access.loadForMember(new HouseholdId(query.householdId()), requester);
+        // Le code d'invitation n'est montré qu'au propriétaire : lui seul invite.
+        var invitation = household.isOwner(requester) ? activeInvitation(household).orElse(null) : null;
+        return new HouseholdDetails(household.id().value(), household.name().value(), household.owner().value(),
+                namedMembers(household), invitation);
     }
 
     private List<MemberDetails> namedMembers(Household household) {

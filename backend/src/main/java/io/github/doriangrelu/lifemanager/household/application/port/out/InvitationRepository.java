@@ -19,4 +19,7 @@ public interface InvitationRepository {
      * Si une autre requête l'a utilisée entre-temps, lève {@code InvalidInvitationException}.
      */
     void save(Invitation invitation);
+
+    /** Efface toutes les invitations du foyer (suppression du foyer). */
+    void deleteByHousehold(HouseholdId householdId);
 }

@@ -6,17 +6,19 @@ import io.micronaut.serde.annotation.Serdeable;
 
 import java.util.List;
 import java.util.UUID;
+
 /**
  * Détail d'un foyer.
  *
- * @param activeInvitation code encore utilisable, {@code null} s'il n'y en a pas
+ * @param ownerId          propriétaire du foyer (lui seul renomme, invite, retire, supprime)
+ * @param activeInvitation code encore utilisable, {@code null} s'il n'y en a pas ou pour un non-propriétaire
  */
 @Serdeable
-public record HouseholdDetailsResponse(UUID id, String name, List<MemberResponse> members,
+public record HouseholdDetailsResponse(UUID id, String name, UUID ownerId, List<MemberResponse> members,
                                        @Nullable InvitationResponse activeInvitation) {
 
     public static HouseholdDetailsResponse from(HouseholdDetails details) {
-        return new HouseholdDetailsResponse(details.id(), details.name(),
+        return new HouseholdDetailsResponse(details.id(), details.name(), details.ownerId(),
                 details.members().stream().map(MemberResponse::from).toList(),
                 details.optionalActiveInvitation().map(InvitationResponse::from).orElse(null));
     }

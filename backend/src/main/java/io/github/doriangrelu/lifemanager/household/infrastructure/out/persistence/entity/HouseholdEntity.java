@@ -8,5 +8,5 @@ import java.util.UUID;
 
 /** Ligne de la table {@code household.household}. */
 @MappedEntity("household")
-public record HouseholdEntity(@Id UUID id, String name, Instant createdAt) {
+public record HouseholdEntity(@Id UUID id, String name, Instant createdAt, UUID ownerId) {
 }

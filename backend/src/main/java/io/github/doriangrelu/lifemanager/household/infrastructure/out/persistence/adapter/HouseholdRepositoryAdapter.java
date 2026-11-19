@@ -12,6 +12,7 @@ import jakarta.inject.Singleton;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /** Implémente le stockage des foyers avec PostgreSQL (tables household et membership). */
 @Singleton
@@ -48,13 +49,28 @@ class HouseholdRepositoryAdapter implements HouseholdRepository {
     @Override
     public void save(Household household) {
         var id = household.id().value();
-        if (!households.existsById(id)) {
+        if (households.existsById(id)) {
+            households.update(HouseholdMapper.toEntity(household));
+        } else {
             households.save(HouseholdMapper.toEntity(household));
         }
-        // On ne retire jamais de membre : il suffit d'ajouter ceux qui ne sont pas encore en base.
+        var current = household.members().stream().map(membership -> membership.memberId().value())
+                .collect(Collectors.toSet());
+        // Membres partis ou retirés : leur appartenance disparaît.
+        memberships.findByHouseholdIdOrderByJoinedAt(id).stream()
+                .filter(row -> !current.contains(row.memberId()))
+                .forEach(memberships::delete);
+        // Nouveaux membres : ajoutés.
         household.members().stream()
                 .filter(membership -> !memberships.existsByHouseholdIdAndMemberId(id, membership.memberId().value()))
                 .forEach(membership -> memberships.save(HouseholdMapper.toNewEntity(household.id(), membership)));
+    }
+
+    @Override
+    public void delete(Household household) {
+        var id = household.id().value();
+        memberships.deleteAll(memberships.findByHouseholdIdOrderByJoinedAt(id));
+        households.deleteById(id);
     }
 
     private Household withMembers(HouseholdEntity household) {
