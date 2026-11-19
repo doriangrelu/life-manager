@@ -1,36 +1,44 @@
 ## Why
 
-Le budget ne connaît aujourd'hui que les dépenses : impossible de savoir si le mois est « dans le vert », ni combien le foyer met de côté. Idée du frère de Dorian, rangée au lot 4 de `docs/feuille-de-route.md`. Ce change en est la **première moitié (4a)** ; le budget prévisionnel et les crédits suivront dans un second change (4b), qui s'appuiera sur celui-ci.
+Le budget ne connaît que les dépenses : impossible de savoir si le foyer est **en positif ou en négatif** sur un mois, un trimestre ou une année, ni combien il a mis de côté. Idée du frère de Dorian (lot 4 de `docs/feuille-de-route.md`), affinée avec Dorian en trois itérations le 2026-11-19. Ce change est la **première moitié du lot 4 (4a)** ; le prévisionnel par catégorie et les crédits viendront en 4b.
+
+Principe directeur, voulu par Dorian : **simple et optionnel**. Un foyer qui ne veut pas suivre ses rentrées ne voit **aucun changement**.
 
 ## What Changes
 
-- **Rentrées d'argent** : salaire, prime, remboursement, aide, autre. Montant, date, libellé, **reçue par** un membre ou par le foyer. Saisie, modification, suppression, comme une dépense.
-- **Rentrées récurrentes** (salaire…) : elles arrivent seules chaque mois, sur le modèle des charges récurrentes. Montant fixe → enregistrée seule ; montant variable → « à confirmer ».
-- **Épargne mensuelle** : chaque mois, une case « mis de côté » avec un montant, et une **épargne récurrente** possible (virement automatique vers un livret). Comptée à part des dépenses ; cumul affiché.
-- **Écran du mois** : le bandeau montre **rentrées, dépenses, épargne et solde** (rentrées − dépenses − épargne), et une section « Rentrées du mois ». Le bouton + propose « Dépense », « Rentrée » ou « Épargne ».
+- **Réglage du foyer « Suivre les rentrées (bilan) »**, désactivé par défaut, réglé par le propriétaire. Désactivé : l'application reste exactement comme aujourd'hui.
+- **Rentrées d'argent** (mode activé), saisies comme une dépense : montant, date, catégorie de rentrée, libellé, **reçue par** un membre ou par le foyer. Le bouton + du Budget propose « Dépense » (par défaut) ou « Rentrée ».
+- **Catégories de rentrées**, libres comme celles des dépenses, avec des suggestions au départ : Salaire, Prime, Remboursement, Aides, Autre.
+- **Bandeau du mois** (mode activé) : **Dépensé**, **Rentré** et **Résultat** (rentré − dépensé), en vert ou en rouge.
+- **Charges** (mode activé) : deux panneaux, **Dépenses fixes** et **Rentrées fixes**. Même mécanique : montant fixe enregistré seul, montant variable à confirmer, rappels.
+- **Bilan** (mode activé) : nouveau sous-onglet de l'espace Argent (Budget · Charges · Bilan). Pour un mois, un trimestre, une année ou les 12 derniers mois :
+  - le **réalisé** et le **prévu en fin de période** (réalisé + rentrées et charges récurrentes encore à venir) ;
+  - le **résultat** en couleur, et l'**épargne** = résultat positif de la période (« vous avez mis de côté 1 200 € ») ;
+  - les rentrées par catégorie et par personne, les dépenses par catégorie.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `rentrees` : rentrées ponctuelles et récurrentes.
-- `epargne` : montants mis de côté chaque mois, ponctuels ou récurrents, et leur cumul.
+- `rentrees` : rentrées ponctuelles, catégories de rentrées, rentrées récurrentes.
+- `bilan` : bilan par période, réalisé et prévu, résultat et épargne.
 
 ### Modified Capabilities
 
-- `budget-mensuel` : rentrées, épargne et solde du mois.
-- `charges-recurrentes` : le calendrier des échéances sert aussi aux rentrées et à l'épargne récurrentes (voir design).
+- `foyer` : réglage « Suivre les rentrées ».
+- `budget-mensuel` : bandeau Dépensé / Rentré / Résultat quand le réglage est activé.
+- `charges-recurrentes` : sens d'un mouvement récurrent (dépense ou rentrée), deux panneaux.
 
 ## Impact
 
-- `budget` : agrégats `Income` et `Saving`, tables dans le schéma `budget`, vue du mois enrichie.
-- `bills` : un mouvement récurrent a un **sens** (charge, rentrée, épargne) ; une échéance payée publie l'événement correspondant.
-- PWA : écran du mois, formulaires de rentrée et d'épargne, écran des récurrents.
+- `household` : réglage du foyer (colonne, route réservée au propriétaire).
+- `budget` : agrégat `Income`, catégories typées (dépense / rentrée), vue du mois et bilan par période.
+- `bills` : sens d'un mouvement récurrent ; une échéance payée transmet ce sens au budget ; prévisions de la période.
+- PWA : bouton +, bandeau, panneaux des charges, sous-onglet Bilan, réglage du foyer.
 - Rien à faire sur le VPS (migrations automatiques).
 
-## Hors périmètre (change 4b)
+## Hors périmètre
 
-- Budget prévisionnel par catégorie, reste à vivre, suivi prévu / réel et alertes.
-- Crédits (capital, taux, échéancier, capital restant dû).
-- Plusieurs comptes d'épargne nommés (Livret A, PEL…), intérêts : plus tard si besoin.
-- Graphiques (lot 5).
+- Solde de départ, trésorerie, comptes et livrets (abandonnés par Dorian).
+- Saisie d'épargne à part (l'épargne est le résultat positif).
+- Prévisionnel par catégorie, reste à vivre détaillé, crédits (change 4b) ; graphiques (lot 5).
