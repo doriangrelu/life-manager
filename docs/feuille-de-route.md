@@ -97,6 +97,10 @@ Demandé par Dorian le 2026-11-19. Deux changes OpenSpec :
   - **supprimer mon compte** (foyers quittés ou supprimés, profil effacé, compte Keycloak supprimé) ;
   - liens CGU / confidentialité dans le pied de page.
 
+### Lot 6d — Stabilisation (patch v0.13.1, juste après la v0.13.0)
+
+Demandé par Dorian le 2026-11-19 : chasse aux bugs, corrections, et améliorations ou optimisations du code existant si c'est utile. Aucune nouvelle fonctionnalité. Change OpenSpec `stabilisation`.
+
 ### Lot 7 — Comptes entre membres
 
 - **Qui doit quoi** : dépenses et abonnements partagés, part de chacun, solde entre membres, remboursement enregistré.
