@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Un rappel d'échéance.
  *
- * @param kind     TECHNICAL_INSPECTION ou SERVICE
+ * @param kind     TECHNICAL_INSPECTION, SERVICE, CHARGE, CHARGE_TO_CONFIRM, ou PERSONAL (rappel saisi)
  * @param status   OVERDUE (en retard) ou DUE_SOON (dans les 30 jours)
  * @param daysLeft jours restants, négatif en cas de retard
  */

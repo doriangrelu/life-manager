@@ -190,11 +190,30 @@ export interface Attachment {
 
 export interface Reminder {
   deadlineId: string
-  kind: 'TECHNICAL_INSPECTION' | 'SERVICE' | 'CHARGE' | 'CHARGE_TO_CONFIRM'
+  /** PERSONAL : rappel saisi par un membre (deadlineId est alors son identifiant). */
+  kind: 'TECHNICAL_INSPECTION' | 'SERVICE' | 'CHARGE' | 'CHARGE_TO_CONFIRM' | 'PERSONAL'
   subject: string
   dueOn: string
   status: 'OVERDUE' | 'DUE_SOON'
   daysLeft: number
+}
+
+export type Recurrence = 'NONE' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY'
+/** À partir de quand prévenir avant la date : le jour même, 1 semaine ou 1 mois avant. */
+export type NoticePeriod = 'SAME_DAY' | 'ONE_WEEK' | 'ONE_MONTH'
+
+/** Saisie d'un rappel ; note null = aucune. */
+export interface PersonalReminderInput {
+  title: string
+  note: string | null
+  dueOn: string
+  recurrence: Recurrence
+  notice: NoticePeriod
+}
+
+/** Rappel saisi par un membre, visible par tout le foyer. */
+export interface PersonalReminder extends PersonalReminderInput {
+  id: string
 }
 
 // ---- Courses

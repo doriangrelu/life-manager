@@ -1,6 +1,6 @@
 // Navigation par espaces : les écrans (sections) sont regroupés par thème pour garder une barre du bas courte.
 // Seule source de vérité : un nouvel écran s'ajoute dans la liste de son espace.
-import { Car, ChartColumnBig, House, ListChecks, ReceiptText, Users, Wallet } from '@lucide/svelte'
+import { Bell, Car, ChartColumnBig, House, ListChecks, ReceiptText, Users, Wallet } from '@lucide/svelte'
 import type { Section } from './route'
 
 export type SpaceId = 'money' | 'shopping' | 'home' | 'household'
@@ -42,7 +42,10 @@ export const SPACES: Space[] = [
     id: 'home',
     label: 'Maison',
     icon: House,
-    entries: [{ section: 'vehicles', label: 'Véhicules', icon: Car }],
+    entries: [
+      { section: 'vehicles', label: 'Véhicules', icon: Car },
+      { section: 'reminders', label: 'Rappels', icon: Bell },
+    ],
   },
   {
     id: 'household',

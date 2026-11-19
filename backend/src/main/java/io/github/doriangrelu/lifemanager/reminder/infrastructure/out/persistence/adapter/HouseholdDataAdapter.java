@@ -28,6 +28,7 @@ class HouseholdDataAdapter implements HouseholdData {
     public List<UUID> erase(HouseholdId householdId) {
         var id = householdId.value();
         table.erase1(id);
+        table.erasePersonalReminders(id);
         table.deleteMembers(id);
         return List.of();
     }

@@ -22,4 +22,7 @@ public interface HouseholdDataJdbcRepository extends GenericRepository<Household
 
     @Query("DELETE FROM deadline WHERE household_id = :householdId")
     void erase1(UUID householdId);
+
+    @Query("DELETE FROM personal_reminder WHERE household_id = :householdId")
+    void erasePersonalReminders(UUID householdId);
 }

@@ -3,7 +3,7 @@
 
 import { writable, type Readable } from 'svelte/store'
 
-export type Section = 'budget' | 'charges' | 'report' | 'shopping' | 'vehicles' | 'household'
+export type Section = 'budget' | 'charges' | 'report' | 'shopping' | 'vehicles' | 'reminders' | 'household'
 
 /** Écran : la section, et pour Budget le mois consulté, pour Charges et Véhicules la fiche ouverte. */
 export interface Route {
@@ -20,6 +20,7 @@ const SLUGS: Record<Section, string> = {
   report: 'bilan',
   shopping: 'courses',
   vehicles: 'vehicules',
+  reminders: 'rappels',
   household: 'foyer',
 }
 
