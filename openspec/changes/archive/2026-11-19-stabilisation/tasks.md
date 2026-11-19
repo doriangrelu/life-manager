@@ -16,8 +16,8 @@
 ## 3. Livraison
 
 - [x] 3.1 Suite complète (`./mvnw -B -q verify`, `bun run check`, `bun run test`), parcours natif
-- [ ] 3.2 Livraison v0.13.1 (`release-chain.sh`), vérification en prod
-- [ ] 3.3 Message de recette à Dorian : liste des bugs corrigés et des améliorations ; archive du change
+- [x] 3.2 Livraison v0.13.1 (`release-chain.sh`), vérification en prod
+- [x] 3.3 Message de recette à Dorian : liste des bugs corrigés et des améliorations ; archive du change
 
 ## 4. Anomalies trouvées
 

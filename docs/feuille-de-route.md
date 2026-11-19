@@ -98,7 +98,9 @@ Demandé par Dorian le 2026-11-19. Deux changes OpenSpec :
   - liens CGU / confidentialité dans le pied de page.
   - À faire à part, avec l'accord de Dorian (redémarrage de Keycloak) : liens CGU / confidentialité sur la page de connexion.
 
-### Lot 6d — Stabilisation (patch v0.13.1, juste après la v0.13.0)
+### Lot 6d — Stabilisation ✅ (livré le 2026-11-19, v0.13.1, en recette)
+
+15 bugs corrigés (10 dans la PWA, 5 dans le backend, chacun avec un test quand c'était possible) ; parcours natif indépendant des comptes de dev. Laissés pour plus tard : liens `charge_expense` / `charge_income` orphelins après suppression d'un foyer (changement de schéma, à l'accord de Dorian), requêtes en boucle dans `bills` (sans effet visible au volume actuel), découpage des gros écrans.
 
 Demandé par Dorian le 2026-11-19 : chasse aux bugs, corrections, et améliorations ou optimisations du code existant si c'est utile. Aucune nouvelle fonctionnalité. Change OpenSpec `stabilisation`.
 
