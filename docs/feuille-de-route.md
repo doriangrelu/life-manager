@@ -73,7 +73,8 @@ Placé avant les graphiques (choix de Dorian) : ils pourront ainsi montrer à la
 - Dépenses de l'**année** : total et répartition **par catégorie**.
 - **Graphiques par mois** sur le réalisé et le prévisionnel (lot 4) : évolution du total, des principales catégories, écart au prévu.
 - **Comparatif rentrées / dépenses** : par mois et sur l'année, épargne dégagée.
-- Coût réel de chaque véhicule sur l'année (entretien + charges liées).
+- ✅ v0.10.0 : onglet **« Évolution »** du Bilan (rentrées, dépenses et épargne cumulée mois par mois ; dépenses face au prévu, toutes catégories ou une seule). L'année et la répartition par catégorie existaient déjà.
+- **En attente** (choix de Dorian, 2026-11-19) : coût réel de chaque véhicule sur l'année. Piste : un champ « Véhicule » facultatif sur une dépense, additionné au carnet d'entretien.
 
 ### Lot 6 — Rappels libres et e-mails
 

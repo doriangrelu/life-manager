@@ -17,7 +17,9 @@ Un troisième onglet du Bilan, **« Évolution »**, à côté de « Résultat �
 
 Sans le suivi des rentrées, le graphique 1 ne montre que les dépenses ; sans budget prévu, les traits du prévu disparaissent.
 
-### 5b — Coût d'un véhicule sur l'année (v0.11.0)
+### 5b — Coût d'un véhicule sur l'année : EN ATTENTE
+
+Mis en attente par Dorian le 2026-11-19 (« on va mettre en standby cette feature ») : retiré de ce change, noté dans la feuille de route. Proposition d'origine, pour mémoire :
 
 Sur la fiche d'un véhicule : son **coût de l'année** (et de l'année passée), mois par mois. Le carnet d'entretien sait déjà ce que coûte chaque opération ; le reste (assurance, crédit auto, carburant, péage…) est aujourd'hui dans le Budget, sans lien avec le véhicule. Voir la question 3.
 

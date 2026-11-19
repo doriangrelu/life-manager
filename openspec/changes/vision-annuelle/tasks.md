@@ -5,7 +5,3 @@
 - [x] 1.3 [frontend/report] Onglet « Évolution » du Bilan (sur plusieurs mois) avec ses deux graphiques et le choix de la catégorie
 - [x] 1.4 [frontend] Vérification au navigateur : mobile et bureau, clair et sombre
 - [ ] 1.5 [infra/vps] Version v0.10.0 publiée et déployée
-
-## 2. Coût d'un véhicule (5b)
-
-- [ ] 2.1 À préciser avec Dorian : il voit le véhicule « comme une dépense ponctuelle » (rattacher une dépense à un véhicule, ou ne rien faire de plus ?)
