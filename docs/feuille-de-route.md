@@ -46,9 +46,11 @@ Lots terminés : lot 0 (finitions de mise en production, v0.2.x), lot 1 (facture
 
 À faire avant d'ouvrir l'application à d'autres foyers.
 
-### Lot 4 — Budget prévisionnel et crédits
+### Lot 4 — Rentrées d'argent, budget prévisionnel et crédits
 
-- Budget prévisionnel du mois par catégorie : revenus, charges récurrentes (lot 1), mensualités, donc **reste à vivre**.
+- **Rentrées d'argent** (idée du frère de Dorian, à mûrir à l'implémentation) : salaires, primes, remboursements, aides… saisis à la main ou **récurrents** (comme les charges), par membre ou pour le foyer. Dans l'espace Argent. Le mois affiche alors rentrées, dépenses et **solde**.
+- **Épargne mensuelle** : une case dédiée chaque mois, avec le montant mis de côté (fixe et récurrent, ou saisi). Elle est comptée à part des dépenses, pour suivre l'épargne cumulée et, au lot 5, son évolution.
+- Budget prévisionnel du mois par catégorie : rentrées prévues, charges récurrentes (lot 1), mensualités, donc **reste à vivre**.
 - **Suivi du prévisionnel** : prévu et réel par catégorie, alerte en cas de dépassement.
 - Crédits en cours : capital, taux, mensualité, échéancier, capital restant dû.
 
@@ -58,6 +60,7 @@ Placé avant les graphiques (choix de Dorian) : ils pourront ainsi montrer à la
 
 - Dépenses de l'**année** : total et répartition **par catégorie**.
 - **Graphiques par mois** sur le réalisé et le prévisionnel (lot 4) : évolution du total, des principales catégories, écart au prévu.
+- **Comparatif rentrées / dépenses** : par mois et sur l'année, épargne dégagée.
 - Coût réel de chaque véhicule sur l'année (entretien + charges liées).
 
 ### Lot 6 — Rappels libres et e-mails
@@ -101,6 +104,7 @@ Placé avant les graphiques (choix de Dorian) : ils pourront ainsi montrer à la
 
 - Notifications push (application fermée), avec choix par membre.
 - Courses hors connexion (magasin sans réseau).
+- **Simulateur fiscal** (idée du frère de Dorian, **pas prioritaire**) : estimation de l'impôt sur le revenu à partir des rentrées de l'année (lot 4), selon le barème en vigueur. À cadrer par une étude, car les règles changent chaque année et ce ne peut être qu'une estimation.
 
 ## Exploitation et documentation (au fil de l'eau, hors lots)
 
