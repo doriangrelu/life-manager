@@ -86,16 +86,17 @@ Découpé en deux à la demande de Dorian (2026-11-19) :
   - **e-mails de Keycloak aux couleurs de l'application** (mot de passe oublié, vérification), envoyés par Brevo ;
   - prérequis technique : réparer le HTTPS sortant de l'exécutable natif (voir dette).
 
-### Lot 6c — Données personnelles et historique des rappels (en cadrage, avant le lot 7)
+### Lot 6c — Données personnelles et historique des rappels ✅ (livré le 2026-11-19, v0.12.0 et v0.13.0, en recette)
 
 Demandé par Dorian le 2026-11-19. Deux changes OpenSpec :
 
 - ✅ **`historique-rappels`** (v0.12.0, livré le 2026-11-19, en recette) : trace de chaque « C'est fait » (titre, date prévue, date faite, qui), section « Historique » dans l'écran Rappels, ligne retirable par tout membre, effacée après un an ; **version déployée** dans le pied de page.
-- **`donnees-personnelles`** (v0.13.0, deux questions encore ouvertes) :
-  - **CGU** et **politique de confidentialité (RGPD)**, lisibles sans être connecté, acceptation des CGU dans l'application ;
-  - **télécharger mes données** en JSON (périmètre à valider : rien de secret, ni e-mails des autres, ni codes d'invitation, ni contenu des fichiers) ;
-  - **supprimer mon compte** (foyers quittés ou supprimés, profil effacé, compte Keycloak supprimé) ;
+- ✅ **`donnees-personnelles`** (v0.13.0, livré le 2026-11-19, en recette) :
+  - **CGU** et **politique de confidentialité (RGPD)**, lisibles sans être connecté, à accepter dans l'application à chaque nouvelle version ;
+  - **télécharger mes données** en JSON : seulement ce que l'utilisateur a saisi (« créé par » noté à partir de la v0.13.0), rien de secret ni de technique, rien des autres membres, fichiers décrits sans leur contenu ;
+  - **supprimer mon compte** : foyers où il est seul supprimés, foyers partagés transmis (au choix, sinon au membre le plus ancien) puis quittés, profil effacé, compte Keycloak supprimé ;
   - liens CGU / confidentialité dans le pied de page.
+  - À faire à part, avec l'accord de Dorian (redémarrage de Keycloak) : liens CGU / confidentialité sur la page de connexion.
 
 ### Lot 6d — Stabilisation (patch v0.13.1, juste après la v0.13.0)
 

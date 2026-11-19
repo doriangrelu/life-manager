@@ -20,6 +20,6 @@
 
 - [x] 4.1 [frontend] Vérification au navigateur (mobile, bureau, clair, sombre)
 - [x] 4.2 [infra] Parcours natif étendu (CGU, export, suppression)
-- [ ] 4.3 [infra/vps] Réglage Keycloak de prod par Dorian, puis v0.13.0 publiée et déployée
+- [x] 4.3 [infra/vps] Réglage Keycloak de prod par Dorian, puis v0.13.0 publiée et déployée
 
 Note : les catégories créées à la volée depuis une dépense (nouveau nom saisi) n'ont pas d'auteur ; seules celles créées depuis l'écran Catégories sont exportées.
