@@ -77,6 +77,22 @@ Le thème est choisi dans la console : realm `life-manager` → *Realm settings*
 
 Chaque nuit à 3 h, `~/infra/backup.sh` archive toutes les bases (`pg_dumpall`, comptes compris) et les dossiers de `~/volumes`. Les archives restent 14 jours dans `~/infra/backups`, et la sauvegarde automatique du VPS chez OVH en garde une copie hors du serveur.
 
+### Copie chiffrée vers OneDrive
+
+À 3 h 30, `~/infra/onedrive/send-backup.sh` envoie les archives sur le OneDrive de Dorian, dossier `Sauvegardes/VPS`, chiffrées par rclone : sur OneDrive, les noms et les contenus sont illisibles. Les archives de plus de 30 jours y sont supprimées. Journal : `~/infra/onedrive/onedrive.log`. Sources : `infra/vps/onedrive/`.
+
+- **Installation (une fois, par Dorian)** : `sudo apt install rclone` sur le VPS, copier les deux scripts dans `~/infra/onedrive`, puis depuis WSL :
+  `ssh -t -L 53682:127.0.0.1:53682 ubuntu@152.228.237.190 '~/infra/onedrive/setup-onedrive.sh'`
+  Le script fait ouvrir la page Microsoft dans le navigateur Windows (le tunnel `-L` la relie au VPS), demande la phrase de chiffrement, envoie une première fois et ajoute la tâche nocturne.
+- **Secrets** : le jeton OneDrive et la phrase (masquée) sont dans `~/.config/rclone/rclone.conf` du VPS, **pas** dans les archives. La phrase est aussi dans le gestionnaire de mots de passe de Dorian : sans elle, les copies sont perdues.
+- **Récupérer une archive depuis n'importe quelle machine** (WSL par exemple) :
+  ```bash
+  rclone config create onedrive onedrive config_type=onedrive        # connexion Microsoft
+  rclone config create onedrive-chiffre crypt remote=onedrive:Sauvegardes/VPS password='<phrase>' --obscure
+  rclone lsf onedrive-chiffre:                                       # liste des archives
+  rclone copy onedrive-chiffre:sauvegarde-AAAAMMJJ-HHMMSS.tar.gz .
+  ```
+
 Restaurer Life Manager sur une machine neuve :
 
 1. Restaurer le socle (`~/infra/restore.sh` avec l'archive) : bases, comptes PostgreSQL et realm reviennent ensemble.
@@ -94,9 +110,11 @@ Restaurer Life Manager sur une machine neuve :
 
 ## Recommandations pour le serveur
 
+Fait le 2026-11-19 : connexion SSH par clé uniquement (`/etc/ssh/sshd_config.d/00-cles-uniquement.conf`, lu avant `50-cloud-init.conf` qui remettait les mots de passe) ; anciennes images et cache de build supprimés ; journaux Docker limités à 3 × 10 Mo (`/etc/docker/daemon.json`, actif pour les conteneurs créés après un redémarrage de Docker) ; copie des sauvegardes vers OneDrive.
+
 Hors du périmètre de Life Manager, à appliquer seulement si Dorian le décide :
 
-- désactiver la connexion SSH par mot de passe (`PasswordAuthentication no`) ;
-- libérer l'espace des anciennes images Docker (`docker builder prune`, `docker image prune`) ;
+- supprimer les images d'avant l'avant-dernière version de temps en temps (`docker image rm`, `docker builder prune -af`) ;
+- fixer la version de Keycloak au lieu de `latest` ;
 - ajouter un fichier d'échange de 2 Go ;
 - bloquer `/admin` de Keycloak depuis Internet (accès par tunnel SSH).
