@@ -17,4 +17,4 @@
 - [x] 3.2 [frontend] Création d'un foyer, code d'invitation (8 caractères), renommages, suppression du foyer (nom qui ne correspond pas). Les ajouts en une ligne (catégorie, sous-liste, article) ne changent pas : leur bouton reste inactif tant que le champ est vide
 - [x] 3.3 [frontend/household] « i » sur l'option « Rentrées et bilan »
 - [x] 3.4 [frontend] Vérification au navigateur
-- [ ] 3.5 [infra/vps] Version v0.9.1 publiée et déployée
+- [x] 3.5 [infra/vps] Version v0.9.1 publiée et déployée
