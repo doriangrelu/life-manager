@@ -14,8 +14,14 @@ public interface ShoppingItemRepository {
 
     Optional<ShoppingItem> findById(ShoppingItemId id);
 
-    /** Articles d'une sous-liste : non cochés du plus ancien au plus récent, puis cochés du dernier coché au premier. */
+    /** Articles d'une sous-liste : non cochés dans l'ordre choisi par le foyer, puis cochés du dernier coché au premier. */
     List<ShoppingItem> findAllByList(ShoppingListId listId);
+
+    /**
+     * Range les articles de la sous-liste : ceux donnés d'abord, dans cet ordre, puis les autres à leur place relative.
+     * Tous les identifiants donnés appartiennent à la sous-liste (vérifié avant).
+     */
+    void reorder(ShoppingListId listId, List<ShoppingItemId> ordered);
 
     List<ShoppingItem> findCheckedByList(ShoppingListId listId);
 

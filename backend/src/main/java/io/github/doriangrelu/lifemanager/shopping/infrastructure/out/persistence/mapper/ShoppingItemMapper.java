@@ -14,9 +14,10 @@ public final class ShoppingItemMapper {
     private ShoppingItemMapper() {
     }
 
-    public static ShoppingItemEntity toEntity(ShoppingItem item) {
+    /** Ligne d'un nouvel article, rangé à {@code position} dans sa sous-liste. */
+    public static ShoppingItemEntity toNewEntity(ShoppingItem item, int position) {
         return new ShoppingItemEntity(item.id().value(), item.listId().value(), item.label().value(),
-                item.checkedAt().orElse(null), item.origin().addedBy().value(), item.origin().addedAt());
+                item.checkedAt().orElse(null), item.origin().addedBy().value(), item.origin().addedAt(), position);
     }
 
     public static ShoppingItem toDomain(ShoppingItemEntity entity) {

@@ -5,6 +5,7 @@ import io.github.doriangrelu.lifemanager.shopping.domain.aggregate.ShoppingList;
 import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.ListName;
 import io.github.doriangrelu.lifemanager.shopping.domain.valueobject.ShoppingListId;
+import io.github.doriangrelu.lifemanager.shopping.infrastructure.out.persistence.entity.ShoppingListEntity;
 import io.github.doriangrelu.lifemanager.shopping.infrastructure.out.persistence.mapper.ShoppingListMapper;
 import io.github.doriangrelu.lifemanager.shopping.infrastructure.out.persistence.repository.ShoppingListJdbcRepository;
 import jakarta.inject.Singleton;
@@ -47,11 +48,21 @@ class ShoppingListRepositoryAdapter implements ShoppingListRepository {
 
     @Override
     public void save(ShoppingList list) {
-        var entity = ShoppingListMapper.toEntity(list);
-        if (table.existsById(entity.id())) {
-            table.update(entity);
+        var id = list.id().value();
+        if (table.existsById(id)) {
+            table.updateName(id, list.name().value());
         } else {
-            table.save(entity);
+            // Une nouvelle sous-liste arrive après les autres.
+            table.save(ShoppingListMapper.toNewEntity(list, table.nextPosition(list.householdId().value())));
+        }
+    }
+
+    @Override
+    public void reorder(HouseholdId householdId, List<ShoppingListId> ordered) {
+        var current = table.findAllByHousehold(householdId.value()).stream().map(ShoppingListEntity::id).toList();
+        var all = Ordering.merge(current, ordered.stream().map(ShoppingListId::value).toList());
+        for (int position = 0; position < all.size(); position++) {
+            table.updatePosition(all.get(position), householdId.value(), position);
         }
     }
 

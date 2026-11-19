@@ -16,7 +16,8 @@ import java.util.UUID;
 @JdbcRepository(dialect = Dialect.POSTGRES)
 public interface ShoppingListJdbcRepository extends CrudRepository<ShoppingListEntity, UUID> {
 
-    @Query("SELECT * FROM shopping_list WHERE household_id = :householdId ORDER BY lower(name), id")
+    /** Sous-listes du foyer dans l'ordre choisi par le foyer. */
+    @Query("SELECT * FROM shopping_list WHERE household_id = :householdId ORDER BY position, lower(name), id")
     List<ShoppingListEntity> findAllByHousehold(UUID householdId);
 
     /** Recherche sans tenir compte des majuscules. */
@@ -24,4 +25,15 @@ public interface ShoppingListJdbcRepository extends CrudRepository<ShoppingListE
     Optional<ShoppingListEntity> findByName(UUID householdId, String name);
 
     boolean existsByHouseholdId(UUID householdId);
+
+    /** Rang d'une sous-liste créée maintenant : après toutes les autres. */
+    @Query("SELECT COALESCE(MAX(position) + 1, 0) FROM shopping_list WHERE household_id = :householdId")
+    int nextPosition(UUID householdId);
+
+    /** Seul changement possible d'une sous-liste existante : son nom (la position a sa propre requête). */
+    @Query("UPDATE shopping_list SET name = :name WHERE id = :id")
+    void updateName(UUID id, String name);
+
+    @Query("UPDATE shopping_list SET position = :position WHERE id = :id AND household_id = :householdId")
+    void updatePosition(UUID id, UUID householdId, int position);
 }

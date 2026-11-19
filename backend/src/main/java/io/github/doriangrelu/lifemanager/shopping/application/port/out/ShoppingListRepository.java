@@ -13,8 +13,14 @@ public interface ShoppingListRepository {
 
     Optional<ShoppingList> findById(ShoppingListId id);
 
-    /** Sous-listes du foyer, triées par nom. */
+    /** Sous-listes du foyer, dans l'ordre choisi par le foyer (une nouvelle arrive en dernier). */
     List<ShoppingList> findAllByHousehold(HouseholdId householdId);
+
+    /**
+     * Range les sous-listes du foyer : celles données d'abord, dans cet ordre, puis les autres à leur place relative.
+     * Tous les identifiants donnés appartiennent au foyer (vérifié avant).
+     */
+    void reorder(HouseholdId householdId, List<ShoppingListId> ordered);
 
     /** Sous-liste du foyer portant ce nom, sans tenir compte des majuscules. */
     Optional<ShoppingList> findByName(HouseholdId householdId, ListName name);

@@ -41,13 +41,16 @@ class ShoppingListIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void a_new_household_gets_three_empty_lists_sorted_by_name() {
+    void a_new_household_gets_three_empty_lists_in_creation_order() {
         var owner = newUser();
         var household = households.create(owner, "Maison").id();
 
         assertThat(lists(owner, household)).extracting(ShoppingListResponse::name, ShoppingListResponse::pendingCount)
-                .containsExactly(tuple("bricolage", 0L), tuple("courses", 0L), tuple("vêtements", 0L));
+                .containsExactly(tuple("courses", 0L), tuple("bricolage", 0L), tuple("vêtements", 0L));
     }
+
+
+
 
     @Test
     void lists_can_be_added_renamed_and_count_their_pending_items() {

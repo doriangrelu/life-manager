@@ -48,11 +48,21 @@ class ShoppingItemRepositoryAdapter implements ShoppingItemRepository {
 
     @Override
     public void save(ShoppingItem item) {
-        var entity = ShoppingItemMapper.toEntity(item);
-        if (table.existsById(entity.id())) {
-            table.update(entity);
+        var id = item.id().value();
+        if (table.existsById(id)) {
+            table.updateCheckedAt(id, item.checkedAt().orElse(null));
         } else {
-            table.save(entity);
+            // Un nouvel article arrive en fin de sous-liste.
+            table.save(ShoppingItemMapper.toNewEntity(item, table.nextPosition(item.listId().value())));
+        }
+    }
+
+    @Override
+    public void reorder(ShoppingListId listId, List<ShoppingItemId> ordered) {
+        var requested = ordered.stream().map(ShoppingItemId::value).toList();
+        var all = Ordering.merge(table.findIdsInOrder(listId.value()), requested);
+        for (int position = 0; position < all.size(); position++) {
+            table.updatePosition(all.get(position), listId.value(), position);
         }
     }
 

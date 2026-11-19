@@ -12,8 +12,9 @@ public final class ShoppingListMapper {
     private ShoppingListMapper() {
     }
 
-    public static ShoppingListEntity toEntity(ShoppingList list) {
-        return new ShoppingListEntity(list.id().value(), list.householdId().value(), list.name().value());
+    /** Ligne d'une nouvelle sous-liste, rangée à {@code position} dans le foyer. */
+    public static ShoppingListEntity toNewEntity(ShoppingList list, int position) {
+        return new ShoppingListEntity(list.id().value(), list.householdId().value(), list.name().value(), position);
     }
 
     public static ShoppingList toDomain(ShoppingListEntity entity) {
