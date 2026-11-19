@@ -64,7 +64,7 @@ Le nom de l'administrateur est la variable `POSTGRES_USER` de `~/infra/.env` : n
 
 ## Secrets (emplacement seulement, ne jamais lire les valeurs)
 
-`~/infra/.env`, `~/keycloak/.env`, `~/life-manager/.env.prod`, `~/mybook/.env`, `~/portainer/.env` (tous en droits 600) ; `~/.config/rclone/rclone.conf` (jeton OneDrive + phrase de chiffrement masquée). La phrase de chiffrement OneDrive est aussi dans le gestionnaire de mots de passe de Dorian.
+`~/infra/.env`, `~/keycloak/.env`, `~/life-manager/.env.prod`, `~/mybook/.env`, `~/portainer/.env` (tous en droits 600) ; `~/.config/rclone/rclone.conf` (jeton OneDrive + phrase de chiffrement masquée) ; `~/admin/.healthchecks-url` (adresse de signal : qui la connaît peut envoyer de faux signaux). La phrase de chiffrement OneDrive est aussi dans le gestionnaire de mots de passe de Dorian.
 
 ## Tâches planifiées (UTC)
 
@@ -75,9 +75,10 @@ Le nom de l'administrateur est la variable `POSTGRES_USER` de `~/infra/.env` : n
 | 4 h 15 | correctifs Keycloak de la branche fixée, test public + retour arrière automatique | cron `ubuntu` → `~/keycloak/auto-update.sh` | `~/keycloak/auto-update.log` |
 | 5 h 00 | mises à jour système, redémarrage seulement si nécessaire, puis vérification | `vps-maintenance.timer` | `/var/log/vps-maintenance.log` |
 | démarrage | vérification : conteneurs relancés, sites qui répondent | `vps-healthcheck.service` | idem |
+| toutes les 10 min | signal de vie : `etat.sh`, puis signal OK ou échec vers Healthchecks.io (compte de Dorian, surveillance « VPS », période 10 min, grâce 20 min) ; sans signal, Healthchecks.io alerte Dorian | `vps-signal-vie.timer` → `~/admin/signal-vie.sh` | `journalctl -u vps-signal-vie` ; historique sur healthchecks.io |
 
 Sources de la maintenance : `life-manager/infra/vps/` (installation : `infra/vps/install-maintenance.sh`).
 
 ## Ce qui manque (connu)
 
-Pas de supervision ni d'alerte (personne n'est prévenu si un site tombe) ; `~/infra` et `~/keycloak` non versionnés ; l'utilisateur `ia` a tous les droits (choix de Dorian : séparé mais complet, les limites sont des consignes).
+`~/infra` et `~/keycloak` non versionnés ; l'utilisateur `ia` a tous les droits (choix de Dorian : séparé mais complet, les limites sont des consignes).

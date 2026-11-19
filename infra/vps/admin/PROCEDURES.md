@@ -83,7 +83,15 @@ scp infra/vps/admin/{INVENTAIRE.md,PROCEDURES.md,etat.sh} ubuntu@<serveur>:admin
 ```
 En `ia`, qui ne peut pas écrire dans `/home/ubuntu` : `ssh ia@<serveur> "sudo -u ubuntu tee /home/ubuntu/admin/<fichier> >/dev/null" < infra/vps/admin/<fichier>`.
 
-## 12. Couper ou rétablir l'accès de l'IA — Dorian
+## 12. Alertes Healthchecks.io
+
+- **Alerte reçue** (libre pour le diagnostic) : le message contient les écarts trouvés par `etat.sh` ; suivre la procédure indiquée à côté de chaque écart. « Pas de signal » = serveur éteint ou injoignable : console OVH.
+- **Tester l'alerte** (annoncer, Dorian reçoit un message) : `~/admin/signal-vie.sh --test-echec` ; le tour suivant (≤ 10 min) remet au vert.
+- **Intervention longue prévue** (ex. migration) : mettre la surveillance en pause sur healthchecks.io (Dorian) ou `sudo systemctl stop vps-signal-vie.timer`, puis la relancer après (`start`).
+- **Changer d'adresse de signal** (Dorian) : `ssh -t ubuntu@<serveur> '~/admin/enregistrer-healthchecks.sh'`.
+- Sources : `infra/vps/admin/signal-vie.sh`, `infra/vps/systemd/vps-signal-vie.{service,timer}`.
+
+## 13. Couper ou rétablir l'accès de l'IA — Dorian
 
 ```bash
 sudo usermod -L -e 1 ia         # couper (compte verrouillé et expiré)
