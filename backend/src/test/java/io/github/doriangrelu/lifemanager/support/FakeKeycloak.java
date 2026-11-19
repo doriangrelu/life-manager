@@ -9,6 +9,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,6 +24,11 @@ public final class FakeKeycloak {
     private static final String EXPECTED_AUTH = "Basic " + Base64.getEncoder()
             .encodeToString("life-manager-api:dev-api-secret-change-me".getBytes(StandardCharsets.UTF_8));
 
+    static final String TOKEN_PATH = "/realms/life-manager/protocol/openid-connect/token";
+    static final String USERS_PATH = "/admin/realms/life-manager/users/";
+    private static final String SERVICE_TOKEN = "service-account-token";
+
+    private final Set<String> deletedUsers = ConcurrentHashMap.newKeySet();
     private final HttpServer server;
     private final Map<String, String> responses = new ConcurrentHashMap<>();
     private final AtomicInteger calls = new AtomicInteger();
@@ -31,7 +37,35 @@ public final class FakeKeycloak {
     FakeKeycloak() throws IOException {
         server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         server.createContext(INTROSPECTION_PATH, this::introspect);
+        server.createContext(TOKEN_PATH, this::serviceToken);
+        server.createContext(USERS_PATH, this::deleteUser);
         server.start();
+    }
+
+    /** Comptes supprimés par l'API d'administration (identifiants Keycloak). */
+    public Set<String> deletedUsers() {
+        return Set.copyOf(deletedUsers);
+    }
+
+    // Jeton du compte de service : accordé au client de l'API seulement.
+    private void serviceToken(HttpExchange exchange) throws IOException {
+        if (!EXPECTED_AUTH.equals(exchange.getRequestHeaders().getFirst("Authorization"))) {
+            send(exchange, 401, "{\"error\":\"invalid_client\"}");
+            return;
+        }
+        send(exchange, 200, "{\"access_token\":\"" + SERVICE_TOKEN + "\",\"token_type\":\"Bearer\"}");
+    }
+
+    private void deleteUser(HttpExchange exchange) throws IOException {
+        if (!"DELETE".equals(exchange.getRequestMethod())
+                || !("Bearer " + SERVICE_TOKEN).equals(exchange.getRequestHeaders().getFirst("Authorization"))) {
+            send(exchange, 403, "{}");
+            return;
+        }
+        var path = exchange.getRequestURI().getPath();
+        deletedUsers.add(path.substring(path.lastIndexOf('/') + 1));
+        exchange.sendResponseHeaders(204, -1);
+        exchange.close();
     }
 
     public String url() {

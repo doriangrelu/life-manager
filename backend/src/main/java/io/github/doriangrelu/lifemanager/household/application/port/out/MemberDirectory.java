@@ -16,4 +16,7 @@ public interface MemberDirectory {
 
     /** Enregistre ou remplace le nom d'affichage d'un membre. */
     void rename(MemberId member, String displayName);
+
+    /** Efface la fiche (nom) d'un membre qui a supprimé son compte. */
+    void forget(MemberId member);
 }

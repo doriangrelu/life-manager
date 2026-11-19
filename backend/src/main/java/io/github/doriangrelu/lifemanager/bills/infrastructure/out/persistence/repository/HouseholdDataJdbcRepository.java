@@ -52,4 +52,7 @@ public interface HouseholdDataJdbcRepository extends GenericRepository<Household
             UPDATE recurring_charge SET beneficiary_id = NULL
             WHERE household_id = :householdId AND beneficiary_id = :memberId""")
     void shareBeneficiary(UUID householdId, UUID memberId);
+
+    @Query("DELETE FROM authorship WHERE household_id = :householdId")
+    void eraseAuthorship(UUID householdId);
 }

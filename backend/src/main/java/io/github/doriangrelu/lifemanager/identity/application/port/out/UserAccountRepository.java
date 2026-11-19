@@ -12,4 +12,7 @@ public interface UserAccountRepository {
 
     /** Crée le profil ou met à jour un profil existant. */
     void save(UserAccount account);
+
+    /** Efface le profil (suppression du compte). */
+    void delete(UserId id);
 }

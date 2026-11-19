@@ -1,5 +1,8 @@
 package io.github.doriangrelu.lifemanager.bills.application.usecase;
 
+import io.github.doriangrelu.lifemanager.kernel.application.port.out.Authorship;
+import jakarta.inject.Named;
+import java.util.UUID;
 import io.github.doriangrelu.lifemanager.bills.application.port.in.AddCharge;
 import io.github.doriangrelu.lifemanager.bills.application.port.in.command.AddChargeCommand;
 import io.github.doriangrelu.lifemanager.bills.application.port.in.result.ChargeView;
@@ -22,9 +25,11 @@ class AddChargeUseCase implements AddCharge {
     private final ChargeRepository charges;
     private final ChargeScheduler scheduler;
     private final OpenOccurrences open;
+    private final Authorship authorship;
 
     AddChargeUseCase(ChargeAccess access, ChargeInputs inputs, ChargeRepository charges, ChargeScheduler scheduler,
-                     OpenOccurrences open) {
+                     OpenOccurrences open, @Named("bills") Authorship authorship) {
+        this.authorship = authorship;
         this.access = access;
         this.inputs = inputs;
         this.charges = charges;
@@ -39,6 +44,7 @@ class AddChargeUseCase implements AddCharge {
         var charge = RecurringCharge.create(ChargeId.newId(), household, inputs.details(household, command.input()),
                 ChargeInputs.schedule(command.input()), open.clock());
         charges.save(charge);
+        authorship.record(charge.id().value(), household.value(), UUID.fromString(command.requesterId()));
         scheduler.advance(charge);
         return ChargeView.from(charge, open.nextOf(charge));
     }

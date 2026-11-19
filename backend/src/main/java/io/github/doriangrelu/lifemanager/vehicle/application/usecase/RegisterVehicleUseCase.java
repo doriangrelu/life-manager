@@ -1,5 +1,8 @@
 package io.github.doriangrelu.lifemanager.vehicle.application.usecase;
 
+import io.github.doriangrelu.lifemanager.kernel.application.port.out.Authorship;
+import jakarta.inject.Named;
+import java.util.UUID;
 import io.github.doriangrelu.lifemanager.kernel.application.port.out.DomainEventPublisher;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.RegisterVehicle;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.command.RegisterVehicleCommand;
@@ -22,9 +25,11 @@ class RegisterVehicleUseCase implements RegisterVehicle {
     private final VehicleRepository vehicles;
     private final DomainEventPublisher events;
     private final Clock clock;
+    private final Authorship authorship;
 
     RegisterVehicleUseCase(VehicleAccess access, VehicleRepository vehicles, DomainEventPublisher events,
-                           Clock clock) {
+                           Clock clock, @Named("vehicle") Authorship authorship) {
+        this.authorship = authorship;
         this.access = access;
         this.vehicles = vehicles;
         this.events = events;
@@ -37,6 +42,7 @@ class RegisterVehicleUseCase implements RegisterVehicle {
         var household = access.householdOfMember(command.householdId(), command.requesterId());
         var vehicle = Vehicle.register(VehicleId.newId(), household, VehicleInputs.details(command.input()), clock);
         vehicles.save(vehicle);
+        authorship.record(vehicle.id().value(), household.value(), UUID.fromString(command.requesterId()));
         events.publishEventsOf(vehicle);
         return VehicleView.from(vehicle);
     }

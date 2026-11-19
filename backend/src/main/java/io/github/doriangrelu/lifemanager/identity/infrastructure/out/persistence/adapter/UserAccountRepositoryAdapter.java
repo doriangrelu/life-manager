@@ -34,4 +34,9 @@ class UserAccountRepositoryAdapter implements UserAccountRepository {
             table.save(entity);
         }
     }
+
+    @Override
+    public void delete(UserId id) {
+        table.deleteById(id.value());
+    }
 }

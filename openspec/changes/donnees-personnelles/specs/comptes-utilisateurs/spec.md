@@ -21,7 +21,7 @@ Le système SHALL publier des conditions d'utilisation et une politique de confi
 
 ### Requirement: Export des données personnelles
 
-Le système SHALL permettre à un utilisateur de télécharger en JSON les données qu'il a lui-même saisies : son profil, ses foyers (nom, rôle, date d'arrivée) et, dans chaque domaine, ce dont il est l'auteur (dépenses, rentrées, catégories, budgets prévus, récurrents créés ou payés par lui, véhicules, entretiens, listes et articles de courses, rappels et rappels faits), les fichiers décrits sans leur contenu. L'export MUST NOT contenir de secret (codes d'invitation, mot de passe, jetons), ni d'identifiant technique autre que le lien vers le foyer, ni les données des autres membres. Un utilisateur peut faire au plus un export par minute.
+Le système SHALL permettre à un utilisateur de télécharger en JSON son profil, ses foyers et ce qu'il a lui-même saisi dans chaque domaine (fichiers décrits sans leur contenu). L'export MUST NOT contenir de secret, d'identifiant technique autre que le lien vers le foyer, ni les données des autres membres. Au plus un export par minute.
 
 #### Scenario: Export
 

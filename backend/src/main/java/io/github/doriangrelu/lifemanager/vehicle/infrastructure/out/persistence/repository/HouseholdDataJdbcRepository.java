@@ -32,4 +32,7 @@ public interface HouseholdDataJdbcRepository extends GenericRepository<Household
             JOIN vehicle ON vehicle.id = entry.vehicle_id
             WHERE vehicle.household_id = :householdId""")
     List<UUID> storageKeys(UUID householdId);
+
+    @Query("DELETE FROM authorship WHERE household_id = :householdId")
+    void eraseAuthorship(UUID householdId);
 }

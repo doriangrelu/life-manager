@@ -57,8 +57,16 @@
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "implicitFlowEnabled": false,
-      "serviceAccountsEnabled": false,
+      "serviceAccountsEnabled": true,
       "bearerOnly": false
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-life-manager-api",
+      "enabled": true,
+      "serviceAccountClientId": "life-manager-api",
+      "clientRoles": { "realm-management": ["manage-users"] }
     }
   ]
 }

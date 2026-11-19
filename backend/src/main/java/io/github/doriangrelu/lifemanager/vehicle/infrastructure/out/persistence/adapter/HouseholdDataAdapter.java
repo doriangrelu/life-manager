@@ -27,6 +27,7 @@ class HouseholdDataAdapter implements HouseholdData {
     @Override
     public List<UUID> erase(HouseholdId householdId) {
         var id = householdId.value();
+        table.eraseAuthorship(id);
         var keys = table.storageKeys(id);
         table.erase1(id);
         table.deleteMembers(id);

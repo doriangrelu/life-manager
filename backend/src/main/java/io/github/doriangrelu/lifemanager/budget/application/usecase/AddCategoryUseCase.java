@@ -1,5 +1,8 @@
 package io.github.doriangrelu.lifemanager.budget.application.usecase;
 
+import io.github.doriangrelu.lifemanager.kernel.application.port.out.Authorship;
+import jakarta.inject.Named;
+import java.util.UUID;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.AddCategory;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.command.AddCategoryCommand;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.CategoryView;
@@ -18,11 +21,14 @@ class AddCategoryUseCase implements AddCategory {
     private final BudgetAccess access;
     private final CategoryAccess categoryAccess;
     private final CategoryRepository categories;
+    private final Authorship authorship;
 
-    AddCategoryUseCase(BudgetAccess access, CategoryAccess categoryAccess, CategoryRepository categories) {
+    AddCategoryUseCase(BudgetAccess access, CategoryAccess categoryAccess, CategoryRepository categories,
+                       @Named("budget") Authorship authorship) {
         this.access = access;
         this.categoryAccess = categoryAccess;
         this.categories = categories;
+        this.authorship = authorship;
     }
 
     @Override
@@ -33,6 +39,7 @@ class AddCategoryUseCase implements AddCategory {
                 command.kind());
         categoryAccess.ensureNameIsFree(household, category.kind(), category.name(), category.id());
         categories.save(category);
+        authorship.record(category.id().value(), household.value(), UUID.fromString(command.requesterId()));
         return CategoryView.from(category);
     }
 }

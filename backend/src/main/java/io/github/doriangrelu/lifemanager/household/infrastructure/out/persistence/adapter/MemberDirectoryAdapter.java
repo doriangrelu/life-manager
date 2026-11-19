@@ -39,4 +39,9 @@ class MemberDirectoryAdapter implements MemberDirectory {
             profiles.save(row);
         }
     }
+
+    @Override
+    public void forget(MemberId member) {
+        profiles.deleteById(member.value());
+    }
 }

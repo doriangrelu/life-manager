@@ -56,7 +56,8 @@ class IdentityIntegrationTest extends IntegrationTestSupport {
 
         var profile = whoami("token-dave");
 
-        assertThat(profile).isEqualTo(new UserProfileResponse(UUID.fromString(subject), "dave@example.org", "Dave"));
+        assertThat(profile).isEqualTo(new UserProfileResponse(UUID.fromString(subject), "dave@example.org", "Dave",
+                false, "2026-11-19"));
         assertThat(eventsAbout(subject)).singleElement().isInstanceOf(UserRegisteredV1.class);
     }
 

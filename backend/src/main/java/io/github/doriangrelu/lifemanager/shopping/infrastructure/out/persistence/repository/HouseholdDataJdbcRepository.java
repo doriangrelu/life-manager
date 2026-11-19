@@ -22,4 +22,7 @@ public interface HouseholdDataJdbcRepository extends GenericRepository<Household
 
     @Query("DELETE FROM shopping_list WHERE household_id = :householdId")
     void erase1(UUID householdId);
+
+    @Query("DELETE FROM authorship WHERE household_id = :householdId")
+    void eraseAuthorship(UUID householdId);
 }

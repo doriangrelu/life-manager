@@ -19,6 +19,7 @@ import io.github.doriangrelu.lifemanager.kernel.domain.validation.Require;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,6 +144,26 @@ public final class Household extends AggregateRoot<HouseholdId> {
             throw new HouseholdNameMismatchException();
         }
         recordEvent(new HouseholdDeleted(id(), now));
+    }
+
+    /** Vrai si ce membre est seul dans le foyer : son départ doit supprimer le foyer. */
+    public boolean hasOnlyMember(MemberId member) {
+        return members.size() == 1 && isMember(member);
+    }
+
+    /**
+     * Le membre a supprimé son compte : s'il était propriétaire, le foyer passe d'abord au membre arrivé
+     * le plus tôt (qui garde toutes les données), puis il part.
+     */
+    public void departDeletedAccount(MemberId member, Instant now) {
+        if (isOwner(member)) {
+            owner = members.values().stream()
+                    .filter(other -> !other.memberId().equals(member))
+                    .min(Comparator.comparing(Membership::joinedAt))
+                    .map(Membership::memberId)
+                    .orElseThrow(OwnerCannotLeaveException::new);
+        }
+        leave(member, now);
     }
 
     private void detach(MemberId member, Instant now) {

@@ -128,6 +128,8 @@ life-manager:
   time-zone: Europe/Paris
   # Version déployée (tag Git), fournie par le déploiement ; affichée dans le pied de page de la PWA.
   version: ${LM_VERSION:dev}
+  # Version des conditions d'utilisation (date des textes de la PWA) : la changer fait revalider tout le monde.
+  terms-version: "2026-11-19"
   # Dossier des fichiers envoyés (un sous-dossier par domaine). En production : un volume sauvegardé.
   storage:
     root: ${STORAGE_ROOT:./data/files}
