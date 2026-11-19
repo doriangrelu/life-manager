@@ -73,6 +73,17 @@ Sans la purge, le proxy (qui demande des fichiers compressés) continue de recev
 
 Le thème est choisi dans la console : realm `life-manager` → *Realm settings* → *Themes* → *Login theme* et *Account theme* (`life-manager` pour les deux).
 
+## Suppression de compte : compte de service Keycloak (depuis la v0.13.0)
+
+Quand un utilisateur supprime son compte, l'API supprime aussi son compte de connexion par l'API d'administration de Keycloak. Elle utilise le **compte de service** de son client `life-manager-api`, limité au rôle `manage-users` du realm `life-manager`. Réglage à faire **une fois**, dans la console, **avant** de déployer la v0.13.0 :
+
+1. Realm `life-manager` → *Clients* → `life-manager-api` → onglet *Settings* → *Capability config* : cocher **Service accounts roles**, puis *Save*.
+2. Onglet **Service accounts roles** → *Assign role* → filtre *Filter by clients* → choisir `realm-management` **manage-users** → *Assign*.
+
+Aucun nouveau secret : c'est le même client que pour l'introspection. Sans ce réglage, la suppression efface bien les données mais répond une erreur (502) et le compte de connexion reste ; il suffit alors de faire le réglage et de recommencer.
+
+En développement, le realm importé le contient déjà ; sur un Keycloak de dev déjà lancé : `kcadm` (`serviceAccountsEnabled=true` + rôle `manage-users`).
+
 ## Sauvegarde et restauration
 
 Chaque nuit à 3 h, `~/infra/backup.sh` archive toutes les bases (`pg_dumpall`, comptes compris) et les dossiers de `~/volumes`. Les archives restent 14 jours dans `~/infra/backups`, et la sauvegarde automatique du VPS chez OVH en garde une copie hors du serveur.

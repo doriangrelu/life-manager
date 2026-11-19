@@ -91,6 +91,7 @@
       <HouseholdView
         {householdId}
         currentUserId={profile.userId}
+        email={profile.email}
         {onaddhousehold}
         ongone={onhouseholdgone}
         onrenamed={onhouseholdchanged}

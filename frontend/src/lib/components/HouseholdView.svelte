@@ -17,6 +17,7 @@
   import { incomeTracking } from '../householdSettings'
   import { displayName } from '../text'
   import AppVersion from '../ui/atoms/AppVersion.svelte'
+  import AccountCard from './account/AccountCard.svelte'
   import Skeleton from '../ui/atoms/Skeleton.svelte'
   import ConfirmDialog from '../ui/molecules/ConfirmDialog.svelte'
   import TextDialog from '../ui/molecules/TextDialog.svelte'
@@ -24,16 +25,19 @@
   import IncomeTrackingCard from './IncomeTrackingCard.svelte'
   import InvitationCard from './InvitationCard.svelte'
 
-  // Onglet Foyer : ses membres et son propriétaire, l'invitation (propriétaire), quitter ou supprimer le foyer.
+  // Onglet Foyer : ses membres et son propriétaire, l'invitation (propriétaire), quitter ou supprimer le foyer,
+  // puis « Mon compte » (export des données, suppression du compte).
   let {
     householdId,
     currentUserId,
+    email,
     onaddhousehold,
     ongone,
     onrenamed,
   }: {
     householdId: string
     currentUserId: string
+    email: string
     onaddhousehold: () => void
     ongone: (message: string) => void
     onrenamed: () => void
@@ -212,6 +216,8 @@
       <button class="danger" onclick={() => (confirmLeave = true)}><LogOut size={18} /> Quitter le foyer</button>
     {/if}
   </section>
+
+  <AccountCard userId={currentUserId} {email} />
 
   <!-- Mobile : version en bas de l'écran Foyer (sur grand écran, elle est dans le menu latéral). -->
   <div class="mobile-version"><AppVersion /></div>

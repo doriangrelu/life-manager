@@ -2,6 +2,7 @@
 // Exemples : #/budget, #/budget/2026-10, #/charges/<id>, #/bilan, #/courses, #/vehicules/<id>, #/foyer.
 
 import { writable, type Readable } from 'svelte/store'
+import { legalPageOf } from './legal'
 
 export type Section = 'budget' | 'charges' | 'report' | 'shopping' | 'vehicles' | 'reminders' | 'household'
 
@@ -70,6 +71,10 @@ function currentHash(): string {
 const store = writable<Route>(parseRoute(currentHash()), (set) => {
   // Adresse absente ou invalide : corrigée sans créer d'entrée d'historique.
   const sync = () => {
+    // Page légale (#/cgu…) : affichée par App, l'adresse est laissée telle quelle.
+    if (legalPageOf(location.hash)) {
+      return
+    }
     const route = parseRoute(location.hash)
     if (formatRoute(route) !== location.hash) {
       history.replaceState(history.state, '', formatRoute(route))

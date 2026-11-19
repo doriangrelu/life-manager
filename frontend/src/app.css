@@ -368,3 +368,23 @@ button.icon {
     grid-template-columns: 1fr;
   }
 }
+
+/* Textes légaux (CGU, confidentialité) : lecture confortable. */
+.legal-text {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.legal-text h2 {
+  margin: 20px 0 6px;
+  font-size: 1.02rem;
+}
+.legal-text p,
+.legal-text ul {
+  margin: 0 0 8px;
+}
+.legal-text ul {
+  padding-left: 20px;
+}
+.legal-text a {
+  color: var(--color-primary-text);
+}

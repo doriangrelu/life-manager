@@ -183,6 +183,25 @@ call "$ALICE" DELETE "/households/$HOUSEHOLD/reminder-history/$(body "[0]['id']"
 echo "== Version (publique, sans jeton)"
 curl -sSf -m 20 "$API/api/version" | grep -q '"version"' || fail "version de l'API absente"
 
+echo "== Mon compte : CGU, export, suppression (compte jetable, vrai Keycloak)"
+call "$ALICE" GET /whoami 200
+TERMS=$(body "['termsVersion']")
+call "$ALICE" PUT /me/terms 400 '{"version":"2000-01-01"}'
+call "$ALICE" PUT /me/terms 204 "{\"version\":\"$TERMS\"}"
+call "$ALICE" GET /me/export 200
+[ "$(body "['profil']['email']")" = "alice@example.org" ] || fail "export inattendu : $(head -c 400 "$WORK/body")"
+SPARE_EMAIL="jetable-$RANDOM-$(date +%s)@example.org"
+kcadm create users -r life-manager -s "username=$SPARE_EMAIL" -s "email=$SPARE_EMAIL" -s emailVerified=true \
+  -s enabled=true -s firstName=Jetable -s lastName=Test >/dev/null
+kcadm set-password -r life-manager --username "$SPARE_EMAIL" --new-password dev-password
+SPARE_TOKEN=$(token "$SPARE_EMAIL")
+call "$SPARE_TOKEN" GET /whoami 200
+call "$SPARE_TOKEN" POST /households 201 '{"name":"Foyer jetable"}'
+call "$SPARE_TOKEN" DELETE /me 400 '{"confirmEmail":"autre@example.org"}'
+call "$SPARE_TOKEN" DELETE /me 204 "{\"confirmEmail\":\"$SPARE_EMAIL\"}"
+[ "$(kcadm get users -r life-manager -q "email=$SPARE_EMAIL" --fields id --format csv --noquotes | wc -l)" = "0" ] \
+  || fail "compte Keycloak jetable non supprimé"
+
 echo "== Gestion du foyer : retrait d'un membre, suppression d'un foyer"
 call "$ALICE" DELETE "/households/$HOUSEHOLD/members/$BOB_ID" 204
 # Le retrait atteint chaque domaine par la boîte d'envoi : Bob n'y a plus accès.

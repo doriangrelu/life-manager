@@ -4,6 +4,10 @@ export interface UserProfile {
   userId: string
   email: string
   displayName: string
+  /** Vrai s'il a accepté la version en vigueur des conditions d'utilisation. */
+  termsAccepted: boolean
+  /** Version en vigueur des conditions (une date). */
+  termsVersion: string
 }
 
 export interface HouseholdSummary {

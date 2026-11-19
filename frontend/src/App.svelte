@@ -7,6 +7,9 @@
   import { whoami } from './lib/api/identityApi'
   import type { HouseholdSummary, UserProfile } from './lib/api/types'
   import { HOUSEHOLD_MAYBE_LOST } from './lib/householdAccess'
+  import { legalPage } from './lib/legal'
+  import LegalView from './lib/components/legal/LegalView.svelte'
+  import TermsGate from './lib/components/legal/TermsGate.svelte'
   import { rememberedHouseholdId, rememberHouseholdId } from './lib/preferences'
   import { displayName } from './lib/text'
   import AppHeader from './lib/components/AppHeader.svelte'
@@ -49,7 +52,16 @@
   }
 
   // Au lancement : connexion si besoin, puis profil (domaine identité) et foyers (domaine foyer).
-  onMount(async () => {
+  // Sur une page légale (#/cgu…), rien ne démarre : elle se lit sans compte ; le départ se fait en la quittant.
+  let started = false
+  $effect(() => {
+    if (!$legalPage && !started) {
+      started = true
+      start()
+    }
+  })
+
+  async function start() {
     try {
       await completeLoginIfReturning()
       if (!(await accessToken())) {
@@ -62,7 +74,7 @@
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     }
-  })
+  }
 
   // Dernier foyer choisi sur cet appareil s'il existe encore, sinon le premier.
   function initialHouseholdId(): string | null {
@@ -88,10 +100,14 @@
   }
 </script>
 
-{#if error}
+{#if $legalPage}
+  <LegalView page={$legalPage} />
+{:else if error}
   <main class="content"><p class="error" role="alert">{error}</p></main>
 {:else if !profile}
   <main class="content stack"><Skeleton variant="hero" /><Skeleton variant="rows" /></main>
+{:else if !profile.termsAccepted}
+  <TermsGate version={profile.termsVersion} onaccepted={() => profile && (profile = { ...profile, termsAccepted: true })} />
 {:else if !selectedId}
   <main class="content welcome">
     {#if notice}
