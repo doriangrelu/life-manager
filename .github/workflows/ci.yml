@@ -3,6 +3,11 @@ name: CI
 on:
   push:
     branches: [main]
+    # Un commit qui ne touche que la documentation ou OpenSpec ne relance rien (surtout pas le build natif).
+    paths-ignore:
+      - 'docs/**'
+      - 'openspec/**'
+      - '**/*.md'
   pull_request:
   workflow_dispatch:
 
@@ -55,8 +60,9 @@ jobs:
     # attrape les erreurs propres à GraalVM (réflexion, ressources) que les tests JVM ne voient pas.
     # Si le parcours passe, l'image est publiée (sha-<commit>) : un tag de version la reprend telle quelle,
     # sans la reconstruire (une seule construction native par commit).
+    # Lancé en parallèle des tests (pas de « needs ») pour gagner du temps : la livraison
+    # n'utilise l'image que si tous les jobs du run sont verts.
     if: github.ref == 'refs/heads/main'
-    needs: backend
     runs-on: ubuntu-latest
     permissions:
       contents: read
