@@ -8,4 +8,4 @@
 
 ## 2. Livraison
 
-- [ ] 2.1 [infra/vps] Version v0.6.1 publiée et déployée
+- [x] 2.1 [infra/vps] Version v0.6.1 publiée et déployée
