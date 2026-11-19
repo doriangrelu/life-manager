@@ -5,6 +5,7 @@ import io.github.doriangrelu.lifemanager.budget.application.port.out.HouseholdMe
 import io.github.doriangrelu.lifemanager.budget.domain.exception.UnusableCategoryException;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.Beneficiary;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryId;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryKind;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.ExpenseDetails;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.ExpenseLabel;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
@@ -24,9 +25,9 @@ public class ChargeExpenseDetails {
     private static final String FALLBACK_CATEGORY = "Autre";
 
     private final HouseholdMembers members;
-    private final ExpenseCategoryResolver categories;
+    private final CategoryResolver categories;
 
-    ChargeExpenseDetails(HouseholdMembers members, ExpenseCategoryResolver categories) {
+    ChargeExpenseDetails(HouseholdMembers members, CategoryResolver categories) {
         this.members = members;
         this.categories = categories;
     }
@@ -44,9 +45,9 @@ public class ChargeExpenseDetails {
 
     private CategoryId category(HouseholdId household, RecordChargeExpenseCommand command) {
         try {
-            return categories.resolve(household, command.budgetCategoryId(), null);
+            return categories.resolve(household, CategoryKind.EXPENSE, command.budgetCategoryId(), null);
         } catch (UnusableCategoryException archivedOrUnknown) {
-            return categories.resolve(household, null, FALLBACK_CATEGORY);
+            return categories.resolve(household, CategoryKind.EXPENSE, null, FALLBACK_CATEGORY);
         }
     }
 

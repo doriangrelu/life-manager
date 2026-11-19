@@ -33,4 +33,10 @@ public interface HouseholdDataJdbcRepository extends GenericRepository<Household
 
     @Query("DELETE FROM category WHERE household_id = :householdId")
     void erase3(UUID householdId);
+
+    @Query("DELETE FROM charge_income WHERE income_id IN (SELECT id FROM income WHERE household_id = :householdId)")
+    void eraseIncomeLinks(UUID householdId);
+
+    @Query("DELETE FROM income WHERE household_id = :householdId")
+    void eraseIncomes(UUID householdId);
 }

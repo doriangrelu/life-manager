@@ -3,6 +3,7 @@ package io.github.doriangrelu.lifemanager.budget.application.port.out;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.BeneficiaryTotal;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.CategoryTotal;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.ExpenseView;
+import io.github.doriangrelu.lifemanager.budget.application.port.in.result.IncomeView;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.PayerTotal;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 
@@ -25,4 +26,7 @@ public interface MonthlyBudgetReadModel {
 
     /** Dépenses du mois, la plus récente en premier. */
     List<ExpenseView> expenses(HouseholdId householdId, YearMonth month);
+
+    /** Rentrées du mois, la plus récente en premier. */
+    List<IncomeView> incomes(HouseholdId householdId, YearMonth month);
 }

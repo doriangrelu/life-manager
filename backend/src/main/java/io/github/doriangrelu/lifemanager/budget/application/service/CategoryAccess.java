@@ -5,6 +5,7 @@ import io.github.doriangrelu.lifemanager.budget.domain.aggregate.Category;
 import io.github.doriangrelu.lifemanager.budget.domain.exception.CategoryNotFoundException;
 import io.github.doriangrelu.lifemanager.budget.domain.exception.DuplicateCategoryNameException;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryId;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryKind;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryName;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 import jakarta.inject.Singleton;
@@ -24,20 +25,20 @@ public class CategoryAccess {
     }
 
     /**
-     * Charge une catégorie du foyer, pour un membre de ce foyer.
+     * Charge une catégorie du foyer et du sens attendu, pour un membre de ce foyer.
      *
-     * @throws CategoryNotFoundException si la catégorie n'existe pas dans ce foyer
+     * @throws CategoryNotFoundException si la catégorie n'existe pas dans ce foyer pour ce sens
      */
-    public Category loadForMember(UUID householdId, UUID categoryId, String requesterId) {
+    public Category loadForMember(UUID householdId, CategoryKind kind, UUID categoryId, String requesterId) {
         var household = access.householdOfMember(householdId, requesterId);
         return categories.findById(new CategoryId(categoryId))
-                .filter(category -> category.belongsTo(household))
+                .filter(category -> category.belongsTo(household) && category.kind() == kind)
                 .orElseThrow(CategoryNotFoundException::new);
     }
 
-    /** @throws DuplicateCategoryNameException si une autre catégorie du foyer porte déjà ce nom */
-    public void ensureNameIsFree(HouseholdId householdId, CategoryName name, CategoryId ignored) {
-        if (categories.isNameTaken(householdId, name, ignored)) {
+    /** @throws DuplicateCategoryNameException si une autre catégorie du foyer, de ce sens, porte déjà ce nom */
+    public void ensureNameIsFree(HouseholdId householdId, CategoryKind kind, CategoryName name, CategoryId ignored) {
+        if (categories.isNameTaken(householdId, kind, name, ignored)) {
             throw new DuplicateCategoryNameException();
         }
     }

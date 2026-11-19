@@ -4,6 +4,7 @@ import io.github.doriangrelu.lifemanager.budget.application.port.in.command.Expe
 import io.github.doriangrelu.lifemanager.budget.application.port.out.HouseholdMembers;
 import io.github.doriangrelu.lifemanager.budget.domain.exception.NotAHouseholdMemberException;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.Beneficiary;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryKind;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.ExpenseDetails;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.ExpenseLabel;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
@@ -19,10 +20,10 @@ import jakarta.inject.Singleton;
 @Singleton
 public class ExpenseRules {
 
-    private final ExpenseCategoryResolver categoryResolver;
+    private final CategoryResolver categoryResolver;
     private final HouseholdMembers members;
 
-    ExpenseRules(ExpenseCategoryResolver categoryResolver, HouseholdMembers members) {
+    ExpenseRules(CategoryResolver categoryResolver, HouseholdMembers members) {
         this.categoryResolver = categoryResolver;
         this.members = members;
     }
@@ -33,7 +34,8 @@ public class ExpenseRules {
      * @throws NotAHouseholdMemberException si le payeur ou le bénéficiaire n'est pas membre du foyer
      */
     public ExpenseDetails validDetails(HouseholdId householdId, ExpenseInput input) {
-        var categoryId = categoryResolver.resolve(householdId, input.categoryId(), input.newCategoryName());
+        var categoryId = categoryResolver.resolve(householdId, CategoryKind.EXPENSE, input.categoryId(),
+                input.newCategoryName());
         var details = new ExpenseDetails(
                 Money.ofCents(input.amountCents()),
                 categoryId,

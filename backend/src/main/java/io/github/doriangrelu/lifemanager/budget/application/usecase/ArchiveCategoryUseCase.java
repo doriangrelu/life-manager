@@ -22,7 +22,8 @@ class ArchiveCategoryUseCase implements ArchiveCategory {
     @Override
     @Transactional(transactionManager = "budget")
     public CategoryView archive(CategoryActionCommand command) {
-        var category = categoryAccess.loadForMember(command.householdId(), command.categoryId(), command.requesterId());
+        var category = categoryAccess.loadForMember(command.householdId(), command.kind(), command.categoryId(),
+                command.requesterId());
         category.archive();
         categories.save(category);
         return CategoryView.from(category);

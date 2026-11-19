@@ -23,9 +23,10 @@ class RenameCategoryUseCase implements RenameCategory {
     @Override
     @Transactional(transactionManager = "budget")
     public CategoryView rename(RenameCategoryCommand command) {
-        var category = categoryAccess.loadForMember(command.householdId(), command.categoryId(), command.requesterId());
+        var category = categoryAccess.loadForMember(command.householdId(), command.kind(), command.categoryId(),
+                command.requesterId());
         var newName = new CategoryName(command.name());
-        categoryAccess.ensureNameIsFree(category.householdId(), newName, category.id());
+        categoryAccess.ensureNameIsFree(category.householdId(), category.kind(), newName, category.id());
         category.rename(newName);
         categories.save(category);
         return CategoryView.from(category);

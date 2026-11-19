@@ -29,7 +29,9 @@ class HouseholdDataAdapter implements HouseholdData {
         var id = householdId.value();
         table.erase1(id);
         table.erase2(id);
-        table.erase3(id);
+        table.eraseIncomeLinks(id);
+        table.eraseIncomes(id);
+        table.erase3(id); // catégories en dernier : dépenses et rentrées y font référence
         table.deleteMembers(id);
         return List.of();
     }

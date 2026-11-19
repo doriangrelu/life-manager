@@ -1,8 +1,11 @@
 package io.github.doriangrelu.lifemanager.budget;
 
+import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.BudgetReportResponse;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.CategoryResponse;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.ExpenseRequest;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.ExpenseResponse;
+import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.IncomeRequest;
+import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.IncomeResponse;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.MonthlyBudgetResponse;
 import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
@@ -47,6 +50,36 @@ record BudgetApi(BlockingHttpClient http) {
     MonthlyBudgetResponse month(String token, UUID household, String month) {
         return http.retrieve(HttpRequest.GET(base(household) + "/budget/" + month).bearerAuth(token),
                 MonthlyBudgetResponse.class);
+    }
+
+    List<CategoryResponse> incomeCategories(String token, UUID household) {
+        return http.retrieve(HttpRequest.GET(base(household) + "/income-categories").bearerAuth(token),
+                Argument.listOf(CategoryResponse.class));
+    }
+
+    UUID incomeCategory(String token, UUID household, String name) {
+        return incomeCategories(token, household).stream()
+                .filter(category -> category.name().equalsIgnoreCase(name))
+                .findFirst().orElseThrow().id();
+    }
+
+    IncomeResponse recordIncome(String token, UUID household, IncomeRequest income) {
+        return http.retrieve(HttpRequest.POST(base(household) + "/incomes", income).bearerAuth(token),
+                IncomeResponse.class);
+    }
+
+    IncomeResponse correctIncome(String token, UUID household, UUID income, IncomeRequest correction) {
+        return http.retrieve(HttpRequest.PUT(base(household) + "/incomes/" + income, correction).bearerAuth(token),
+                IncomeResponse.class);
+    }
+
+    void deleteIncome(String token, UUID household, UUID income) {
+        http.exchange(HttpRequest.DELETE(base(household) + "/incomes/" + income).bearerAuth(token));
+    }
+
+    BudgetReportResponse report(String token, UUID household, String from, String to) {
+        return http.retrieve(HttpRequest.GET(base(household) + "/report?from=" + from + "&to=" + to)
+                .bearerAuth(token), BudgetReportResponse.class);
     }
 
     private static String base(UUID household) {

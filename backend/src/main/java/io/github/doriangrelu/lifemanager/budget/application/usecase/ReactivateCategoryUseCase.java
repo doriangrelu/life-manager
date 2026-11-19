@@ -22,7 +22,8 @@ class ReactivateCategoryUseCase implements ReactivateCategory {
     @Override
     @Transactional(transactionManager = "budget")
     public CategoryView reactivate(CategoryActionCommand command) {
-        var category = categoryAccess.loadForMember(command.householdId(), command.categoryId(), command.requesterId());
+        var category = categoryAccess.loadForMember(command.householdId(), command.kind(), command.categoryId(),
+                command.requesterId());
         category.reactivate();
         categories.save(category);
         return CategoryView.from(category);

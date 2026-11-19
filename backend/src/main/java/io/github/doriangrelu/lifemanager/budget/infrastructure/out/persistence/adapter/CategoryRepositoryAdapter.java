@@ -3,6 +3,7 @@ package io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.
 import io.github.doriangrelu.lifemanager.budget.application.port.out.CategoryRepository;
 import io.github.doriangrelu.lifemanager.budget.domain.aggregate.Category;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryId;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryKind;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryName;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.mapper.CategoryMapper;
@@ -28,29 +29,31 @@ class CategoryRepositoryAdapter implements CategoryRepository {
     }
 
     @Override
-    public List<Category> findAllByHousehold(HouseholdId householdId) {
-        return table.findAllByHousehold(householdId.value()).stream().map(CategoryMapper::toDomain).toList();
+    public List<Category> findAllByHousehold(HouseholdId householdId, CategoryKind kind) {
+        return table.findAllByHousehold(householdId.value(), kind.name()).stream()
+                .map(CategoryMapper::toDomain).toList();
     }
 
     @Override
-    public boolean existsForHousehold(HouseholdId householdId) {
-        return table.existsByHouseholdId(householdId.value());
+    public boolean existsForHousehold(HouseholdId householdId, CategoryKind kind) {
+        return table.existsByHouseholdIdAndKind(householdId.value(), kind.name());
     }
 
     @Override
-    public boolean isNameTaken(HouseholdId householdId, CategoryName name, CategoryId ignored) {
-        return table.isNameTaken(householdId.value(), name.value(), ignored.value());
+    public boolean isNameTaken(HouseholdId householdId, CategoryKind kind, CategoryName name, CategoryId ignored) {
+        return table.isNameTaken(householdId.value(), kind.name(), name.value(), ignored.value());
     }
 
     @Override
-    public Optional<Category> findByName(HouseholdId householdId, CategoryName name) {
-        return table.findByName(householdId.value(), name.value()).map(CategoryMapper::toDomain);
+    public Optional<Category> findByName(HouseholdId householdId, CategoryKind kind, CategoryName name) {
+        return table.findByName(householdId.value(), kind.name(), name.value()).map(CategoryMapper::toDomain);
     }
 
     @Override
     public boolean addIfNameFree(Category category) {
         var entity = CategoryMapper.toEntity(category);
-        return table.insertIfNameFree(entity.id(), entity.householdId(), entity.name(), entity.archived()) == 1;
+        return table.insertIfNameFree(entity.id(), entity.householdId(), entity.name(), entity.archived(),
+                entity.kind()) == 1;
     }
 
     @Override

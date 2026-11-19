@@ -5,7 +5,7 @@ import io.micronaut.data.annotation.MappedEntity;
 
 import java.util.UUID;
 
-/** Ligne de la table {@code budget.category}. */
+/** Ligne de la table {@code budget.category} ; {@code kind} vaut EXPENSE ou INCOME. */
 @MappedEntity("category")
-public record CategoryEntity(@Id UUID id, UUID householdId, String name, boolean archived) {
+public record CategoryEntity(@Id UUID id, UUID householdId, String name, boolean archived, String kind) {
 }

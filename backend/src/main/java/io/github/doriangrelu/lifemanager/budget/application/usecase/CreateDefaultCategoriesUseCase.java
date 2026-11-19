@@ -4,6 +4,7 @@ import io.github.doriangrelu.lifemanager.budget.application.port.in.CreateDefaul
 import io.github.doriangrelu.lifemanager.budget.application.port.in.command.CreateDefaultCategoriesCommand;
 import io.github.doriangrelu.lifemanager.budget.application.port.out.CategoryRepository;
 import io.github.doriangrelu.lifemanager.budget.domain.aggregate.Category;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryKind;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
@@ -21,7 +22,7 @@ class CreateDefaultCategoriesUseCase implements CreateDefaultCategories {
     @Transactional(transactionManager = "budget")
     public void create(CreateDefaultCategoriesCommand command) {
         var household = new HouseholdId(command.householdId());
-        if (!categories.existsForHousehold(household)) {
+        if (!categories.existsForHousehold(household, CategoryKind.EXPENSE)) {
             Category.defaultsFor(household).forEach(categories::save);
         }
     }

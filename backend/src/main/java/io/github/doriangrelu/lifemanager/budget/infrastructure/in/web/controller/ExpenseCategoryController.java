@@ -9,6 +9,7 @@ import io.github.doriangrelu.lifemanager.budget.application.port.in.command.AddC
 import io.github.doriangrelu.lifemanager.budget.application.port.in.command.CategoryActionCommand;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.command.RenameCategoryCommand;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.query.ListCategoriesQuery;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.CategoryKind;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.CategoryRequest;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.in.web.dto.CategoryResponse;
 import io.micronaut.http.HttpResponse;
@@ -33,6 +34,8 @@ import java.util.UUID;
 @ExecuteOn(TaskExecutors.BLOCKING)
 class ExpenseCategoryController {
 
+    private static final CategoryKind KIND = CategoryKind.EXPENSE;
+
     private final ListCategories listCategories;
     private final AddCategory addCategory;
     private final RenameCategory renameCategory;
@@ -50,33 +53,33 @@ class ExpenseCategoryController {
 
     @Get
     List<CategoryResponse> list(Authentication user, UUID householdId) {
-        return listCategories.list(new ListCategoriesQuery(user.getName(), householdId)).stream()
+        return listCategories.list(new ListCategoriesQuery(user.getName(), householdId, KIND)).stream()
                 .map(CategoryResponse::from)
                 .toList();
     }
 
     @Post
     HttpResponse<CategoryResponse> add(Authentication user, UUID householdId, @Body @Valid CategoryRequest request) {
-        var added = addCategory.add(new AddCategoryCommand(user.getName(), householdId, request.name()));
+        var added = addCategory.add(new AddCategoryCommand(user.getName(), householdId, request.name(), KIND));
         return HttpResponse.created(CategoryResponse.from(added));
     }
 
     @Put("/{categoryId}")
     CategoryResponse rename(Authentication user, UUID householdId, UUID categoryId,
                             @Body @Valid CategoryRequest request) {
-        var command = new RenameCategoryCommand(user.getName(), householdId, categoryId, request.name());
+        var command = new RenameCategoryCommand(user.getName(), householdId, categoryId, request.name(), KIND);
         return CategoryResponse.from(renameCategory.rename(command));
     }
 
     @Post("/{categoryId}/archive")
     CategoryResponse archive(Authentication user, UUID householdId, UUID categoryId) {
-        var command = new CategoryActionCommand(user.getName(), householdId, categoryId);
+        var command = new CategoryActionCommand(user.getName(), householdId, categoryId, KIND);
         return CategoryResponse.from(archiveCategory.archive(command));
     }
 
     @Post("/{categoryId}/reactivate")
     CategoryResponse reactivate(Authentication user, UUID householdId, UUID categoryId) {
-        var command = new CategoryActionCommand(user.getName(), householdId, categoryId);
+        var command = new CategoryActionCommand(user.getName(), householdId, categoryId, KIND);
         return CategoryResponse.from(reactivateCategory.reactivate(command));
     }
 }

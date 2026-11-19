@@ -29,8 +29,9 @@ class AddCategoryUseCase implements AddCategory {
     @Transactional(transactionManager = "budget")
     public CategoryView add(AddCategoryCommand command) {
         var household = access.householdOfMember(command.householdId(), command.requesterId());
-        var category = Category.create(CategoryId.newId(), household, new CategoryName(command.name()));
-        categoryAccess.ensureNameIsFree(household, category.name(), category.id());
+        var category = Category.create(CategoryId.newId(), household, new CategoryName(command.name()),
+                command.kind());
+        categoryAccess.ensureNameIsFree(household, category.kind(), category.name(), category.id());
         categories.save(category);
         return CategoryView.from(category);
     }

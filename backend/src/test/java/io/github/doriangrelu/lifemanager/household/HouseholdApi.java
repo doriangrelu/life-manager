@@ -69,6 +69,11 @@ public record HouseholdApi(BlockingHttpClient http) {
                 .bearerAuth(token));
     }
 
+    public void trackIncome(String token, UUID householdId, boolean enabled) {
+        http.exchange(HttpRequest.PUT("/api/households/" + householdId + "/settings",
+                Map.of("incomeTracking", enabled)).bearerAuth(token));
+    }
+
     /** Exécute l'appel, qui doit échouer, et retourne l'erreur HTTP obtenue. */
     public static HttpClientResponseException failure(Runnable call) {
         return catchThrowableOfType(HttpClientResponseException.class, call::run);

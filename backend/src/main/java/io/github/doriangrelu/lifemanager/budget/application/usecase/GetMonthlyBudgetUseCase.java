@@ -4,24 +4,27 @@ import io.github.doriangrelu.lifemanager.budget.application.port.in.GetMonthlyBu
 import io.github.doriangrelu.lifemanager.budget.application.port.in.query.GetMonthlyBudgetQuery;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.CategoryTotal;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.MonthlyBudget;
+import io.github.doriangrelu.lifemanager.budget.application.port.out.BudgetReportReadModel;
 import io.github.doriangrelu.lifemanager.budget.application.port.out.MonthlyBudgetReadModel;
 import io.github.doriangrelu.lifemanager.budget.application.service.BudgetAccess;
-import io.github.doriangrelu.lifemanager.budget.domain.valueobject.Money;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 
-import java.util.List;
-
-/** Vue d'un mois pour un membre du foyer : total, répartitions par catégorie et par personne, détail. */
+/**
+ * Vue d'un mois pour un membre du foyer : dépenses (total, répartitions, détail),
+ * rentrées (total, par catégorie, détail) et résultat.
+ */
 @Singleton
 class GetMonthlyBudgetUseCase implements GetMonthlyBudget {
 
     private final BudgetAccess access;
     private final MonthlyBudgetReadModel readModel;
+    private final BudgetReportReadModel report;
 
-    GetMonthlyBudgetUseCase(BudgetAccess access, MonthlyBudgetReadModel readModel) {
+    GetMonthlyBudgetUseCase(BudgetAccess access, MonthlyBudgetReadModel readModel, BudgetReportReadModel report) {
         this.access = access;
         this.readModel = readModel;
+        this.report = report;
     }
 
     @Override
@@ -30,17 +33,12 @@ class GetMonthlyBudgetUseCase implements GetMonthlyBudget {
         var household = access.householdOfMember(query.householdId(), query.requesterId());
         var month = query.month();
         var byCategory = readModel.totalsByCategory(household, month);
-        return new MonthlyBudget(month, total(byCategory), byCategory,
+        var incomeByCategory = report.incomeByCategory(household, month.atDay(1), month.atEndOfMonth());
+        return new MonthlyBudget(month, CategoryTotal.sum(byCategory), byCategory,
                 readModel.totalsByPayer(household, month),
                 readModel.totalsByBeneficiary(household, month),
-                readModel.expenses(household, month));
-    }
-
-    // Somme exacte en centimes (Money refuse tout dépassement de capacité).
-    private static long total(List<CategoryTotal> byCategory) {
-        return byCategory.stream()
-                .map(category -> Money.ofCents(category.totalCents()))
-                .reduce(Money.ZERO, Money::plus)
-                .cents();
+                readModel.expenses(household, month),
+                CategoryTotal.sum(incomeByCategory), incomeByCategory,
+                readModel.incomes(household, month));
     }
 }
