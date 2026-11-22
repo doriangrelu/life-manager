@@ -18,6 +18,9 @@ public interface ChargeOccurrenceJdbcRepository extends CrudRepository<ChargeOcc
     @Query("SELECT * FROM charge_occurrence WHERE charge_id = :chargeId ORDER BY due_on DESC")
     List<ChargeOccurrenceEntity> findAllByCharge(UUID chargeId);
 
+    @Query("SELECT * FROM charge_occurrence WHERE household_id = :householdId ORDER BY due_on DESC")
+    List<ChargeOccurrenceEntity> findAllByHousehold(UUID householdId);
+
     @Query("""
             SELECT * FROM charge_occurrence
             WHERE household_id = :householdId AND status IN ('UPCOMING', 'TO_CONFIRM')

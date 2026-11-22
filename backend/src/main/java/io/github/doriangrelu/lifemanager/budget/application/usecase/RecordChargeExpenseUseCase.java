@@ -49,11 +49,12 @@ class RecordChargeExpenseUseCase implements RecordChargeExpense {
             return;
         }
         var expenseId = ExpenseId.newId();
-        if (!links.claim(command.occurrenceId(), expenseId)) {
+        var household = new HouseholdId(command.householdId());
+        if (!links.claim(command.occurrenceId(), household, expenseId)) {
             return; // dépense déjà créée pour cette échéance
         }
         var paid = expenseDetails.get();
-        var expense = Expense.record(expenseId, new HouseholdId(command.householdId()), paid, paid.paidBy(), clock);
+        var expense = Expense.record(expenseId, household, paid, paid.paidBy(), clock);
         expenses.save(expense);
         events.publishEventsOf(expense);
     }

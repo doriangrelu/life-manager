@@ -1,6 +1,7 @@
 package io.github.doriangrelu.lifemanager.budget.application.port.out;
 
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.ExpenseId;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 
 import java.util.UUID;
 
@@ -12,5 +13,5 @@ public interface ChargeExpenseLinks {
      *
      * @return faux si l'échéance a déjà sa dépense (événement reçu une deuxième fois)
      */
-    boolean claim(UUID occurrenceId, ExpenseId expenseId);
+    boolean claim(UUID occurrenceId, HouseholdId householdId, ExpenseId expenseId);
 }

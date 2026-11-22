@@ -16,6 +16,9 @@ public interface OccurrenceRepository {
     /** Échéances d'une charge, de la plus récente à la plus ancienne. */
     List<ChargeOccurrence> findAllByCharge(ChargeId chargeId);
 
+    /** Toutes les échéances de toutes les charges du foyer (une seule lecture, pour les prévisions). */
+    List<ChargeOccurrence> findAllByHousehold(HouseholdId householdId);
+
     /** Échéances encore ouvertes (à venir ou à confirmer) de toutes les charges du foyer. */
     List<ChargeOccurrence> findOpenByHousehold(HouseholdId householdId);
 

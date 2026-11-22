@@ -29,6 +29,6 @@ class ListOccurrencesUseCase implements ListOccurrences {
     @Transactional(transactionManager = "bills", readOnly = true)
     public List<OccurrenceView> list(ChargeCommand command) {
         var charge = access.chargeForMember(command.householdId(), command.chargeId(), command.requesterId());
-        return occurrences.findAllByCharge(charge.id()).stream().map(open::view).toList();
+        return open.views(occurrences.findAllByCharge(charge.id()));
     }
 }

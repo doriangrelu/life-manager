@@ -8,8 +8,11 @@ import io.github.doriangrelu.lifemanager.bills.infrastructure.out.persistence.ma
 import io.github.doriangrelu.lifemanager.bills.infrastructure.out.persistence.repository.InvoiceJdbcRepository;
 import jakarta.inject.Singleton;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /** Implémente le stockage des métadonnées des factures avec PostgreSQL (table invoice). */
 @Singleton
@@ -34,6 +37,15 @@ class InvoiceRepositoryAdapter implements InvoiceRepository {
     @Override
     public int countByOccurrence(OccurrenceId occurrenceId) {
         return table.countByOccurrenceId(occurrenceId.value());
+    }
+
+    @Override
+    public Map<OccurrenceId, Integer> countByOccurrences(Collection<OccurrenceId> occurrenceIds) {
+        if (occurrenceIds.isEmpty()) {
+            return Map.of(); // IN () est refusé par PostgreSQL
+        }
+        return table.countByOccurrences(occurrenceIds.stream().map(OccurrenceId::value).toList()).stream()
+                .collect(Collectors.toMap(row -> new OccurrenceId(row.occurrenceId()), row -> (int) row.total()));
     }
 
     @Override

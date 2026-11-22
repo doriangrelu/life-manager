@@ -241,3 +241,23 @@
     margin: 0 12px;
   }
 }
+
+/* ---- Pied de page : liens vers les CGU et la confidentialité (footer.ftl) */
+.lm-legal {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: var(--lm-text-muted);
+}
+.lm-legal a {
+  color: var(--lm-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.lm-legal a:hover,
+.lm-legal a:focus-visible {
+  color: var(--lm-primary-text);
+}

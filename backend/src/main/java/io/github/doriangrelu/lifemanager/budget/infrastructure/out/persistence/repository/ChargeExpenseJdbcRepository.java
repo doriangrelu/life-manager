@@ -16,7 +16,8 @@ public interface ChargeExpenseJdbcRepository extends GenericRepository<ChargeExp
 
     /** Réserve l'échéance ; retourne 0 si elle l'était déjà (sans erreur, la transaction reste utilisable). */
     @Query("""
-            INSERT INTO charge_expense (occurrence_id, expense_id) VALUES (:occurrenceId, :expenseId)
+            INSERT INTO charge_expense (occurrence_id, expense_id, household_id)
+            VALUES (:occurrenceId, :expenseId, :householdId)
             ON CONFLICT (occurrence_id) DO NOTHING""")
-    long insertIfAbsent(UUID occurrenceId, UUID expenseId);
+    long insertIfAbsent(UUID occurrenceId, UUID expenseId, UUID householdId);
 }

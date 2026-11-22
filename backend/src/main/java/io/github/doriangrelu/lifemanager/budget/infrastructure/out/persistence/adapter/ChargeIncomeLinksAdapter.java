@@ -1,6 +1,7 @@
 package io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.adapter;
 
 import io.github.doriangrelu.lifemanager.budget.application.port.out.ChargeIncomeLinks;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.IncomeId;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.repository.ChargeIncomeJdbcRepository;
 import jakarta.inject.Singleton;
@@ -18,7 +19,7 @@ class ChargeIncomeLinksAdapter implements ChargeIncomeLinks {
     }
 
     @Override
-    public boolean claim(UUID occurrenceId, IncomeId incomeId) {
-        return table.insertIfAbsent(occurrenceId, incomeId.value()) == 1;
+    public boolean claim(UUID occurrenceId, HouseholdId householdId, IncomeId incomeId) {
+        return table.insertIfAbsent(occurrenceId, incomeId.value(), householdId.value()) == 1;
     }
 }

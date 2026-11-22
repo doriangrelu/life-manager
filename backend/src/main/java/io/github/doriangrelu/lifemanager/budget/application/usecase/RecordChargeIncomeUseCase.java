@@ -39,10 +39,11 @@ class RecordChargeIncomeUseCase implements RecordChargeIncome {
     public void record(RecordChargeExpenseCommand command) {
         var incomeDetails = details.of(command);
         var incomeId = IncomeId.newId();
-        if (incomeDetails.isEmpty() || !links.claim(command.occurrenceId(), incomeId)) {
+        var household = new HouseholdId(command.householdId());
+        if (incomeDetails.isEmpty() || !links.claim(command.occurrenceId(), household, incomeId)) {
             return; // montant nul, ou rentrée déjà créée pour cette échéance
         }
-        incomes.save(Income.record(incomeId, new HouseholdId(command.householdId()), incomeDetails.get(),
+        incomes.save(Income.record(incomeId, household, incomeDetails.get(),
                 new MemberId(command.payerId()), clock));
     }
 }

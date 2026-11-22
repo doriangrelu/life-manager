@@ -8,12 +8,15 @@ import io.github.doriangrelu.lifemanager.bills.application.port.out.OccurrenceRe
 import io.github.doriangrelu.lifemanager.bills.application.service.ChargeAccess;
 import io.github.doriangrelu.lifemanager.bills.domain.aggregate.ChargeOccurrence;
 import io.github.doriangrelu.lifemanager.bills.domain.aggregate.RecurringCharge;
+import io.github.doriangrelu.lifemanager.bills.domain.valueobject.ChargeId;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,14 +43,18 @@ class ForecastChargesUseCase implements ForecastCharges {
     public List<ForecastItem> forecast(ForecastQuery query) {
         var household = access.householdOfMember(query.householdId(), query.requesterId());
         query.ensureValidPeriod();
+        // Toutes les échéances du foyer en une lecture, rangées par charge (au lieu d'une lecture par charge).
+        Map<ChargeId, List<ChargeOccurrence>> byCharge = occurrences.findAllByHousehold(household).stream()
+                .collect(Collectors.groupingBy(ChargeOccurrence::chargeId));
         return charges.findAllByHousehold(household).stream()
-                .flatMap(charge -> itemsOf(charge, query.from(), query.to()))
+                .flatMap(charge -> itemsOf(charge, byCharge.getOrDefault(charge.id(), List.of()), query.from(),
+                        query.to()))
                 .sorted(Comparator.comparing(ForecastItem::dueOn).thenComparing(ForecastItem::name))
                 .toList();
     }
 
-    private Stream<ForecastItem> itemsOf(RecurringCharge charge, LocalDate from, LocalDate to) {
-        var known = occurrences.findAllByCharge(charge.id());
+    private static Stream<ForecastItem> itemsOf(RecurringCharge charge, List<ChargeOccurrence> known, LocalDate from,
+                                                LocalDate to) {
         var open = known.stream()
                 .filter(occurrence -> occurrence.settlement().status().isOpen())
                 .filter(occurrence -> isBetween(occurrence.due().dueOn(), from, to))

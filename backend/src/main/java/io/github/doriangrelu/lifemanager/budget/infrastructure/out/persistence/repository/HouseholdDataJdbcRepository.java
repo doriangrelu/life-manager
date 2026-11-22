@@ -21,11 +21,9 @@ public interface HouseholdDataJdbcRepository extends GenericRepository<Household
     void deleteMembers(UUID householdId);
 
     @Query("""
-            DELETE
-            FROM charge_expense
-            WHERE expense_id IN (SELECT id
-            FROM expense
-            WHERE household_id = :householdId)""")
+            DELETE FROM charge_expense
+            WHERE household_id = :householdId
+               OR expense_id IN (SELECT id FROM expense WHERE household_id = :householdId)""")
     void erase1(UUID householdId);
 
     @Query("DELETE FROM expense WHERE household_id = :householdId")
@@ -34,7 +32,10 @@ public interface HouseholdDataJdbcRepository extends GenericRepository<Household
     @Query("DELETE FROM category WHERE household_id = :householdId")
     void erase3(UUID householdId);
 
-    @Query("DELETE FROM charge_income WHERE income_id IN (SELECT id FROM income WHERE household_id = :householdId)")
+    @Query("""
+            DELETE FROM charge_income
+            WHERE household_id = :householdId
+               OR income_id IN (SELECT id FROM income WHERE household_id = :householdId)""")
     void eraseIncomeLinks(UUID householdId);
 
     @Query("DELETE FROM income WHERE household_id = :householdId")

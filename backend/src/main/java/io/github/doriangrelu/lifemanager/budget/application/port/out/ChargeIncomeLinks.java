@@ -1,5 +1,6 @@
 package io.github.doriangrelu.lifemanager.budget.application.port.out;
 
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.IncomeId;
 
 import java.util.UUID;
@@ -12,5 +13,5 @@ public interface ChargeIncomeLinks {
      *
      * @return faux si l'échéance a déjà sa rentrée (événement reçu une deuxième fois)
      */
-    boolean claim(UUID occurrenceId, IncomeId incomeId);
+    boolean claim(UUID occurrenceId, HouseholdId householdId, IncomeId incomeId);
 }

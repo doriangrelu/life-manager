@@ -2,6 +2,7 @@ package io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.
 
 import io.github.doriangrelu.lifemanager.budget.application.port.out.ChargeExpenseLinks;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.ExpenseId;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.repository.ChargeExpenseJdbcRepository;
 import jakarta.inject.Singleton;
 
@@ -18,7 +19,7 @@ class ChargeExpenseLinksAdapter implements ChargeExpenseLinks {
     }
 
     @Override
-    public boolean claim(UUID occurrenceId, ExpenseId expenseId) {
-        return table.insertIfAbsent(occurrenceId, expenseId.value()) == 1;
+    public boolean claim(UUID occurrenceId, HouseholdId householdId, ExpenseId expenseId) {
+        return table.insertIfAbsent(occurrenceId, expenseId.value(), householdId.value()) == 1;
     }
 }

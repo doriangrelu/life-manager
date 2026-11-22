@@ -33,6 +33,11 @@ class OccurrenceRepositoryAdapter implements OccurrenceRepository {
     }
 
     @Override
+    public List<ChargeOccurrence> findAllByHousehold(HouseholdId householdId) {
+        return table.findAllByHousehold(householdId.value()).stream().map(OccurrenceMapper::toDomain).toList();
+    }
+
+    @Override
     public List<ChargeOccurrence> findOpenByHousehold(HouseholdId householdId) {
         return table.findOpenByHousehold(householdId.value()).stream().map(OccurrenceMapper::toDomain).toList();
     }
