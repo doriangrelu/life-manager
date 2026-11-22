@@ -7,4 +7,4 @@
 ## 2. Livraison
 
 - [x] 2.1 Suite backend complète verte (313 tests)
-- [ ] 2.2 [infra/vps] v0.13.2 publiée et déployée, thème Keycloak recopié et vérifié en prod
+- [x] 2.2 [infra/vps] v0.13.2 publiée et déployée, thème Keycloak recopié et vérifié en prod
