@@ -81,7 +81,7 @@ Placé avant les graphiques (choix de Dorian) : ils pourront ainsi montrer à la
 Découpé en deux à la demande de Dorian (2026-11-19) :
 
 - **6a « Rappels libres »** (en cours de cadrage) : rappels saisis à la main, avec une date, une récurrence et une note (impôts, ramonage, mutuelle…), dans le même bandeau et les mêmes notifications que les rappels automatiques.
-- **6b « E-mails » — planifié plus tard** :
+- **6b « E-mails » — planifié après le lot 8** (Dorian, 2026-11-22 : les projets d'abord, plus intéressants à l'usage) :
   - **rappels par e-mail via Brevo**, au choix de chaque membre ;
   - **e-mails de Keycloak aux couleurs de l'application** (mot de passe oublié, vérification), envoyés par Brevo ;
   - prérequis technique : réparer le HTTPS sortant de l'exécutable natif (voir dette).
@@ -100,7 +100,7 @@ Demandé par Dorian le 2026-11-19. Deux changes OpenSpec :
 
 ### Lot 6d — Stabilisation ✅ (livré le 2026-11-19, v0.13.1, en recette)
 
-15 bugs corrigés (10 dans la PWA, 5 dans le backend, chacun avec un test quand c'était possible) ; parcours natif indépendant des comptes de dev. Laissés pour plus tard : liens `charge_expense` / `charge_income` orphelins après suppression d'un foyer (changement de schéma, à l'accord de Dorian), requêtes en boucle dans `bills` (sans effet visible au volume actuel), découpage des gros écrans.
+15 bugs corrigés (10 dans la PWA, 5 dans le backend, chacun avec un test quand c'était possible) ; parcours natif indépendant des comptes de dev. Points laissés ouverts, corrigés en **v0.13.2** (2026-11-22, change `corrections-ouvertes`) : liens `charge_expense` / `charge_income` orphelins après suppression d'un foyer, requêtes en boucle dans `bills`, liens CGU / confidentialité sur la page de connexion. Reste : découpage des gros écrans.
 
 Demandé par Dorian le 2026-11-19 : chasse aux bugs, corrections, et améliorations ou optimisations du code existant si c'est utile. Aucune nouvelle fonctionnalité. Change OpenSpec `stabilisation`.
 
@@ -109,7 +109,9 @@ Demandé par Dorian le 2026-11-19 : chasse aux bugs, corrections, et améliorati
 - **Qui doit quoi** : dépenses et abonnements partagés, part de chacun, solde entre membres, remboursement enregistré.
 - S'appuie sur « payé par / pour » déjà présent dans les dépenses et les charges.
 
-### Lot 8 — Projets
+### Lot 8 — Projets (prochain lot, avancé avant 6b et 7 par Dorian le 2026-11-22)
+
+Proposition en cadrage : `openspec/changes/projets` (questions à Dorian avant tout code).
 
 - Projets du foyer (travaux, vacances, mariage…) avec un **budget**, des **dépenses rattachées** et une **liste de tâches**.
 
