@@ -22,4 +22,4 @@
 
 - [x] 4.1 [infra/ci] Parcours natif étendu (projet, tâche, dépense rattachée, budget à part)
 - [x] 4.2 [docs] Documentation et feuille de route
-- [ ] 4.3 [infra/vps] Schéma `project` créé sur le VPS, v0.14.0 publiée et déployée
+- [x] 4.3 [infra/vps] Schéma `project` créé sur le VPS, v0.14.0 publiée et déployée

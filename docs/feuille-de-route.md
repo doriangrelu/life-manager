@@ -124,7 +124,7 @@ Change `openspec/changes/projets`, réponses de Dorian dans le proposal.
 - **Bug** : le coût d'une opération du carnet d'entretien doit devenir une dépense du budget (ça ne fonctionne pas aujourd'hui).
 - **Pneus** : taille des pneus du véhicule, jeu monté avec les kilomètres parcourus depuis la pose.
 - **Freins et disques** : même suivi (pose, kilomètres parcourus).
-- À cadrer en OpenSpec.
+- Proposition : `openspec/changes/vehicules-couts-usure` (5 questions à Dorian ; découpage proposé A = coûts → budget en v0.15.0, B = pièces d'usure en v0.16.0).
 
 ### Lot 9 — Documents et démarches (données les plus sensibles)
 
