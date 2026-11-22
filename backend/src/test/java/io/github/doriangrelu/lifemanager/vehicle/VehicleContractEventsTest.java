@@ -57,9 +57,9 @@ class VehicleContractEventsTest extends IntegrationTestSupport {
         var household = new HouseholdApi(client.toBlocking()).create(token, "Maison").id();
         var vehicles = new VehicleApi(client.toBlocking());
 
-        var clio = vehicles.register(token, household, new VehicleRequest("Clio", null, null, null)).id();
-        vehicles.update(token, household, clio, new VehicleRequest("Clio", null, null, LocalDate.of(2027, 1, 15)));
-        failure(() -> vehicles.update(token, household, clio, new VehicleRequest(" ", null, null, null)));
+        var clio = vehicles.register(token, household, new VehicleRequest("Clio", null, null, null, null, null)).id();
+        vehicles.update(token, household, clio, new VehicleRequest("Clio", null, null, LocalDate.of(2027, 1, 15), null, null));
+        failure(() -> vehicles.update(token, household, clio, new VehicleRequest(" ", null, null, null, null, null)));
         vehicles.remove(token, household, clio);
 
         assertThat(contractEvents.received).filteredOn(event -> vehicleOf(event).equals(clio)).satisfiesExactly(

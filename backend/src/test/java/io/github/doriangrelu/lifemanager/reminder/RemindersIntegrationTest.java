@@ -52,8 +52,8 @@ class RemindersIntegrationTest extends IntegrationTestSupport {
         var household = households.create(owner, "Maison").id();
         households.join(guest, households.issueInvitation(owner, household).code());
 
-        register(owner, household, new VehicleRequest("Clio", null, TODAY.plusDays(15), TODAY.minusDays(46)));
-        register(owner, household, new VehicleRequest("Vélo", null, null, TODAY.plusDays(200)));
+        register(owner, household, new VehicleRequest("Clio", null, TODAY.plusDays(15), TODAY.minusDays(46), null, null));
+        register(owner, household, new VehicleRequest("Vélo", null, null, TODAY.plusDays(200), null, null));
 
         assertThat(reminders(guest, household))
                 .extracting(ReminderResponse::subject, ReminderResponse::kind, ReminderResponse::status,
@@ -66,9 +66,9 @@ class RemindersIntegrationTest extends IntegrationTestSupport {
     void reminders_follow_vehicle_changes_and_removal() {
         var owner = newUser();
         var household = households.create(owner, "Maison").id();
-        var clio = register(owner, household, new VehicleRequest("Clio", null, TODAY.minusDays(3), null)).id();
+        var clio = register(owner, household, new VehicleRequest("Clio", null, TODAY.minusDays(3), null, null, null)).id();
 
-        put(owner, household, clio, new VehicleRequest("Clio", null, TODAY.plusYears(2), TODAY.plusDays(5)));
+        put(owner, household, clio, new VehicleRequest("Clio", null, TODAY.plusYears(2), TODAY.plusDays(5), null, null));
         assertThat(reminders(owner, household)).extracting(ReminderResponse::kind).containsExactly("SERVICE");
 
         http.exchange(HttpRequest.DELETE(vehicles(household) + "/" + clio).bearerAuth(owner));

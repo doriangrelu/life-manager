@@ -10,6 +10,7 @@ import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceK
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceNote;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceOtherLabel;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.Mileage;
+import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.TireSize;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.VehicleDetails;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.VehicleName;
 
@@ -23,7 +24,9 @@ public final class VehicleInputs {
         return new VehicleDetails(
                 new VehicleName(input.name()),
                 LicensePlate.ofNullable(input.licensePlate()),
-                new Deadlines(input.technicalInspectionDue(), input.serviceDue()));
+                new Deadlines(input.technicalInspectionDue(), input.serviceDue()),
+                Mileage.ofNullable(input.mileageKm()),
+                TireSize.ofNullable(input.tireSize()));
     }
 
     public static MaintenanceDetails details(MaintenanceInput input) {

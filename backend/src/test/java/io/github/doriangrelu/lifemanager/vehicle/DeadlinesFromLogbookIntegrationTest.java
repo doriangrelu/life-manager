@@ -117,7 +117,7 @@ class DeadlinesFromLogbookIntegrationTest extends IntegrationTestSupport {
         var owner = newUser();
         var household = households.create(owner, "Maison").id();
         var vehicle = vehicles.register(owner, household,
-                new VehicleRequest("Clio", null, technicalInspectionDue, serviceDue)).id();
+                new VehicleRequest("Clio", null, technicalInspectionDue, serviceDue, null, null)).id();
         return new Garage(owner, household, vehicle);
     }
 

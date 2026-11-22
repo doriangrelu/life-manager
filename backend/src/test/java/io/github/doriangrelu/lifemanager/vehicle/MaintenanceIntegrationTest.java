@@ -95,7 +95,7 @@ class MaintenanceIntegrationTest extends IntegrationTestSupport {
         var owner = newUser();
         var household = households.create(owner, "Maison").id();
         var clio = clioOf(owner, household);
-        var bike = vehicles.register(owner, household, new VehicleRequest("Vélo", null, null, null)).id();
+        var bike = vehicles.register(owner, household, new VehicleRequest("Vélo", null, null, null, null, null)).id();
         var entry = vehicles.record(owner, household, clio, kind(LocalDate.of(2026, 5, 1), "OIL_CHANGE")).id();
 
         assertThat(failure(() -> vehicles.deleteEntry(owner, household, bike, entry)).code()).isEqualTo(404);
@@ -119,7 +119,7 @@ class MaintenanceIntegrationTest extends IntegrationTestSupport {
     }
 
     private UUID clioOf(String owner, UUID household) {
-        return vehicles.register(owner, household, new VehicleRequest("Clio", null, null, null)).id();
+        return vehicles.register(owner, household, new VehicleRequest("Clio", null, null, null, null, null)).id();
     }
 
     private static MaintenanceRequest kind(LocalDate day, String kind) {

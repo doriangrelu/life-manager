@@ -147,7 +147,7 @@ class MaintenanceAttachmentIntegrationTest extends IntegrationTestSupport {
     private Logbook newLogbook() {
         var owner = newUser();
         var household = households.create(owner, "Maison").id();
-        var vehicle = vehicles.register(owner, household, new VehicleRequest("Clio", null, null, null)).id();
+        var vehicle = vehicles.register(owner, household, new VehicleRequest("Clio", null, null, null, null, null)).id();
         var entry = vehicles.record(owner, household, vehicle, oilChange()).id();
         return new Logbook(owner, household, vehicle, entry);
     }

@@ -44,8 +44,8 @@ class VehiclesIntegrationTest extends IntegrationTestSupport {
         var household = households.create(owner, "Maison").id();
         households.join(guest, households.issueInvitation(owner, household).code());
 
-        var clio = vehicles.register(owner, household, new VehicleRequest("Clio", "ab-123-cd", MARCH_2027, null));
-        vehicles.register(guest, household, new VehicleRequest("Berlingo", null, null, null));
+        var clio = vehicles.register(owner, household, new VehicleRequest("Clio", "ab-123-cd", MARCH_2027, null, null, null));
+        vehicles.register(guest, household, new VehicleRequest("Berlingo", null, null, null, null, null));
 
         assertThat(clio.licensePlate()).isEqualTo("AB-123-CD");
         assertThat(clio.technicalInspectionDue()).isEqualTo(MARCH_2027);
@@ -71,10 +71,10 @@ class VehiclesIntegrationTest extends IntegrationTestSupport {
     void a_vehicle_can_be_updated_then_removed() {
         var owner = newUser();
         var household = households.create(owner, "Maison").id();
-        var clio = vehicles.register(owner, household, new VehicleRequest("Clio", null, MARCH_2027, null)).id();
+        var clio = vehicles.register(owner, household, new VehicleRequest("Clio", null, MARCH_2027, null, null, null)).id();
 
         var updated = vehicles.update(owner, household, clio,
-                new VehicleRequest("Clio V", "AB-123-CD", LocalDate.of(2029, 3, 1), LocalDate.of(2027, 1, 15)));
+                new VehicleRequest("Clio V", "AB-123-CD", LocalDate.of(2029, 3, 1), LocalDate.of(2027, 1, 15), null, null));
         vehicles.remove(owner, household, clio);
 
         assertThat(updated.name()).isEqualTo("Clio V");
@@ -97,7 +97,7 @@ class VehiclesIntegrationTest extends IntegrationTestSupport {
     }
 
     private static VehicleRequest named(String name) {
-        return new VehicleRequest(name, null, null, null);
+        return new VehicleRequest(name, null, null, null, null, null);
     }
 
     private static String newUser() {

@@ -1,5 +1,14 @@
 import { apiBlob, apiRequest, apiUpload } from './http'
-import type { Attachment, BudgetChoice, MaintenanceEntry, MaintenanceInput, Vehicle, VehicleInput } from './types'
+import type {
+  Attachment,
+  BudgetChoice,
+  MaintenanceEntry,
+  MaintenanceInput,
+  Vehicle,
+  VehicleInput,
+  WearPart,
+  WearPartInput,
+} from './types'
 
 const base = (householdId: string) => `/households/${householdId}/vehicles`
 
@@ -17,6 +26,31 @@ export function updateVehicle(householdId: string, vehicleId: string, vehicle: V
 
 export function removeVehicle(householdId: string, vehicleId: string): Promise<void> {
   return apiRequest('DELETE', `${base(householdId)}/${vehicleId}`)
+}
+
+// ---- Pièces d'usure : poser une pièce remplace celle du même type déjà montée.
+
+const parts = (householdId: string, vehicleId: string) => `${base(householdId)}/${vehicleId}/parts`
+
+export function listWearParts(householdId: string, vehicleId: string): Promise<WearPart[]> {
+  return apiRequest('GET', parts(householdId, vehicleId))
+}
+
+export function fitWearPart(householdId: string, vehicleId: string, part: WearPartInput): Promise<WearPart> {
+  return apiRequest('POST', parts(householdId, vehicleId), part)
+}
+
+export function correctWearPart(
+  householdId: string,
+  vehicleId: string,
+  partId: string,
+  part: WearPartInput,
+): Promise<WearPart> {
+  return apiRequest('PUT', `${parts(householdId, vehicleId)}/${partId}`, part)
+}
+
+export function deleteWearPart(householdId: string, vehicleId: string, partId: string): Promise<void> {
+  return apiRequest('DELETE', `${parts(householdId, vehicleId)}/${partId}`)
 }
 
 export function listMaintenance(householdId: string, vehicleId: string): Promise<MaintenanceEntry[]> {

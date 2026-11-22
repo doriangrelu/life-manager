@@ -2,7 +2,7 @@
   import { tick, untrack } from 'svelte'
   import type { Vehicle, VehicleInput } from '../../api/types'
   import Field from '../../ui/molecules/Field.svelte'
-  import { check, focusFirstInvalid, required } from '../../validation'
+  import { allValid, check, focusFirstInvalid, optionalInteger, required } from '../../validation'
 
   // Véhicule à créer ou modifier (dans une modale) : nom, immatriculation et prochaines échéances.
   let { vehicle, onsave }: { vehicle: Vehicle | null; onsave: (input: VehicleInput) => Promise<void> } = $props()
@@ -13,14 +13,19 @@
   let licensePlate = $state(initial?.licensePlate ?? '')
   let technicalInspectionDue = $state(initial?.technicalInspectionDue ?? '')
   let serviceDue = $state(initial?.serviceDue ?? '')
+  let mileage = $state(initial?.mileageKm != null ? String(initial.mileageKm) : '')
+  let tireSize = $state(initial?.tireSize ?? '')
   let busy = $state(false)
   let revealed = $state(false)
   let error = $state<string | null>(null)
-  const nameError = $derived(check(name, required('Donnez un nom au véhicule')))
+  const errors = $derived({
+    name: check(name, required('Donnez un nom au véhicule')),
+    mileage: check(mileage, optionalInteger('54300', 2_000_000)),
+  })
 
   async function submit(event: SubmitEvent) {
     event.preventDefault()
-    if (nameError) {
+    if (!allValid(errors)) {
       const form = event.currentTarget as HTMLFormElement
       revealed = true
       await tick()
@@ -35,6 +40,8 @@
         licensePlate: licensePlate.trim().toUpperCase() || null,
         technicalInspectionDue: technicalInspectionDue || null,
         serviceDue: serviceDue || null,
+        mileageKm: mileage.trim() ? Number(mileage.replace(/\s/g, '')) : null,
+        tireSize: tireSize.trim() || null,
       })
     } catch (e) {
       // Refus du serveur : montré dans la fenêtre (l'écran derrière est caché).
@@ -47,7 +54,7 @@
 
 <form class="stack" onsubmit={submit}>
   <div class="form-row">
-    <Field label="Nom" error={nameError} reveal={revealed}>
+    <Field label="Nom" error={errors.name} reveal={revealed}>
       {#snippet children(id)}
         <input {id} bind:value={name} maxlength="40" placeholder="Ex. : Clio" data-autofocus />
       {/snippet}
@@ -74,6 +81,22 @@
         <input {id} type="date" bind:value={serviceDue} />
       {/snippet}
     </Field>
+  </div>
+  <div class="form-row">
+    <Field
+      label="Kilométrage actuel"
+      error={errors.mileage}
+      reveal={revealed}
+      info="Facultatif. Il se met à jour tout seul quand une opération du carnet ou une pièce posée porte un kilométrage plus élevé. Il sert à calculer les km parcourus par les pièces d'usure."
+    >
+      {#snippet children(id)}
+        <input {id} bind:value={mileage} inputmode="numeric" placeholder="Facultatif" autocomplete="off" />
+      {/snippet}
+    </Field>
+    <label>
+      Taille des pneus
+      <input class="plate" bind:value={tireSize} maxlength="30" placeholder="Ex. : 205/55 R16 91V" autocomplete="off" />
+    </label>
   </div>
   {#if error}
     <p class="error" role="alert">{error}</p>

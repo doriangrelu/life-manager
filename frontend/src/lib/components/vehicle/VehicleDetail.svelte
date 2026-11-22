@@ -23,6 +23,7 @@
   import { getHousehold } from '../../api/householdApi'
   import { formatCents } from '../../money'
   import BudgetChoiceFields from './BudgetChoiceFields.svelte'
+  import WearPartsSection from './WearPartsSection.svelte'
   import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
   import Modal from '../../ui/molecules/Modal.svelte'
   import Skeleton from '../../ui/atoms/Skeleton.svelte'
@@ -154,6 +155,13 @@
     return true
   }
 
+  // Une pièce posée a pu relever le kilométrage : on relit la fiche.
+  function reloadVehicle() {
+    run(async () => {
+      vehicle = (await listVehicles(householdId)).find((v) => v.id === vehicle.id) ?? vehicle
+    })
+  }
+
   function showAttachments(entry: MaintenanceEntry) {
     attachmentsOf = entry
     attachmentsOpen = true
@@ -201,6 +209,8 @@
   <DeadlineBadge large label="Contrôle technique" due={vehicle.technicalInspectionDue} />
   <DeadlineBadge large label="Révision" due={vehicle.serviceDue} />
 </div>
+
+<WearPartsSection {householdId} {vehicle} onmileage={reloadVehicle} />
 
 <section class="stack">
   <div class="section-title">

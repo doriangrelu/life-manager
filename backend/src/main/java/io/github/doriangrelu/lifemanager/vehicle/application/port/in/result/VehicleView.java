@@ -2,12 +2,14 @@ package io.github.doriangrelu.lifemanager.vehicle.application.port.in.result;
 
 import io.github.doriangrelu.lifemanager.vehicle.domain.aggregate.Vehicle;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.LicensePlate;
+import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.Mileage;
+import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.TireSize;
 
 import java.time.LocalDate;
 import java.util.UUID;
 /** Un véhicule tel que vu hors du domaine ; les champs facultatifs absents valent {@code null}. */
 public record VehicleView(UUID id, String name, String licensePlate, LocalDate technicalInspectionDue,
-                          LocalDate serviceDue) {
+                          LocalDate serviceDue, Integer mileageKm, String tireSize) {
 
     public static VehicleView from(Vehicle vehicle) {
         var details = vehicle.details();
@@ -16,6 +18,8 @@ public record VehicleView(UUID id, String name, String licensePlate, LocalDate t
                 details.name().value(),
                 details.optionalLicensePlate().map(LicensePlate::value).orElse(null),
                 details.deadlines().technicalInspectionDue(),
-                details.deadlines().serviceDue());
+                details.deadlines().serviceDue(),
+                details.optionalMileage().map(Mileage::kilometers).orElse(null),
+                details.optionalTireSize().map(TireSize::value).orElse(null));
     }
 }

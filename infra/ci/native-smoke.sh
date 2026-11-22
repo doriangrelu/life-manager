@@ -162,6 +162,17 @@ call "$ALICE" POST "/households/$HOUSEHOLD/vehicles/$VEHICLE/maintenance/$OIL/bu
 call "$ALICE" DELETE "/households/$HOUSEHOLD/vehicles/$VEHICLE/maintenance/$OIL" 204
 month_total_is 1234 "dépense retirée avec l'opération"
 
+echo "== Pièces d'usure et kilométrage"
+call "$ALICE" POST "/households/$HOUSEHOLD/vehicles/$VEHICLE/parts" 201 \
+  "{\"kind\":\"TIRES_FRONT\",\"label\":\"Essai\",\"fittedOn\":\"$TODAY\",\"fittedKm\":40000,\"replaceAfterKm\":30000}"
+[ "$(body "['kmDone']")" = "2000" ] || fail "km parcourus inattendus (carnet à 42000) : $(head -c 300 "$WORK/body")"
+call "$ALICE" POST "/households/$HOUSEHOLD/vehicles/$VEHICLE/parts" 201 \
+  "{\"kind\":\"TIRES_FRONT\",\"fittedOn\":\"$TODAY\",\"fittedKm\":45000}"
+call "$ALICE" GET "/households/$HOUSEHOLD/vehicles/$VEHICLE/parts" 200
+[ "$(body "[1]['removedKm']")" = "45000" ] || fail "ancien jeu non déposé : $(head -c 400 "$WORK/body")"
+call "$ALICE" GET "/households/$HOUSEHOLD/vehicles" 200
+[ "$(body "[0]['mileageKm']")" = "45000" ] || fail "kilométrage non relevé : $(head -c 300 "$WORK/body")"
+
 echo "== Charges : fixe payée seule, variable confirmée, facture"
 charge() { # nom montant FIXED|VARIABLE
   echo "{\"name\":\"$1\",\"amountCents\":$2,\"amountKind\":\"$3\",\"frequency\":\"MONTHLY\",\"firstDueOn\":\"$TODAY\",\"budgetCategoryId\":\"$CATEGORY\",\"payerId\":\"$ALICE_ID\",\"beneficiaryId\":null}"

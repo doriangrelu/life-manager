@@ -18,7 +18,7 @@ Un domaine = un package de premier niveau, avec son propre schéma de base.
 | Identité | `identity` | Profil utilisateur local, rattaché au compte Keycloak |
 | Foyer | `household` | Foyers, membres, invitations, réglages (suivi des rentrées) |
 | Budget | `budget` | Dépenses et rentrées, catégories (sens dépense ou rentrée), vue mensuelle, bilan par période |
-| Véhicule | `vehicle` | Fiches véhicules, échéances (CT, révision), carnet d'entretien (coût envoyé au budget par `MaintenanceExpenseSentV1` / `MaintenanceExpenseWithdrawnV1`) |
+| Véhicule | `vehicle` | Fiches véhicules, échéances (CT, révision), kilométrage, pièces d'usure, carnet d'entretien (coût envoyé au budget par `MaintenanceExpenseSentV1` / `MaintenanceExpenseWithdrawnV1`) |
 | Courses | `shopping` | Liste de courses partagée par foyer |
 | Rappels | `reminder` | Copie des échéances (véhicules, charges) et rappels à afficher ou notifier |
 | Charges | `bills` | Charges et rentrées récurrentes (sens `EXPENSE` / `INCOME`), échéances, factures jointes, prévisions de période |

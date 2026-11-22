@@ -10,5 +10,6 @@ import java.util.UUID;
 /** Ligne de la table {@code vehicle.vehicle}. Les champs facultatifs absents valent {@code null}. */
 @MappedEntity("vehicle")
 public record VehicleEntity(@Id UUID id, UUID householdId, String name, @Nullable String licensePlate,
-                            @Nullable LocalDate technicalInspectionDue, @Nullable LocalDate serviceDue) {
+                            @Nullable LocalDate technicalInspectionDue, @Nullable LocalDate serviceDue,
+                            @Nullable Integer currentMileageKm, @Nullable String tireSize) {
 }

@@ -4,9 +4,9 @@ import io.github.doriangrelu.lifemanager.vehicle.application.port.in.RecordMaint
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.command.RecordMaintenanceCommand;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.result.MaintenanceEntryView;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.out.MaintenanceEntryRepository;
-import io.github.doriangrelu.lifemanager.vehicle.application.service.DeadlinePostponer;
 import io.github.doriangrelu.lifemanager.vehicle.application.service.MaintenanceExpenseRecorder;
 import io.github.doriangrelu.lifemanager.vehicle.application.service.VehicleAccess;
+import io.github.doriangrelu.lifemanager.vehicle.application.service.VehicleFollowUp;
 import io.github.doriangrelu.lifemanager.vehicle.application.service.VehicleInputs;
 import io.github.doriangrelu.lifemanager.vehicle.domain.aggregate.MaintenanceEntry;
 import io.github.doriangrelu.lifemanager.vehicle.domain.valueobject.MaintenanceEntryId;
@@ -28,15 +28,15 @@ class RecordMaintenanceUseCase implements RecordMaintenance {
 
     private final VehicleAccess access;
     private final MaintenanceEntryRepository entries;
-    private final DeadlinePostponer deadlines;
+    private final VehicleFollowUp followUp;
     private final MaintenanceExpenseRecorder budget;
     private final Clock clock;
 
-    RecordMaintenanceUseCase(VehicleAccess access, MaintenanceEntryRepository entries, DeadlinePostponer deadlines,
+    RecordMaintenanceUseCase(VehicleAccess access, MaintenanceEntryRepository entries, VehicleFollowUp followUp,
                              MaintenanceExpenseRecorder budget, Clock clock) {
         this.access = access;
         this.entries = entries;
-        this.deadlines = deadlines;
+        this.followUp = followUp;
         this.budget = budget;
         this.clock = clock;
     }
@@ -52,7 +52,7 @@ class RecordMaintenanceUseCase implements RecordMaintenance {
         var entry = MaintenanceEntry.record(MaintenanceEntryId.newId(), vehicle.id(), details,
                 MemberId.of(command.requesterId()), clock);
         entries.save(entry);
-        next.ifPresent(deadline -> deadlines.postponeUnlessLater(vehicle, deadline, details.performedOn()));
+        followUp.afterMaintenance(vehicle, details, next);
         target.ifPresent(chosen -> budget.send(entry, vehicle, chosen));
         return MaintenanceEntryView.from(entry, 0, target.isPresent());
     }

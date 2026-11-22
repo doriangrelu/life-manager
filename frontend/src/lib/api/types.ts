@@ -205,6 +205,10 @@ export interface VehicleInput {
   licensePlate: string | null
   technicalInspectionDue: string | null
   serviceDue: string | null
+  /** Kilométrage actuel, relevé aussi par le carnet et les pièces posées ; null = inconnu. */
+  mileageKm: number | null
+  /** Taille des pneus (« 205/55 R16 91V »), null = non renseignée. */
+  tireSize: string | null
 }
 
 export interface Vehicle extends VehicleInput {
