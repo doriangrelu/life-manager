@@ -35,7 +35,8 @@ class CorrectExpenseUseCase implements CorrectExpense {
     @Transactional(transactionManager = "budget")
     public ExpenseView correct(CorrectExpenseCommand command) {
         var expense = expenseAccess.loadForMember(command.householdId(), command.expenseId(), command.requesterId());
-        expense.correct(rules.validDetails(expense.householdId(), command.input()), clock);
+        var current = expense.details().projectId();
+        expense.correct(rules.validDetails(expense.householdId(), command.input(), current), clock);
         expenses.save(expense);
         events.publishEventsOf(expense);
         return ExpenseView.from(expense);

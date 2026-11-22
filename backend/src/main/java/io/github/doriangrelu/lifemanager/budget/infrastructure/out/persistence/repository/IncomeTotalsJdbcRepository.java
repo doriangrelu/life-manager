@@ -46,7 +46,7 @@ public interface IncomeTotalsJdbcRepository extends GenericRepository<IncomeEnti
             FROM (SELECT received_on AS day, amount_cents AS income, 0 AS expense FROM income
                   WHERE household_id = :householdId AND received_on BETWEEN :firstDay AND :lastDay
                   UNION ALL
-                  SELECT spent_on AS day, 0 AS income, amount_cents AS expense FROM expense
+                  SELECT spent_on AS day, 0 AS income, amount_cents AS expense FROM counted_expense
                   WHERE household_id = :householdId AND spent_on BETWEEN :firstDay AND :lastDay) AS flows
             GROUP BY month
             ORDER BY month""")

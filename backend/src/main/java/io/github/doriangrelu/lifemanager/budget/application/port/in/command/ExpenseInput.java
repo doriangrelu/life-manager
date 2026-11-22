@@ -14,7 +14,8 @@ import java.util.UUID;
  * @param paidBy          membre qui a payé
  * @param beneficiary     membre pour qui, ou {@code null} pour une dépense commune
  * @param label           libellé, ou {@code null}
+ * @param projectId       projet en cours du foyer, ou {@code null}
  */
 public record ExpenseInput(long amountCents, UUID categoryId, String newCategoryName, LocalDate spentOn, UUID paidBy,
-                           UUID beneficiary, String label) {
+                           UUID beneficiary, String label, UUID projectId) {
 }

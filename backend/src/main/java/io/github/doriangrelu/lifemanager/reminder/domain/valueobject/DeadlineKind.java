@@ -6,14 +6,15 @@ import java.util.Arrays;
 
 /**
  * Nature d'une échéance suivie, avec le nombre de jours avant l'échéance à partir duquel on la rappelle :
- * 30 jours pour un véhicule (il faut prendre rendez-vous), 7 jours pour une charge récurrente,
+ * 30 jours pour un véhicule (il faut prendre rendez-vous), 7 jours pour une charge récurrente ou une tâche de projet,
  * et toujours pour une échéance de charge qui attend la confirmation de son montant.
  */
 public enum DeadlineKind {
     TECHNICAL_INSPECTION(30),
     SERVICE(30),
     CHARGE(7),
-    CHARGE_TO_CONFIRM(Integer.MAX_VALUE);
+    CHARGE_TO_CONFIRM(Integer.MAX_VALUE),
+    TASK(7);
 
     private final int reminderWindowDays;
 

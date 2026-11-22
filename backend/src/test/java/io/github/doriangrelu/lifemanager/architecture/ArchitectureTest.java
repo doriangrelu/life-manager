@@ -26,7 +26,7 @@ class ArchitectureTest {
     private static final String ROOT = "io.github.doriangrelu.lifemanager";
 
     /** Domaines métiers : à compléter à chaque nouveau domaine. */
-    private static final List<String> DOMAINS = List.of("identity", "household", "budget", "vehicle", "shopping", "reminder", "bills");
+    private static final List<String> DOMAINS = List.of("identity", "household", "budget", "vehicle", "shopping", "reminder", "bills", "project");
 
     private static final JavaClasses CLASSES = new ClassFileImporter()
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
@@ -102,7 +102,8 @@ class ArchitectureTest {
             "CreateHouseholdUseCase",
             "JoinHouseholdUseCase", "ListMembershipsUseCase", "ListMyHouseholdsUseCase", "UpdateMemberProfileUseCase",
             "GetCurrentUserUseCase", "SyncUserAccountUseCase", "ForgetVehicleDeadlinesUseCase",
-            "TrackChargeDeadlineUseCase", "TrackVehicleDeadlinesUseCase",
+            "TrackChargeDeadlineUseCase", "TrackVehicleDeadlinesUseCase", "TrackTaskDeadlineUseCase",
+            "TrackProjectUseCase", "ForgetProjectUseCase",
             "ForgetHouseholdMemberUseCase", "ForgetHouseholdUseCase", "PurgeReminderHistoryUseCase",
             // Compte de l'utilisateur connecté lui-même, sans foyer dans l'adresse.
             "AcceptTermsUseCase", "ExportMyDataUseCase", "DeleteMyAccountUseCase", "ForgetUserUseCase");

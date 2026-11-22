@@ -22,4 +22,15 @@ public interface ExpenseJdbcRepository extends CrudRepository<ExpenseEntity, UUI
             WHERE household_id = :householdId AND spent_on BETWEEN :firstDay AND :lastDay
             ORDER BY spent_on DESC, recorded_at DESC""")
     List<ExpenseEntity> findForPeriod(UUID householdId, LocalDate firstDay, LocalDate lastDay);
+
+    /** Dépenses d'un projet du foyer, toutes dates, la plus récente en premier. */
+    @Query("""
+            SELECT * FROM expense
+            WHERE household_id = :householdId AND project_id = :projectId
+            ORDER BY spent_on DESC, recorded_at DESC""")
+    List<ExpenseEntity> findForProject(UUID householdId, UUID projectId);
+
+    /** Projet supprimé : ses dépenses n'ont plus de projet (et comptent de nouveau dans le budget). */
+    @Query("UPDATE expense SET project_id = NULL WHERE project_id = :projectId")
+    void detachProject(UUID projectId);
 }

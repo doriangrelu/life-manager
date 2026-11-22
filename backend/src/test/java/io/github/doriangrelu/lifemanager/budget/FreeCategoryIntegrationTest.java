@@ -90,8 +90,8 @@ class FreeCategoryIntegrationTest extends IntegrationTestSupport {
     @Test
     void the_category_is_given_one_way_only() {
         var groceries = budget.category(alice.token(), household, "Courses");
-        var both = new ExpenseRequest(100, groceries, "Cadeaux", DAY, alice.id(), null, null);
-        var neither = new ExpenseRequest(100, null, null, DAY, alice.id(), null, null);
+        var both = new ExpenseRequest(100, groceries, "Cadeaux", DAY, alice.id(), null, null, null);
+        var neither = new ExpenseRequest(100, null, null, DAY, alice.id(), null, null, null);
 
         assertThat(failure(() -> budget.record(alice.token(), household, both)).code()).isEqualTo(400);
         assertThat(failure(() -> budget.record(alice.token(), household, neither)).code()).isEqualTo(400);
@@ -107,7 +107,7 @@ class FreeCategoryIntegrationTest extends IntegrationTestSupport {
     }
 
     private ExpenseRequest withName(long cents, String categoryName) {
-        return new ExpenseRequest(cents, null, categoryName, DAY, alice.id(), null, null);
+        return new ExpenseRequest(cents, null, categoryName, DAY, alice.id(), null, null, null);
     }
 
     private List<String> names() {

@@ -63,6 +63,6 @@ class BudgetValueObjectsTest {
 
     private static ExpenseDetails details(long cents) {
         return new ExpenseDetails(Money.ofCents(cents), CategoryId.newId(), LocalDate.of(2026, 11, 16), ALICE,
-                Beneficiary.SHARED, null);
+                Beneficiary.SHARED, null, null);
     }
 }

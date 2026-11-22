@@ -16,5 +16,5 @@ import java.util.UUID;
 @MappedEntity("expense")
 public record ExpenseEntity(@Id UUID id, UUID householdId, UUID categoryId, long amountCents, LocalDate spentOn,
                             UUID paidBy, @Nullable UUID beneficiary, @Nullable String label, UUID recordedBy,
-                            Instant recordedAt) {
+                            Instant recordedAt, @Nullable UUID projectId) {
 }

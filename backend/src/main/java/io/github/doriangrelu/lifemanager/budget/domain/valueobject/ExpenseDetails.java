@@ -15,9 +15,10 @@ import java.util.Optional;
  * @param paidBy      membre qui a payé
  * @param beneficiary pour qui (commun ou un membre)
  * @param label       libellé, {@code null} s'il n'y en a pas (voir {@link #optionalLabel()})
+ * @param projectId   projet auquel la dépense est rattachée, ou {@code null}
  */
 public record ExpenseDetails(Money amount, CategoryId categoryId, LocalDate spentOn, MemberId paidBy,
-                             Beneficiary beneficiary, ExpenseLabel label) {
+                             Beneficiary beneficiary, ExpenseLabel label, ProjectId projectId) {
 
     /** Plafond d'une dépense : 1 000 000 €. */
     public static final Money MAX_AMOUNT = Money.ofCents(100_000_000L);

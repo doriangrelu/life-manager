@@ -6,3 +6,4 @@ CREATE SCHEMA vehicle;
 CREATE SCHEMA shopping;
 CREATE SCHEMA reminder;
 CREATE SCHEMA bills;
+CREATE SCHEMA project;

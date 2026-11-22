@@ -94,7 +94,7 @@ class CategoryBudgetIntegrationTest extends IntegrationTestSupport {
         var leisure = budget.category(alice.token(), household, "Loisirs");
         set(leisure, "2026-10", FROM_MONTH, 15_000L);
         budget.record(alice.token(), household,
-                new ExpenseRequest(3000L, groceries, null, LocalDate.of(2026, 10, 3), alice.id(), null, null));
+                new ExpenseRequest(3000L, groceries, null, LocalDate.of(2026, 10, 3), alice.id(), null, null, null));
 
         var month = budget.month(alice.token(), household, "2026-10");
 
@@ -108,9 +108,9 @@ class CategoryBudgetIntegrationTest extends IntegrationTestSupport {
         set(groceries, "2026-10", FROM_MONTH, 40_000L);
         set(groceries, "2026-11", MONTH_ONLY, 60_000L);
         budget.record(alice.token(), household,
-                new ExpenseRequest(38_000L, groceries, null, LocalDate.of(2026, 10, 3), alice.id(), null, null));
+                new ExpenseRequest(38_000L, groceries, null, LocalDate.of(2026, 10, 3), alice.id(), null, null, null));
         budget.record(alice.token(), household,
-                new ExpenseRequest(45_000L, groceries, null, LocalDate.of(2026, 11, 3), alice.id(), null, null));
+                new ExpenseRequest(45_000L, groceries, null, LocalDate.of(2026, 11, 3), alice.id(), null, null, null));
 
         var report = budget.report(alice.token(), household, "2026-09", "2026-11");
 

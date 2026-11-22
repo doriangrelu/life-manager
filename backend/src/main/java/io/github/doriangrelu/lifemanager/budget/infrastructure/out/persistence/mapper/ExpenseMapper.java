@@ -9,6 +9,7 @@ import io.github.doriangrelu.lifemanager.budget.domain.valueobject.ExpenseLabel;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.MemberId;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.Money;
+import io.github.doriangrelu.lifemanager.budget.domain.valueobject.ProjectId;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.entity.ExpenseEntity;
 
 /** Conversion entre l'agrégat {@link Expense} et sa ligne en base. */
@@ -29,7 +30,8 @@ public final class ExpenseMapper {
                 details.beneficiary().member().map(MemberId::value).orElse(null),
                 details.optionalLabel().map(ExpenseLabel::value).orElse(null),
                 expense.recordedBy().value(),
-                expense.recordedAt());
+                expense.recordedAt(),
+                details.projectId() == null ? null : details.projectId().value());
     }
 
     public static Expense toDomain(ExpenseEntity entity) {
@@ -44,6 +46,7 @@ public final class ExpenseMapper {
                 entity.spentOn(),
                 new MemberId(entity.paidBy()),
                 Beneficiary.of(entity.beneficiary()),
-                ExpenseLabel.ofNullable(entity.label()));
+                ExpenseLabel.ofNullable(entity.label()),
+                ProjectId.ofNullable(entity.projectId()));
     }
 }

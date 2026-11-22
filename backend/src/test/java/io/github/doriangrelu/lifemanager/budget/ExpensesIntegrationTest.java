@@ -65,7 +65,7 @@ class ExpensesIntegrationTest extends IntegrationTestSupport {
     @Test
     void invalid_amounts_and_future_dates_are_refused() {
         var tomorrow = LocalDate.now(ZoneId.of("Europe/Paris")).plusDays(1);
-        var future = new ExpenseRequest(100, groceries, null, tomorrow, alice.id(), null, null);
+        var future = new ExpenseRequest(100, groceries, null, tomorrow, alice.id(), null, null, null);
 
         assertThat(failure(() -> budget.record(alice.token(), household, expense(0, alice.id(), null))).code())
                 .isEqualTo(400);
@@ -92,7 +92,7 @@ class ExpensesIntegrationTest extends IntegrationTestSupport {
         budget.archive(alice.token(), household, groceries);
 
         var archived = expense(100, alice.id(), null);
-        var foreign = new ExpenseRequest(100, foreignCategory, null, DAY, alice.id(), null, null);
+        var foreign = new ExpenseRequest(100, foreignCategory, null, DAY, alice.id(), null, null, null);
         assertThat(failure(() -> budget.record(alice.token(), household, archived)).code()).isEqualTo(400);
         assertThat(failure(() -> budget.record(alice.token(), household, foreign)).code()).isEqualTo(400);
     }
@@ -121,6 +121,6 @@ class ExpensesIntegrationTest extends IntegrationTestSupport {
     }
 
     private ExpenseRequest expense(long cents, UUID paidBy, UUID beneficiary) {
-        return new ExpenseRequest(cents, groceries, null, DAY, paidBy, beneficiary, "Marché");
+        return new ExpenseRequest(cents, groceries, null, DAY, paidBy, beneficiary, "Marché", null);
     }
 }

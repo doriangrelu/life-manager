@@ -40,7 +40,7 @@ public class ChargeExpenseDetails {
         }
         return Optional.of(new ExpenseDetails(Money.ofCents(command.amountCents()),
                 category(household, command), command.paidOn(), payer, beneficiary(household, command),
-                ExpenseLabel.ofNullable(command.chargeName())));
+                ExpenseLabel.ofNullable(command.chargeName()), null));
     }
 
     private CategoryId category(HouseholdId household, RecordChargeExpenseCommand command) {

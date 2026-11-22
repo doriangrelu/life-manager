@@ -79,6 +79,6 @@ class ExpenseTest {
     }
 
     private static ExpenseDetails details(long cents, LocalDate spentOn) {
-        return new ExpenseDetails(Money.ofCents(cents), CategoryId.newId(), spentOn, ALICE, Beneficiary.SHARED, null);
+        return new ExpenseDetails(Money.ofCents(cents), CategoryId.newId(), spentOn, ALICE, Beneficiary.SHARED, null, null);
     }
 }

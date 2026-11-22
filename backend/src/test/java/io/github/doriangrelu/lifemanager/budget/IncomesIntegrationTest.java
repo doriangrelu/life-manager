@@ -82,7 +82,7 @@ class IncomesIntegrationTest extends IntegrationTestSupport {
 
         assertThat(failure(() -> income(groceries, 100)).code()).isEqualTo(400);
         assertThat(failure(() -> budget.record(alice.token(), household,
-                new ExpenseRequest(100, salary, null, DAY, alice.id(), null, null))).code()).isEqualTo(400);
+                new ExpenseRequest(100, salary, null, DAY, alice.id(), null, null, null))).code()).isEqualTo(400);
     }
 
     @Test
@@ -138,6 +138,6 @@ class IncomesIntegrationTest extends IntegrationTestSupport {
 
     private void expense(long cents, LocalDate day) {
         var groceries = budget.category(alice.token(), household, "Courses");
-        budget.record(alice.token(), household, new ExpenseRequest(cents, groceries, null, day, alice.id(), null, null));
+        budget.record(alice.token(), household, new ExpenseRequest(cents, groceries, null, day, alice.id(), null, null, null));
     }
 }

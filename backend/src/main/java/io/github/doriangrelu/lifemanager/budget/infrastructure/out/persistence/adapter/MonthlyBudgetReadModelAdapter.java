@@ -6,6 +6,7 @@ import io.github.doriangrelu.lifemanager.budget.application.port.in.result.Expen
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.IncomeView;
 import io.github.doriangrelu.lifemanager.budget.application.port.in.result.PayerTotal;
 import io.github.doriangrelu.lifemanager.budget.application.port.out.MonthlyBudgetReadModel;
+import io.github.doriangrelu.lifemanager.budget.application.port.out.ProjectRefs;
 import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.mapper.ExpenseMapper;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.mapper.IncomeMapper;
@@ -24,12 +25,14 @@ class MonthlyBudgetReadModelAdapter implements MonthlyBudgetReadModel {
     private final MonthlyTotalsJdbcRepository totals;
     private final ExpenseJdbcRepository expenses;
     private final IncomeJdbcRepository incomes;
+    private final ProjectRefs projects;
 
     MonthlyBudgetReadModelAdapter(MonthlyTotalsJdbcRepository totals, ExpenseJdbcRepository expenses,
-                                  IncomeJdbcRepository incomes) {
+                                  IncomeJdbcRepository incomes, ProjectRefs projects) {
         this.totals = totals;
         this.expenses = expenses;
         this.incomes = incomes;
+        this.projects = projects;
     }
 
     @Override
@@ -63,9 +66,10 @@ class MonthlyBudgetReadModelAdapter implements MonthlyBudgetReadModel {
 
     @Override
     public List<ExpenseView> expenses(HouseholdId householdId, YearMonth month) {
+        var offBudget = projects.offBudget(householdId);
         return expenses.findForPeriod(householdId.value(), month.atDay(1), month.atEndOfMonth()).stream()
                 .map(ExpenseMapper::toDomain)
-                .map(ExpenseView::from)
+                .map(expense -> ExpenseView.from(expense, offBudget))
                 .toList();
     }
 }

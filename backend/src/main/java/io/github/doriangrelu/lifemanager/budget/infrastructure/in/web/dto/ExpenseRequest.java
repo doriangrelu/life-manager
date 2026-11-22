@@ -18,6 +18,7 @@ import java.util.UUID;
  * @param categoryId      catégorie existante — ou bien {@code newCategoryName}, jamais les deux
  * @param newCategoryName nom de catégorie tapé librement, créée si le foyer ne l'a pas
  * @param beneficiary     membre pour qui, ou {@code null} pour une dépense commune
+ * @param projectId       projet en cours du foyer, ou {@code null}
  */
 @Serdeable
 public record ExpenseRequest(@Positive @Max(100_000_000) long amountCents,
@@ -26,9 +27,10 @@ public record ExpenseRequest(@Positive @Max(100_000_000) long amountCents,
                              @NotNull LocalDate spentOn,
                              @NotNull UUID paidBy,
                              @Nullable UUID beneficiary,
-                             @Nullable @Size(max = 140) String label) {
+                             @Nullable @Size(max = 140) String label,
+                             @Nullable UUID projectId) {
 
     public ExpenseInput toInput() {
-        return new ExpenseInput(amountCents, categoryId, newCategoryName, spentOn, paidBy, beneficiary, label);
+        return new ExpenseInput(amountCents, categoryId, newCategoryName, spentOn, paidBy, beneficiary, label, projectId);
     }
 }

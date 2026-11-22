@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Sommes des dépenses d'un foyer entre deux jours inclus, calculées par PostgreSQL.
+ * Sommes des dépenses qui comptent dans le budget (vue counted_expense : sans les projets hors budget)
+ * d'un foyer entre deux jours inclus, calculées par PostgreSQL.
  * {@code ::bigint} : la somme de BIGINT est un NUMERIC en PostgreSQL, on la ramène à un entier de centimes.
  */
 @Repository("budget")
@@ -24,7 +25,7 @@ public interface MonthlyTotalsJdbcRepository extends GenericRepository<ExpenseEn
 
     @Query("""
             SELECT c.id AS category_id, c.name AS name, SUM(e.amount_cents)::bigint AS total_cents
-            FROM expense e JOIN category c ON c.id = e.category_id
+            FROM counted_expense e JOIN category c ON c.id = e.category_id
             WHERE e.household_id = :householdId AND e.spent_on BETWEEN :firstDay AND :lastDay
             GROUP BY c.id, c.name
             ORDER BY total_cents DESC, lower(c.name)""")
@@ -32,7 +33,7 @@ public interface MonthlyTotalsJdbcRepository extends GenericRepository<ExpenseEn
 
     @Query("""
             SELECT paid_by AS member_id, SUM(amount_cents)::bigint AS total_cents
-            FROM expense
+            FROM counted_expense
             WHERE household_id = :householdId AND spent_on BETWEEN :firstDay AND :lastDay
             GROUP BY paid_by
             ORDER BY total_cents DESC""")
@@ -41,7 +42,7 @@ public interface MonthlyTotalsJdbcRepository extends GenericRepository<ExpenseEn
     /** Bénéficiaire {@code null} = dépenses communes. */
     @Query("""
             SELECT beneficiary AS member_id, SUM(amount_cents)::bigint AS total_cents
-            FROM expense
+            FROM counted_expense
             WHERE household_id = :householdId AND spent_on BETWEEN :firstDay AND :lastDay
             GROUP BY beneficiary
             ORDER BY total_cents DESC""")
@@ -50,14 +51,14 @@ public interface MonthlyTotalsJdbcRepository extends GenericRepository<ExpenseEn
     /** Total des dépenses nées d'une dépense récurrente (liées à une échéance de charge). */
     @Query("""
             SELECT COALESCE(SUM(e.amount_cents), 0)::bigint
-            FROM expense e JOIN charge_expense link ON link.expense_id = e.id
+            FROM counted_expense e JOIN charge_expense link ON link.expense_id = e.id
             WHERE e.household_id = :householdId AND e.spent_on BETWEEN :firstDay AND :lastDay""")
     long recurringTotal(UUID householdId, LocalDate firstDay, LocalDate lastDay);
 
     /** Dépenses de chaque catégorie, mois par mois (seuls les mois et catégories qui en ont). */
     @Query("""
             SELECT to_char(spent_on, 'YYYY-MM') AS month, category_id, SUM(amount_cents)::bigint AS total_cents
-            FROM expense
+            FROM counted_expense
             WHERE household_id = :householdId AND spent_on BETWEEN :firstDay AND :lastDay
             GROUP BY month, category_id
             ORDER BY month""")

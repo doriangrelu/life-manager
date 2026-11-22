@@ -11,13 +11,17 @@ import java.util.UUID;
  * Une dépense. Montant en centimes d'euro.
  *
  * @param beneficiary membre pour qui, ou {@code null} pour une dépense commune
+ * @param projectId   projet rattaché, ou {@code null}
+ * @param offBudget   vrai si elle ne compte pas dans le budget (projet hors budget)
  */
 @Serdeable
 public record ExpenseResponse(UUID id, long amountCents, UUID categoryId, LocalDate spentOn, UUID paidBy,
-                              @Nullable UUID beneficiary, @Nullable String label) {
+                              @Nullable UUID beneficiary, @Nullable String label,
+                              @Nullable UUID projectId, boolean offBudget) {
 
     public static ExpenseResponse from(ExpenseView expense) {
         return new ExpenseResponse(expense.id(), expense.amountCents(), expense.categoryId(), expense.spentOn(),
-                expense.paidBy(), expense.beneficiary(), expense.label());
+                expense.paidBy(), expense.beneficiary(), expense.label(), expense.projectId(),
+                expense.offBudget());
     }
 }

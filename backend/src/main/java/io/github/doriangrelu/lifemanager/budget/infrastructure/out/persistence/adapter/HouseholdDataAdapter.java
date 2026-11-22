@@ -30,6 +30,7 @@ class HouseholdDataAdapter implements HouseholdData {
         table.eraseAuthorship(id);
         table.erase1(id);
         table.erase2(id);
+        table.eraseProjects(id);
         table.eraseIncomeLinks(id);
         table.eraseIncomes(id);
         table.erase3(id); // catégories en dernier : dépenses et rentrées y font référence
