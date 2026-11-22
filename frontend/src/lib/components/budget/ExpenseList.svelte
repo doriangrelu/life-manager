@@ -6,17 +6,21 @@
   import type { Category, Expense } from '../../api/types'
   import { categoryStyle } from '../../categoryStyle'
   import { formatCents } from '../../money'
+  import ProjectTag from './ProjectTag.svelte'
 
   // Dépenses du mois, la plus récente en premier ; toucher une dépense l'ouvre pour la modifier.
   let {
     expenses,
     categories,
     memberName,
+    projectName = () => null,
     onopen,
   }: {
     expenses: Expense[]
     categories: Category[]
     memberName: (id: string | null) => string
+    /** Nom du projet d'une dépense rattachée, ou null. */
+    projectName?: (id: string | null) => string | null
     onopen: (expense: Expense) => void
   } = $props()
 
@@ -42,8 +46,9 @@
               <span class="meta">
                 {name} · {dayLabel(expense.spentOn)} · {memberName(expense.paidBy)} → {memberName(expense.beneficiary)}
               </span>
+              <ProjectTag name={projectName(expense.projectId)} offBudget={expense.offBudget} />
             </span>
-            <span class="amount negative">−{formatCents(expense.amountCents)}</span>
+            <span class="amount negative" class:off={expense.offBudget}>−{formatCents(expense.amountCents)}</span>
           </button>
         </li>
       {/each}
@@ -100,5 +105,10 @@
   }
   .negative {
     color: var(--color-danger);
+  }
+  /* Dépense hors budget : visible, mais elle ne compte pas dans le mois. */
+  .negative.off {
+    color: var(--color-text-muted);
+    text-decoration: line-through;
   }
 </style>

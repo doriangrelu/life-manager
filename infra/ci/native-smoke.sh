@@ -196,6 +196,24 @@ call "$ALICE" GET "/households/$HOUSEHOLD/reminder-history" 200
 [ "$(body "[0]['title']")" = "Ramonage" ] || fail "historique des rappels inattendu : $(head -c 400 "$WORK/body")"
 call "$ALICE" DELETE "/households/$HOUSEHOLD/reminder-history/$(body "[0]['id']")" 204
 
+echo "== Projets : tâche datée rappelée, dépense rattachée à un projet à budget à part"
+call "$ALICE" POST "/households/$HOUSEHOLD/projects" 201 \
+  '{"name":"Vacances","color":"AMBER","plannedCents":150000,"countsInBudget":false}'
+PROJECT=$(body "['id']")
+call "$ALICE" POST "/households/$HOUSEHOLD/projects/$PROJECT/tasks" 201 \
+  "{\"title\":\"Reserver le gite\",\"assigneeId\":\"$ALICE_ID\",\"dueOn\":\"$TODAY\"}"
+eventually 10 call "$ALICE" GET "/households/$HOUSEHOLD/reminders" 200
+grep -q '"TASK"' "$WORK/body" || fail "tâche datée absente des rappels : $(head -c 400 "$WORK/body")"
+# Le budget connaît le projet par la boîte d'envoi : la dépense rattachée peut arriver un peu après.
+eventually 10 call "$ALICE" POST "/households/$HOUSEHOLD/expenses" 201 \
+  "{\"amountCents\":50000,\"categoryId\":\"$CATEGORY\",\"newCategoryName\":null,\"spentOn\":\"$TODAY\",\"paidBy\":\"$ALICE_ID\",\"beneficiary\":null,\"label\":null,\"projectId\":\"$PROJECT\"}"
+call "$ALICE" GET "/households/$HOUSEHOLD/projects/$PROJECT/expenses" 200
+[ "$(body "['totalCents']")" = "50000" ] || fail "dépenses du projet inattendues : $(head -c 400 "$WORK/body")"
+# Budget à part : le total du mois ne bouge pas (14 473 centimes, comme avant).
+call "$ALICE" GET "/households/$HOUSEHOLD/budget/$MONTH" 200
+[ "$(body "['totalCents']")" = "14473" ] || fail "dépense de projet à budget à part comptée : $(head -c 400 "$WORK/body")"
+call "$ALICE" DELETE "/households/$HOUSEHOLD/projects/$PROJECT" 204
+
 echo "== Version (publique, sans jeton)"
 curl -sSf -m 20 "$API/api/version" | grep -q '"version"' || fail "version de l'API absente"
 

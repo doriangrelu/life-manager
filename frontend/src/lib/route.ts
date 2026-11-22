@@ -4,14 +4,15 @@
 import { writable, type Readable } from 'svelte/store'
 import { legalPageOf } from './legal'
 
-export type Section = 'budget' | 'charges' | 'report' | 'shopping' | 'vehicles' | 'reminders' | 'household'
+export type Section = 'budget' | 'charges' | 'report' | 'shopping' | 'vehicles' | 'reminders' | 'projects' | 'household'
 
-/** Écran : la section, et pour Budget le mois consulté, pour Charges et Véhicules la fiche ouverte. */
+/** Écran : la section, et pour Budget le mois consulté, pour Charges, Véhicules et Projets la fiche ouverte. */
 export interface Route {
   section: Section
   month?: string
   vehicleId?: string
   chargeId?: string
+  projectId?: string
 }
 
 // Nom de chaque section dans l'adresse.
@@ -22,6 +23,7 @@ const SLUGS: Record<Section, string> = {
   shopping: 'courses',
   vehicles: 'vehicules',
   reminders: 'rappels',
+  projects: 'projets',
   household: 'foyer',
 }
 
@@ -47,6 +49,9 @@ export function parseRoute(hash: string): Route {
   if (section === 'charges') {
     return { section, chargeId: decodeURIComponent(param) }
   }
+  if (section === 'projects') {
+    return { section, projectId: decodeURIComponent(param) }
+  }
   // Paramètre inattendu (mois invalide…) : la section seule.
   return { section }
 }
@@ -58,6 +63,7 @@ export function formatRoute(route: Route): string {
     budget: route.month,
     charges: route.chargeId,
     vehicles: route.vehicleId,
+    projects: route.projectId,
   }
   const param = params[route.section]
   const suffix = param ? `/${encodeURIComponent(param)}` : ''

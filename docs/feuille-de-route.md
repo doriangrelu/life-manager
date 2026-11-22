@@ -109,11 +109,22 @@ Demandé par Dorian le 2026-11-19 : chasse aux bugs, corrections, et améliorati
 - **Qui doit quoi** : dépenses et abonnements partagés, part de chacun, solde entre membres, remboursement enregistré.
 - S'appuie sur « payé par / pour » déjà présent dans les dépenses et les charges.
 
-### Lot 8 — Projets (prochain lot, avancé avant 6b et 7 par Dorian le 2026-11-22)
+### Lot 8 — Projets (v0.14.0, avancé avant 6b et 7 par Dorian le 2026-11-22)
 
-Proposition en cadrage : `openspec/changes/projets` (questions à Dorian avant tout code).
+Change `openspec/changes/projets`, réponses de Dorian dans le proposal.
 
-- Projets du foyer (travaux, vacances, mariage…) avec un **budget**, des **dépenses rattachées** et une **liste de tâches**.
+- Projets du foyer (travaux, vacances, mariage…) : nom, couleur, budget prévu, dates, état (en cours, terminé, abandonné).
+- **Dépenses rattachées** depuis la saisie d'une dépense ; fiche du projet avec dépensé / prévu.
+- Option **« budget à part »** par projet (comptée par défaut) : ses dépenses sortent des totaux du mois et du bilan.
+- **Tâches** ordonnées, avec responsable et date en option ; une tâche datée est rappelée 7 jours avant.
+- Plus tard : charges récurrentes rattachées à un projet.
+
+### Lot 8b — Véhicules : coûts dans le budget, pneus et freins (demande de Dorian, 2026-11-22, après le lot 8)
+
+- **Bug** : le coût d'une opération du carnet d'entretien doit devenir une dépense du budget (ça ne fonctionne pas aujourd'hui).
+- **Pneus** : taille des pneus du véhicule, jeu monté avec les kilomètres parcourus depuis la pose.
+- **Freins et disques** : même suivi (pose, kilomètres parcourus).
+- À cadrer en OpenSpec.
 
 ### Lot 9 — Documents et démarches (données les plus sensibles)
 

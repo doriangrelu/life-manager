@@ -46,11 +46,60 @@ export interface ExpenseInput {
   paidBy: string
   beneficiary: string | null
   label: string | null
+  /** Projet en cours du foyer, ou null. */
+  projectId?: string | null
 }
 
 export interface Expense extends Omit<ExpenseInput, 'categoryId' | 'newCategoryName'> {
   id: string
   categoryId: string
+  projectId: string | null
+  /** Son projet est réglé « hors budget » : elle ne compte pas dans les totaux du mois. */
+  offBudget: boolean
+}
+
+// ---- Projets (travaux, vacances…) : budget prévu, tâches, dépenses rattachées.
+
+export type ProjectColor = 'INDIGO' | 'TEAL' | 'GREEN' | 'AMBER' | 'ORANGE' | 'RED' | 'PINK' | 'SLATE'
+export type ProjectStatus = 'ACTIVE' | 'DONE' | 'ABANDONED'
+
+export interface ProjectInput {
+  name: string
+  description: string | null
+  color: ProjectColor
+  plannedCents: number | null
+  startOn: string | null
+  targetOn: string | null
+  status: ProjectStatus
+  /** Ses dépenses comptent dans le budget du mois. */
+  countsInBudget: boolean
+}
+
+export interface Project extends ProjectInput {
+  id: string
+  tasksDone: number
+  tasksTotal: number
+}
+
+export interface TaskInput {
+  title: string
+  assigneeId: string | null
+  dueOn: string | null
+}
+
+export interface ProjectTask extends TaskInput {
+  id: string
+  done: boolean
+}
+
+export interface ProjectSheet {
+  project: Project
+  tasks: ProjectTask[]
+}
+
+export interface ProjectExpenses {
+  totalCents: number
+  expenses: Expense[]
 }
 
 export interface CategoryTotal {
@@ -194,8 +243,8 @@ export interface Attachment {
 
 export interface Reminder {
   deadlineId: string
-  /** PERSONAL : rappel saisi par un membre (deadlineId est alors son identifiant). */
-  kind: 'TECHNICAL_INSPECTION' | 'SERVICE' | 'CHARGE' | 'CHARGE_TO_CONFIRM' | 'PERSONAL'
+  /** PERSONAL : rappel saisi par un membre (deadlineId est alors son identifiant) ; TASK : tâche de projet datée. */
+  kind: 'TECHNICAL_INSPECTION' | 'SERVICE' | 'CHARGE' | 'CHARGE_TO_CONFIRM' | 'PERSONAL' | 'TASK'
   subject: string
   dueOn: string
   status: 'OVERDUE' | 'DUE_SOON'

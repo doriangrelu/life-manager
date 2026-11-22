@@ -66,6 +66,16 @@
       color: var(--color-text);
     }
   }
+  /* Petit téléphone : trois onglets (Véhicules · Rappels · Projets) tiennent sans défiler. */
+  @media (max-width: 420px) {
+    .space-tabs {
+      gap: 2px;
+    }
+    button {
+      padding: 0 11px;
+      gap: 5px;
+    }
+  }
   @media (min-width: 900px) {
     .space-tabs {
       display: none;

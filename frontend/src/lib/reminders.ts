@@ -13,6 +13,7 @@ const KIND_LABELS: Record<Reminder['kind'], string> = {
   CHARGE: 'Échéance',
   CHARGE_TO_CONFIRM: 'Montant à confirmer',
   PERSONAL: 'Rappel',
+  TASK: 'Tâche',
 }
 
 /** « Révision — Clio », « Échéance — Internet ». */

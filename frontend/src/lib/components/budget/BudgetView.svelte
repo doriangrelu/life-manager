@@ -6,6 +6,7 @@
   import { forecast as loadForecast } from '../../api/billsApi'
   import { deleteExpense, deleteIncome, listCategories, monthlyBudget, setCategoryPlan } from '../../api/budgetApi'
   import { getHousehold } from '../../api/householdApi'
+  import { listProjects } from '../../api/projectApi'
   import type {
     Category,
     CategoryPlanInput,
@@ -15,8 +16,10 @@
     Income,
     Member,
     MonthlyBudget,
+    Project,
     UserProfile,
   } from '../../api/types'
+  import { displayName } from '../../text'
   import { incomeTracking } from '../../householdSettings'
   import { memberName as nameOf, receiverName as receiverOf } from '../../members'
   import { formatCents } from '../../money'
@@ -98,12 +101,25 @@
 
   onMount(() =>
     run(async () => {
-      const [household, loadedCategories] = await Promise.all([getHousehold(householdId), listCategories(householdId)])
+      const [household, loadedCategories, loadedProjects] = await Promise.all([
+        getHousehold(householdId),
+        listCategories(householdId),
+        // Les projets ne servent qu'au rattachement : sans eux, le Budget reste utilisable.
+        listProjects(householdId).catch(() => []),
+      ])
       members = household.members
       ownerId = household.ownerId
       categories = loadedCategories
+      projects = loadedProjects
     }),
   )
+
+  // Projets du foyer : choix « Projet » de la saisie, et nom affiché sous chaque dépense rattachée.
+  let projects = $state<Project[]>([])
+  const projectName = (projectId: string | null) => {
+    const project = projectId ? projects.find((p) => p.id === projectId) : undefined
+    return project ? displayName(project.name) : null
+  }
 
   // Chaque changement de mois (flèches, Précédent / Suivant) recharge le budget.
   $effect(() => {
@@ -281,11 +297,12 @@
         {incomeCategories}
         {memberName}
         {receiverName}
+        {projectName}
         onopenexpense={openEditor}
         onopenincome={openIncome}
       />
     {:else}
-      <ExpenseList expenses={budget.expenses} {categories} {memberName} onopen={openEditor} />
+      <ExpenseList expenses={budget.expenses} {categories} {memberName} {projectName} onopen={openEditor} />
     {/if}
     {#if progress.length === 0}
       <button class="link manage" onclick={() => (managingCategories = true)}>Gérer les catégories</button>
@@ -328,6 +345,7 @@
     {householdId}
     {categories}
     {members}
+    {projects}
     currentUserId={profile.userId}
     expense={editing}
     onsaved={() => run(reloadAfterSave)}

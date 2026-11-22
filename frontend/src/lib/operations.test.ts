@@ -10,6 +10,8 @@ const expense = (id: string, spentOn: string): Expense => ({
   paidBy: 'm',
   beneficiary: null,
   label: null,
+  projectId: null,
+  offBudget: false,
 })
 const income = (id: string, receivedOn: string): Income => ({
   id,

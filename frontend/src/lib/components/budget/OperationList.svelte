@@ -9,6 +9,7 @@
   import { OPERATION_FILTERS, operations, type OperationFilter } from '../../operations'
   import { displayName } from '../../text'
   import Segmented from '../../ui/molecules/Segmented.svelte'
+  import ProjectTag from './ProjectTag.svelte'
 
   // Opérations du mois (option « Rentrées et bilan ») : dépenses et rentrées mêlées, par date.
   // Une rentrée se reconnaît à sa pastille verte et à son montant vert « + ».
@@ -19,9 +20,12 @@
     incomeCategories,
     memberName,
     receiverName,
+    projectName = () => null,
     onopenexpense,
     onopenincome,
   }: {
+    /** Nom du projet d'une dépense rattachée, ou null. */
+    projectName?: (id: string | null) => string | null
     expenses: Expense[]
     incomes: Income[]
     categories: Category[]
@@ -75,8 +79,9 @@
                 <span class="meta">
                   {name} · {dayLabel(expense.spentOn)} · {memberName(expense.paidBy)} → {memberName(expense.beneficiary)}
                 </span>
+                <ProjectTag name={projectName(expense.projectId)} offBudget={expense.offBudget} />
               </span>
-              <span class="amount negative"><span class="sr-only">Dépense de </span>−{formatCents(expense.amountCents)}</span>
+              <span class="amount negative" class:off={expense.offBudget}><span class="sr-only">Dépense de </span>−{formatCents(expense.amountCents)}</span>
             </button>
           {/if}
         </li>
@@ -141,6 +146,11 @@
   }
   .negative {
     color: var(--color-danger);
+  }
+  /* Dépense hors budget : visible, mais elle ne compte pas dans le mois. */
+  .negative.off {
+    color: var(--color-text-muted);
+    text-decoration: line-through;
   }
   .empty {
     margin: 0;

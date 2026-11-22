@@ -22,6 +22,9 @@ Un domaine = un package de premier niveau, avec son propre schéma de base.
 | Courses | `shopping` | Liste de courses partagée par foyer |
 | Rappels | `reminder` | Copie des échéances (véhicules, charges) et rappels à afficher ou notifier |
 | Charges | `bills` | Charges et rentrées récurrentes (sens `EXPENSE` / `INCOME`), échéances, factures jointes, prévisions de période |
+| Projets | `project` | Projets du foyer (budget prévu, état, option « budget à part »), tâches ordonnées avec responsable et date |
+
+Le budget garde une copie des projets (`budget.project_ref`, événements `ProjectChangedV1` / `ProjectDeletedV1`) : il vérifie le rattachement d'une dépense et écarte des totaux, par la vue SQL `budget.counted_expense`, les dépenses d'un projet à budget à part. Les rappels suivent les tâches datées par `TaskDeadlineChangedV1` (type d'échéance `TASK`, 7 jours avant).
 
 Un domaine apparu après la création d'un foyer apprend ses membres par `MembershipKnownV1`, rappelé pour chaque membre au démarrage (le traitement doit accepter les doublons).
 

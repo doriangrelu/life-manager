@@ -14,8 +14,7 @@ Lot 8, validé par Dorian le 2026-11-22 (voir le proposal). Trois domaines sont 
 - Événements de contrat (boîte d'envoi) :
   - `ProjectChangedV1(householdId, projectId, name, color, status, countsInBudget, plannedCents, occurredAt)` à chaque ajout ou modification ;
   - `ProjectDeletedV1(householdId, projectId, occurredAt)` ;
-  - `TaskScheduledV1(householdId, taskId, projectId, projectName, title, dueOn, occurredAt)` quand une tâche non faite a une date (ajout, modification, « pas fait », renommage du projet) ;
-  - `TaskUnscheduledV1(householdId, taskId, occurredAt)` quand elle perd sa date, est faite ou supprimée (et pour chaque tâche d'un projet supprimé, terminé ou abandonné).
+  - `TaskDeadlineChangedV1(taskId, householdId, projectName, title, dueOn, occurredAt)` à chaque changement d'une tâche ou de son projet ; `dueOn` vaut `null` quand il n'y a plus rien à rappeler (tâche faite, sans date, supprimée, projet terminé, abandonné ou supprimé). Un seul événement, sur le modèle de `ChargeDeadlinesChangedV1`.
 
 ### `budget`
 
@@ -29,17 +28,18 @@ Lot 8, validé par Dorian le 2026-11-22 (voir le proposal). Trois domaines sont 
 
 ### `reminder`
 
-- Table `task_deadline(task_id, household_id, project_id, project_name, title, due_on)` tenue par `TaskScheduledV1` / `TaskUnscheduledV1`.
-- `GET /reminders` ajoute les tâches dont la date est passée ou tombe dans les 7 jours, en kind `TASK` (titre, nom du projet, date, jours restants, `projectId`). Pas de « c'est fait » depuis le bandeau : un clic ouvre la fiche du projet.
+- Réutilise la table `deadline` existante (source = la tâche) avec un nouveau type d'échéance `TASK` (rappel 7 jours avant), tenue par `TaskDeadlineChangedV1`. Sujet affiché : « titre · projet », raccourci à 60 caractères.
+- `GET /reminders` montre donc les tâches dont la date est passée ou tombe dans les 7 jours, en kind `TASK`. Pas de « c'est fait » depuis le bandeau ni de lien : on coche la tâche dans la fiche du projet.
 
 ### PWA
 
 - Section `projects` (#/projets, et #/projets/{id} pour la fiche) dans l'espace Maison.
-- Liste : projets en cours en haut, puis repli « Terminés et abandonnés » ; pastille couleur, avancement des tâches (3/7), barre dépensé/prévu (même composant que le budget prévu).
+- Liste : projets en cours en haut, puis repli « Terminés et abandonnés » ; pastille couleur, avancement des tâches (3 / 7, avec une barre), budget prévu. Le dépensé n'est que sur la fiche (une seule lecture par projet ouvert).
+- Vocabulaire : l'interface dit **« Budget à part »** plutôt que « hors budget », expression déjà employée par le Budget pour les catégories sans budget prévu.
 - Fiche : en-tête (nom, couleur, état, dates, option hors budget), barre dépensé/prévu, tâches (cocher, glisser pour ordonner, responsable, date), dépenses du projet.
 - Formulaire de dépense : champ « Projet » facultatif (projets en cours), affiché seulement si le foyer a au moins un projet en cours.
-- Opérations du mois : pastille du projet ; mention « hors budget » et montant grisé si le projet est hors budget.
-- Rappels : tâche datée affichée avec le libellé « Tâche · <projet> ».
+- Opérations du mois : pastille du projet ; mention « Budget à part » et montant grisé et barré si le projet a un budget à part.
+- Rappels : tâche datée affichée « Tâche — titre · projet ».
 
 ## Risques
 

@@ -3,7 +3,7 @@
   import { Trash2 } from '@lucide/svelte'
   import { tick, untrack } from 'svelte'
   import { correctExpense, recordExpense } from '../../api/budgetApi'
-  import type { Category, Expense, ExpenseInput, Member } from '../../api/types'
+  import type { Category, Expense, ExpenseInput, Member, Project } from '../../api/types'
   import { isOther } from '../../categories'
   import { beneficiaryOptions, payerOptions } from '../../members'
   import { centsToInput, formatCents, parseAmountToCents } from '../../money'
@@ -22,6 +22,7 @@
     householdId,
     categories,
     members,
+    projects = [],
     currentUserId,
     expense,
     onsaved,
@@ -31,6 +32,8 @@
     householdId: string
     categories: Category[]
     members: Member[]
+    /** Projets du foyer : on rattache une dépense à un projet en cours. */
+    projects?: Project[]
     currentUserId: string
     expense: Expense | null
     onsaved: () => void
@@ -48,6 +51,7 @@
   let spentOn = $state(initial.expense?.spentOn ?? today())
   let label = $state(initial.expense?.label ? displayName(initial.expense.label) : '')
   let precision = $state('') // nom tapé sous « Autre » : crée (ou retrouve) la catégorie de ce nom
+  let projectId = $state(initial.expense?.projectId ?? '') // '' = aucun projet
   let busy = $state(false)
   let error = $state<string | null>(null)
   let confirmation = $state<string | null>(null)
@@ -67,6 +71,10 @@
   // Catégories proposées : les actives, plus la catégorie actuelle si elle a été archivée depuis.
   const choices = $derived(categories.filter((c) => !c.archived || c.id === initial.expense?.categoryId))
   const otherChosen = $derived(isOther(categories.find((c) => c.id === categoryId)?.name ?? ''))
+  // Projets proposés : ceux en cours, plus le projet actuel de la dépense s'il est clos depuis.
+  const projectChoices = $derived(
+    projects.filter((p) => p.status === 'ACTIVE' || p.id === initial.expense?.projectId),
+  )
   const payers = $derived(payerOptions(members))
   const beneficiaries = $derived(beneficiaryOptions(members))
 
@@ -81,6 +89,7 @@
       paidBy,
       beneficiary: beneficiary || null,
       label: label.trim() || null,
+      projectId: projectId || null,
     }
   }
 
@@ -185,6 +194,22 @@
       <input bind:value={label} maxlength="140" placeholder="Facultatif" />
     </label>
   </div>
+
+  {#if projectChoices.length > 0}
+    <Field
+      label="Projet (facultatif)"
+      info="Rattacher la dépense à un projet l'ajoute au total de sa fiche. Elle compte dans le budget du mois, sauf si le projet a un budget à part."
+    >
+      {#snippet children(id)}
+        <select {id} bind:value={projectId}>
+          <option value="">Aucun</option>
+          {#each projectChoices as project (project.id)}
+            <option value={project.id}>{displayName(project.name)}{project.countsInBudget ? '' : ' (budget à part)'}</option>
+          {/each}
+        </select>
+      {/snippet}
+    </Field>
+  {/if}
 
   {#if error}
     <p class="error" role="alert">{error}</p>

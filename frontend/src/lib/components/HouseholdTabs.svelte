@@ -12,6 +12,7 @@
   import MainNav from '../ui/organisms/MainNav.svelte'
   import BudgetView from './budget/BudgetView.svelte'
   import ReportView from './report/ReportView.svelte'
+  import ProjectsView from './projects/ProjectsView.svelte'
   import RemindersView from './reminders/RemindersView.svelte'
   import ChargesView from './charges/ChargesView.svelte'
   import HouseholdView from './HouseholdView.svelte'
@@ -87,6 +88,8 @@
       <VehiclesView {householdId} />
     {:else if section === 'reminders'}
       <RemindersView {householdId} />
+    {:else if section === 'projects'}
+      <ProjectsView {householdId} />
     {:else}
       <HouseholdView
         {householdId}
