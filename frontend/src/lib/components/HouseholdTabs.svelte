@@ -85,7 +85,7 @@
     {:else if section === 'shopping'}
       <ShoppingView {householdId} />
     {:else if section === 'vehicles'}
-      <VehiclesView {householdId} />
+      <VehiclesView {householdId} currentUserId={profile.userId} />
     {:else if section === 'reminders'}
       <RemindersView {householdId} />
     {:else if section === 'projects'}

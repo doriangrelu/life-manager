@@ -1,5 +1,5 @@
 import { apiBlob, apiRequest, apiUpload } from './http'
-import type { Attachment, MaintenanceEntry, MaintenanceInput, Vehicle, VehicleInput } from './types'
+import type { Attachment, BudgetChoice, MaintenanceEntry, MaintenanceInput, Vehicle, VehicleInput } from './types'
 
 const base = (householdId: string) => `/households/${householdId}/vehicles`
 
@@ -29,6 +29,16 @@ export function recordMaintenance(
   entry: MaintenanceInput,
 ): Promise<MaintenanceEntry> {
   return apiRequest('POST', `${base(householdId)}/${vehicleId}/maintenance`, entry)
+}
+
+/** Ajoute au budget le coût d'une opération déjà saisie (une seule fois). */
+export function sendMaintenanceToBudget(
+  householdId: string,
+  vehicleId: string,
+  entryId: string,
+  choice: BudgetChoice,
+): Promise<void> {
+  return apiRequest('POST', `${base(householdId)}/${vehicleId}/maintenance/${entryId}/budget`, choice)
 }
 
 export function deleteMaintenance(householdId: string, vehicleId: string, entryId: string): Promise<void> {

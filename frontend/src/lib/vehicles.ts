@@ -1,6 +1,6 @@
 // Véhicules : libellés des types d'entretien et état des échéances (dates au format « 2027-03-01 »).
 
-import type { MaintenanceEntry, MaintenanceKind } from './api/types'
+import type { Category, MaintenanceEntry, MaintenanceKind, Member } from './api/types'
 
 export const MAINTENANCE_KINDS: { kind: MaintenanceKind; label: string }[] = [
   { kind: 'SERVICE', label: 'Révision' },
@@ -10,6 +10,20 @@ export const MAINTENANCE_KINDS: { kind: MaintenanceKind; label: string }[] = [
   { kind: 'REPAIR', label: 'Réparation' },
   { kind: 'OTHER', label: 'Autre' },
 ]
+
+/** Ce qu'il faut pour proposer « Ajouter au budget » : catégories de dépenses, membres et membre connecté. */
+export interface BudgetContext {
+  categories: Category[]
+  members: Member[]
+  currentUserId: string
+}
+
+/** Catégorie proposée pour le coût d'un entretien : « Transport » si elle existe, sinon la première active. */
+export function defaultBudgetCategory(categories: Category[]): string {
+  const active = categories.filter((c) => !c.archived)
+  const transport = active.find((c) => c.name.trim().toLocaleLowerCase('fr') === 'transport')
+  return (transport ?? active[0])?.id ?? ''
+}
 
 export function kindLabel(kind: MaintenanceKind): string {
   return MAINTENANCE_KINDS.find((k) => k.kind === kind)?.label ?? kind

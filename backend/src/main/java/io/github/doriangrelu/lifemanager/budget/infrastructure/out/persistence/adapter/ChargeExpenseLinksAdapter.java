@@ -6,6 +6,7 @@ import io.github.doriangrelu.lifemanager.budget.domain.valueobject.HouseholdId;
 import io.github.doriangrelu.lifemanager.budget.infrastructure.out.persistence.repository.ChargeExpenseJdbcRepository;
 import jakarta.inject.Singleton;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /** Implémente la correspondance échéance → dépense avec PostgreSQL (table charge_expense). */
@@ -21,5 +22,10 @@ class ChargeExpenseLinksAdapter implements ChargeExpenseLinks {
     @Override
     public boolean claim(UUID occurrenceId, HouseholdId householdId, ExpenseId expenseId) {
         return table.insertIfAbsent(occurrenceId, expenseId.value(), householdId.value()) == 1;
+    }
+
+    @Override
+    public Optional<ExpenseId> expenseOf(UUID occurrenceId) {
+        return table.findById(occurrenceId).map(link -> new ExpenseId(link.expenseId()));
     }
 }

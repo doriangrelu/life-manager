@@ -7,6 +7,7 @@ import io.micronaut.data.jdbc.annotation.JdbcRepository;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.repository.GenericRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /** Accès SQL aux correspondances échéance → dépense (datasource du domaine budget). */
@@ -20,4 +21,6 @@ public interface ChargeExpenseJdbcRepository extends GenericRepository<ChargeExp
             VALUES (:occurrenceId, :expenseId, :householdId)
             ON CONFLICT (occurrence_id) DO NOTHING""")
     long insertIfAbsent(UUID occurrenceId, UUID expenseId, UUID householdId);
+
+    Optional<ChargeExpenseEntity> findById(UUID occurrenceId);
 }

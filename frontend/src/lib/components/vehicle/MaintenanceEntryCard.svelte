@@ -1,16 +1,30 @@
 <script lang="ts">
-  import { ClipboardCheck, CircleDot, Droplet, Paperclip, Settings, Trash2, Wrench, Hammer } from '@lucide/svelte'
+  import {
+    Check,
+    ClipboardCheck,
+    CircleDot,
+    Droplet,
+    Hammer,
+    Paperclip,
+    Settings,
+    Trash2,
+    Wallet,
+    Wrench,
+  } from '@lucide/svelte'
   import type { MaintenanceEntry, MaintenanceKind } from '../../api/types'
   import { attachmentCountLabel } from '../../attachments'
   import { formatCents } from '../../money'
   import { entryLabel, formatDay } from '../../vehicles'
 
   // Une opération du carnet : type (avec son icône), date, kilométrage, coût, note et pièces jointes.
+  // Avec un coût : mention « Dans le budget », ou bouton pour l'y ajouter après coup.
   let {
     entry,
     ondelete,
     onattachments,
-  }: { entry: MaintenanceEntry; ondelete: () => void; onattachments: () => void } = $props()
+    onbudget,
+  }: { entry: MaintenanceEntry; ondelete: () => void; onattachments: () => void; onbudget?: () => void } = $props()
+  const hasCost = $derived((entry.costCents ?? 0) > 0)
 
   const ICONS: Record<MaintenanceKind, typeof Wrench> = {
     SERVICE: Settings,
@@ -38,10 +52,17 @@
     </span>
     <span class="muted">{details}</span>
     {#if entry.note}<span class="note">{entry.note}</span>{/if}
-    <button class="files" onclick={onattachments}>
-      <Paperclip size={15} />
-      {entry.attachmentCount > 0 ? attachmentCountLabel(entry.attachmentCount) : 'Joindre un fichier'}
-    </button>
+    <div class="actions">
+      <button class="files" onclick={onattachments}>
+        <Paperclip size={15} />
+        {entry.attachmentCount > 0 ? attachmentCountLabel(entry.attachmentCount) : 'Joindre un fichier'}
+      </button>
+      {#if hasCost && entry.inBudget}
+        <span class="in-budget"><Check size={15} strokeWidth={2.6} /> Dans le budget</span>
+      {:else if hasCost && onbudget}
+        <button class="files" onclick={onbudget}><Wallet size={15} /> Ajouter au budget</button>
+      {/if}
+    </div>
   </div>
   <button class="link icon" aria-label="Supprimer l'opération {label}" onclick={ondelete}>
     <Trash2 size={18} />
@@ -87,13 +108,28 @@
   .note {
     overflow-wrap: anywhere;
   }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin-top: 4px;
+  }
+  .in-budget {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-success);
+    white-space: nowrap;
+  }
   .files {
     justify-self: start;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     min-height: 36px;
-    margin-top: 4px;
     padding: 0 12px;
     border-radius: var(--radius-md);
     background: var(--color-primary-soft);

@@ -223,11 +223,48 @@ export interface MaintenanceInput {
   nextDueOn: string | null
   /** Type « Autre » seulement : précision libre (« Essuie-glaces »), sinon null. */
   otherLabel: string | null
+  /** « Ajouter au budget » : le coût devient une dépense ; absent ou null = non. */
+  budget?: BudgetChoice | null
 }
 
-export interface MaintenanceEntry extends Omit<MaintenanceInput, 'nextDueOn'> {
+/** Où va le coût d'une opération dans le budget : catégorie de dépense et membre qui a payé. */
+export interface BudgetChoice {
+  categoryId: string
+  payerId: string
+}
+
+export interface MaintenanceEntry extends Omit<MaintenanceInput, 'nextDueOn' | 'budget'> {
   id: string
   attachmentCount: number
+  /** Son coût est une dépense du budget. */
+  inBudget: boolean
+}
+
+export type WearPartKind =
+  | 'TIRES_FRONT'
+  | 'TIRES_REAR'
+  | 'PADS_FRONT'
+  | 'PADS_REAR'
+  | 'DISCS_FRONT'
+  | 'DISCS_REAR'
+  | 'BATTERY'
+  | 'TIMING_BELT'
+
+/** Pose d'une pièce d'usure (ou correction) : date et km de pose, libellé et intervalle facultatifs. */
+export interface WearPartInput {
+  kind: WearPartKind
+  label: string | null
+  fittedOn: string
+  fittedKm: number
+  replaceAfterKm: number | null
+}
+
+/** Pièce montée (removedOn null) ou déposée ; kmDone = km parcourus depuis la pose, null si inconnu. */
+export interface WearPart extends WearPartInput {
+  id: string
+  removedOn: string | null
+  removedKm: number | null
+  kmDone: number | null
 }
 
 /** Fichier joint à une opération du carnet ; mediaType est le type vérifié par le serveur. */

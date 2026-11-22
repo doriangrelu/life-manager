@@ -142,6 +142,26 @@ curl -sf -H "Authorization: Bearer $ALICE" -o "$WORK/retour.pdf" \
 cmp -s "$WORK/facture.pdf" "$WORK/retour.pdf" || fail "étape $STEP : fichier téléchargé différent"
 echo "ok $STEP : téléchargement identique"
 
+echo "== Coût d'entretien dans le budget (événements vehicle → budget)"
+month_total_is() { # total attendu, message ; la dépense arrive par la boîte d'envoi : quelques secondes
+  STEP=$((STEP + 1))
+  for _ in $(seq 1 15); do
+    attempt "$ALICE" GET "/households/$HOUSEHOLD/budget/$MONTH" 200 && [ "$(body "['totalCents']")" = "$1" ] \
+      && { echo "ok $STEP : $2"; return 0; }
+    sleep 1
+  done
+  fail "étape $STEP : $2, total $(body "['totalCents']") au lieu de $1"
+}
+call "$ALICE" POST "/households/$HOUSEHOLD/vehicles/$VEHICLE/maintenance" 201 \
+  "{\"performedOn\":\"$TODAY\",\"kind\":\"OIL_CHANGE\",\"costCents\":2500,\"budget\":{\"categoryId\":\"$CATEGORY\",\"payerId\":\"$ALICE_ID\"}}"
+OIL=$(body "['id']")
+[ "$(body "['inBudget']")" = "True" ] || fail "opération non marquée dans le budget : $(head -c 300 "$WORK/body")"
+month_total_is 3734 "vidange ajoutée au budget"
+call "$ALICE" POST "/households/$HOUSEHOLD/vehicles/$VEHICLE/maintenance/$OIL/budget" 409 \
+  "{\"categoryId\":\"$CATEGORY\",\"payerId\":\"$ALICE_ID\"}"
+call "$ALICE" DELETE "/households/$HOUSEHOLD/vehicles/$VEHICLE/maintenance/$OIL" 204
+month_total_is 1234 "dépense retirée avec l'opération"
+
 echo "== Charges : fixe payée seule, variable confirmée, facture"
 charge() { # nom montant FIXED|VARIABLE
   echo "{\"name\":\"$1\",\"amountCents\":$2,\"amountKind\":\"$3\",\"frequency\":\"MONTHLY\",\"firstDueOn\":\"$TODAY\",\"budgetCategoryId\":\"$CATEGORY\",\"payerId\":\"$ALICE_ID\",\"beneficiaryId\":null}"

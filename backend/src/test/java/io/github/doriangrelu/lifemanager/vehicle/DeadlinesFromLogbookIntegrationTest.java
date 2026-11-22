@@ -123,7 +123,7 @@ class DeadlinesFromLogbookIntegrationTest extends IntegrationTestSupport {
 
     private void record(Garage garage, LocalDate day, String kind, LocalDate nextDueOn) {
         vehicles.record(garage.owner, garage.household, garage.vehicle,
-                new MaintenanceRequest(day, kind, null, null, null, nextDueOn, null));
+                new MaintenanceRequest(day, kind, null, null, null, nextDueOn, null, null));
     }
 
     private VehicleResponse vehicle(Garage garage) {

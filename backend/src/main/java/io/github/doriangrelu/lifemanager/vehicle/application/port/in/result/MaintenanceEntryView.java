@@ -14,11 +14,12 @@ import java.util.UUID;
  *
  * @param attachmentCount nombre de pièces jointes de l'opération
  * @param otherLabel      précision du type « Autre », ou {@code null}
+ * @param inBudget        son coût a été ajouté au budget
  */
 public record MaintenanceEntryView(UUID id, LocalDate performedOn, String kind, Integer mileageKm, Long costCents,
-                                   String note, long attachmentCount, String otherLabel) {
+                                   String note, long attachmentCount, String otherLabel, boolean inBudget) {
 
-    public static MaintenanceEntryView from(MaintenanceEntry entry, long attachmentCount) {
+    public static MaintenanceEntryView from(MaintenanceEntry entry, long attachmentCount, boolean inBudget) {
         var details = entry.details();
         return new MaintenanceEntryView(
                 entry.id().value(),
@@ -28,6 +29,7 @@ public record MaintenanceEntryView(UUID id, LocalDate performedOn, String kind, 
                 details.optionalCost().map(Cost::cents).orElse(null),
                 details.optionalNote().map(MaintenanceNote::value).orElse(null),
                 attachmentCount,
-                details.optionalOtherLabel().map(MaintenanceOtherLabel::value).orElse(null));
+                details.optionalOtherLabel().map(MaintenanceOtherLabel::value).orElse(null),
+                inBudget);
     }
 }

@@ -3,9 +3,12 @@ package io.github.doriangrelu.lifemanager.vehicle.infrastructure.in.web.controll
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.DeleteMaintenanceEntry;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.ListMaintenanceEntries;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.RecordMaintenance;
+import io.github.doriangrelu.lifemanager.vehicle.application.port.in.SendMaintenanceToBudget;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.command.DeleteMaintenanceEntryCommand;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.command.RecordMaintenanceCommand;
+import io.github.doriangrelu.lifemanager.vehicle.application.port.in.command.SendToBudgetCommand;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.query.ListMaintenanceEntriesQuery;
+import io.github.doriangrelu.lifemanager.vehicle.infrastructure.in.web.dto.BudgetRequest;
 import io.github.doriangrelu.lifemanager.vehicle.infrastructure.in.web.dto.MaintenanceRequest;
 import io.github.doriangrelu.lifemanager.vehicle.infrastructure.in.web.dto.MaintenanceResponse;
 import io.micronaut.http.HttpResponse;
@@ -33,12 +36,14 @@ class MaintenanceController {
     private final ListMaintenanceEntries listEntries;
     private final RecordMaintenance recordMaintenance;
     private final DeleteMaintenanceEntry deleteEntry;
+    private final SendMaintenanceToBudget sendToBudget;
 
     MaintenanceController(ListMaintenanceEntries listEntries, RecordMaintenance recordMaintenance,
-                          DeleteMaintenanceEntry deleteEntry) {
+                          DeleteMaintenanceEntry deleteEntry, SendMaintenanceToBudget sendToBudget) {
         this.listEntries = listEntries;
         this.recordMaintenance = recordMaintenance;
         this.deleteEntry = deleteEntry;
+        this.sendToBudget = sendToBudget;
     }
 
     @Get
@@ -51,8 +56,18 @@ class MaintenanceController {
     @Post
     HttpResponse<MaintenanceResponse> record(Authentication user, UUID householdId, UUID vehicleId,
                                              @Body @Valid MaintenanceRequest request) {
-        var command = new RecordMaintenanceCommand(user.getName(), householdId, vehicleId, request.toInput());
+        var command = new RecordMaintenanceCommand(user.getName(), householdId, vehicleId, request.toInput(),
+                request.budgetInput());
         return HttpResponse.created(MaintenanceResponse.from(recordMaintenance.record(command)));
+    }
+
+    /** Ajoute au budget le coût d'une opération déjà saisie ; 409 si elle y est déjà. */
+    @Post("/{entryId}/budget")
+    HttpResponse<Void> sendToBudget(Authentication user, UUID householdId, UUID vehicleId, UUID entryId,
+                                    @Body @Valid BudgetRequest request) {
+        sendToBudget.send(new SendToBudgetCommand(user.getName(), householdId, vehicleId, entryId,
+                request.toInput()));
+        return HttpResponse.noContent();
     }
 
     @Delete("/{entryId}")

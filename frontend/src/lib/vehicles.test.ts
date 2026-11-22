@@ -5,11 +5,23 @@ import {
   daysBetween,
   deadlineStatus,
   deadlineText,
+  defaultBudgetCategory,
   entryLabel,
   formatDay,
   kindLabel,
   setsDeadline,
 } from './vehicles'
+
+describe('catégorie proposée pour le coût d\'un entretien', () => {
+  const food = { id: 'a', name: 'alimentation', archived: false }
+  it('prend « Transport » si elle existe et est active', () => {
+    expect(defaultBudgetCategory([food, { id: 't', name: 'transport', archived: false }])).toBe('t')
+  })
+  it('sinon la première catégorie active, ou rien', () => {
+    expect(defaultBudgetCategory([{ id: 't', name: 'transport', archived: true }, food])).toBe('a')
+    expect(defaultBudgetCategory([])).toBe('')
+  })
+})
 
 describe('nom affiché d\'une opération', () => {
   it('montre la précision d\'un type « Autre », sinon le nom du type', () => {

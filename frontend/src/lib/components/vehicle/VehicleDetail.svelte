@@ -13,11 +13,16 @@
     recordMaintenance,
     removeAttachment,
     removeVehicle,
+    sendMaintenanceToBudget,
     updateVehicle,
     uploadAttachment,
   } from '../../api/vehicleApi'
   import type { MaintenanceEntry, MaintenanceInput, Vehicle, VehicleInput } from '../../api/types'
-  import { entryLabel, formatDay } from '../../vehicles'
+  import { defaultBudgetCategory, entryLabel, formatDay, type BudgetContext } from '../../vehicles'
+  import { listCategories } from '../../api/budgetApi'
+  import { getHousehold } from '../../api/householdApi'
+  import { formatCents } from '../../money'
+  import BudgetChoiceFields from './BudgetChoiceFields.svelte'
   import ConfirmDialog from '../../ui/molecules/ConfirmDialog.svelte'
   import Modal from '../../ui/molecules/Modal.svelte'
   import Skeleton from '../../ui/atoms/Skeleton.svelte'
@@ -30,10 +35,26 @@
   // Fiche d'un véhicule : échéances, modification, suppression et carnet d'entretien.
   let {
     householdId,
+    currentUserId,
     vehicle = $bindable(),
     onremoved,
     onclose,
-  }: { householdId: string; vehicle: Vehicle; onremoved: () => void; onclose: () => void } = $props()
+  }: {
+    householdId: string
+    currentUserId: string
+    vehicle: Vehicle
+    onremoved: () => void
+    onclose: () => void
+  } = $props()
+
+  // Catégories et membres, pour « Ajouter au budget » (sans eux, le carnet marche quand même).
+  let budget = $state<BudgetContext | null>(null)
+  let budgetOf = $state<MaintenanceEntry | null>(null)
+  let budgetOpen = $state(false)
+  let budgetCategoryId = $state('')
+  let budgetPayerId = $state('')
+  let budgetBusy = $state(false)
+  let budgetError = $state<string | null>(null)
 
   let entries = $state<MaintenanceEntry[]>([])
   let entriesLoaded = $state(false)
@@ -46,12 +67,54 @@
   let attachmentsOf = $state<MaintenanceEntry | null>(null)
   let attachmentsOpen = $state(false)
 
-  onMount(() =>
+  onMount(() => {
     run(async () => {
       entries = await listMaintenance(householdId, vehicle.id)
       entriesLoaded = true
-    }),
-  )
+    })
+    loadBudgetContext()
+  })
+
+  async function loadBudgetContext() {
+    try {
+      const [household, categories] = await Promise.all([getHousehold(householdId), listCategories(householdId)])
+      budget = { categories, members: household.members, currentUserId }
+    } catch {
+      budget = null // le carnet reste utilisable, sans l'ajout au budget
+    }
+  }
+
+  function askBudget(entry: MaintenanceEntry) {
+    if (!budget) {
+      return
+    }
+    budgetOf = entry
+    budgetCategoryId = defaultBudgetCategory(budget.categories)
+    budgetPayerId = currentUserId
+    budgetError = null
+    budgetOpen = true
+  }
+
+  async function sendToBudget() {
+    const entry = budgetOf
+    if (!entry) {
+      return
+    }
+    budgetBusy = true
+    budgetError = null
+    try {
+      await sendMaintenanceToBudget(householdId, vehicle.id, entry.id, {
+        categoryId: budgetCategoryId,
+        payerId: budgetPayerId,
+      })
+      entries = entries.map((e) => (e.id === entry.id ? { ...e, inBudget: true } : e))
+      budgetOpen = false
+    } catch (e) {
+      budgetError = e instanceof Error ? e.message : String(e)
+    } finally {
+      budgetBusy = false
+    }
+  }
 
   // Exécute une action, affiche son erreur éventuelle et dit si elle a réussi.
   async function run(action: () => Promise<unknown>): Promise<boolean> {
@@ -156,6 +219,7 @@
             {entry}
             ondelete={() => askDeleteEntry(entry)}
             onattachments={() => showAttachments(entry)}
+            onbudget={budget ? () => askBudget(entry) : undefined}
           />
         </li>
       {/each}
@@ -172,7 +236,25 @@
 </Modal>
 
 <Modal bind:open={addingEntry} title="Nouvelle opération">
-  <MaintenanceForm onsave={addEntry} />
+  <MaintenanceForm onsave={addEntry} {budget} />
+</Modal>
+
+<Modal bind:open={budgetOpen} title="Ajouter au budget">
+  {#if budgetOf && budget}
+    <div class="stack">
+      <p class="muted">
+        {entryLabel(budgetOf)} du {formatDay(budgetOf.performedOn)} :
+        <strong>{formatCents(budgetOf.costCents ?? 0)}</strong> en dépense du mois de l'opération.
+      </p>
+      <BudgetChoiceFields context={budget} bind:categoryId={budgetCategoryId} bind:payerId={budgetPayerId} />
+      {#if budgetError}
+        <p class="error" role="alert">{budgetError}</p>
+      {/if}
+      <button class="large" disabled={budgetBusy || !budgetCategoryId} aria-busy={budgetBusy} onclick={sendToBudget}>
+        Ajouter au budget
+      </button>
+    </div>
+  {/if}
 </Modal>
 
 <ConfirmDialog

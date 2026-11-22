@@ -1,8 +1,10 @@
 package io.github.doriangrelu.lifemanager.vehicle.infrastructure.in.web.dto;
 
+import io.github.doriangrelu.lifemanager.vehicle.application.port.in.command.BudgetInput;
 import io.github.doriangrelu.lifemanager.vehicle.application.port.in.command.MaintenanceInput;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.serde.annotation.Serdeable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
  * @param costCents  coût en centimes d'euro (189,90 € = 18990)
  * @param nextDueOn  prochaine échéance précise (contrôle technique, révision) ; absente = calcul automatique
  * @param otherLabel précision du type OTHER (« Essuie-glaces ») ; refusée pour les autres types
+ * @param budget     « Ajouter au budget » : catégorie et payeur ; absent = le coût n'y va pas
  */
 @Serdeable
 public record MaintenanceRequest(@NotNull LocalDate performedOn,
@@ -26,9 +29,14 @@ public record MaintenanceRequest(@NotNull LocalDate performedOn,
                                  @Nullable @PositiveOrZero @Max(10_000_000) Long costCents,
                                  @Nullable @Size(max = 140) String note,
                                  @Nullable LocalDate nextDueOn,
-                                 @Nullable @Size(max = 40) String otherLabel) {
+                                 @Nullable @Size(max = 40) String otherLabel,
+                                 @Nullable @Valid BudgetRequest budget) {
 
     public MaintenanceInput toInput() {
         return new MaintenanceInput(performedOn, kind, mileageKm, costCents, note, nextDueOn, otherLabel);
+    }
+
+    public BudgetInput budgetInput() {
+        return budget == null ? null : budget.toInput();
     }
 }

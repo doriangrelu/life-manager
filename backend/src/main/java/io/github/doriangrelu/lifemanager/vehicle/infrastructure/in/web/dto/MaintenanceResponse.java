@@ -7,14 +7,17 @@ import io.micronaut.serde.annotation.Serdeable;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/** Une opération du carnet d'entretien. Coût en centimes d'euro ; {@code otherLabel} précise le type « Autre ». */
+/**
+ * Une opération du carnet d'entretien. Coût en centimes d'euro ; {@code otherLabel} précise le type « Autre » ;
+ * {@code inBudget} : son coût est une dépense du budget.
+ */
 @Serdeable
 public record MaintenanceResponse(UUID id, LocalDate performedOn, String kind, @Nullable Integer mileageKm,
                                   @Nullable Long costCents, @Nullable String note, long attachmentCount,
-                                  @Nullable String otherLabel) {
+                                  @Nullable String otherLabel, boolean inBudget) {
 
     public static MaintenanceResponse from(MaintenanceEntryView entry) {
         return new MaintenanceResponse(entry.id(), entry.performedOn(), entry.kind(), entry.mileageKm(),
-                entry.costCents(), entry.note(), entry.attachmentCount(), entry.otherLabel());
+                entry.costCents(), entry.note(), entry.attachmentCount(), entry.otherLabel(), entry.inBudget());
     }
 }

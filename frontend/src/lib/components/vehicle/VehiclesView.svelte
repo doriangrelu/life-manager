@@ -15,7 +15,7 @@
   import VehicleForm from './VehicleForm.svelte'
 
   // Onglet Véhicules : la liste avec les échéances en évidence, l'ajout, et l'accès à chaque fiche.
-  let { householdId }: { householdId: string } = $props()
+  let { householdId, currentUserId }: { householdId: string; currentUserId: string } = $props()
 
   let vehicles = $state<Vehicle[]>([])
   let loaded = $state(false)
@@ -79,6 +79,7 @@
   <div class="stack" in:rise>
   <VehicleDetail
     {householdId}
+    {currentUserId}
     bind:vehicle={vehicles[openedIndex]}
     onremoved={() => close(true)}
     onclose={() => close()}

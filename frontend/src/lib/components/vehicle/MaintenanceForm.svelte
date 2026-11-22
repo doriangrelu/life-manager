@@ -10,15 +10,29 @@
     nextDueLabel,
     setsDeadline,
   } from '../../vehicles'
+  import { defaultBudgetCategory, type BudgetContext } from '../../vehicles'
+  import { ms } from '../../motion'
   import Chip from '../../ui/atoms/Chip.svelte'
-  import { tick } from 'svelte'
+  import { tick, untrack } from 'svelte'
+  import { slide } from 'svelte/transition'
+  import BudgetChoiceFields from './BudgetChoiceFields.svelte'
   import Field from '../../ui/molecules/Field.svelte'
   import Segmented from '../../ui/molecules/Segmented.svelte'
   import { allValid, check, focusFirstInvalid, notAfter, optionalAmount, optionalInteger, required } from '../../validation'
 
   // Nouvelle opération du carnet (dans une modale) : date et type pré-remplis, le reste facultatif.
   // Un contrôle technique ou une révision fixe aussi la prochaine échéance du véhicule.
-  let { onsave }: { onsave: (input: MaintenanceInput) => Promise<boolean> } = $props()
+  // Avec un coût, la case « Ajouter au budget » (cochée) en fait une dépense du budget.
+  let {
+    onsave,
+    budget = null,
+  }: { onsave: (input: MaintenanceInput) => Promise<boolean>; budget?: BudgetContext | null } = $props()
+
+  // Valeurs de départ : catégorie « Transport » et membre connecté (fixées à l'ouverture de la fenêtre).
+  const initialBudget = untrack(() => budget)
+  let addToBudget = $state(true)
+  let categoryId = $state(initialBudget ? defaultBudgetCategory(initialBudget.categories) : '')
+  let payerId = $state(initialBudget?.currentUserId ?? '')
 
   let performedOn = $state(today())
   let kind = $state<MaintenanceKind>('SERVICE')
@@ -31,6 +45,9 @@
   let error = $state<string | null>(null)
   let busy = $state(false)
   const withDeadline = $derived(setsDeadline(kind))
+  // La case n'apparaît qu'avec un coût lisible et non nul.
+  const costCents = $derived(cost.trim() ? parseAmountToCents(cost) : null)
+  const budgetOffered = $derived(budget !== null && categoryId !== '' && (costCents ?? 0) > 0)
   const automatic = $derived(automaticNextDue(kind, performedOn))
   // Contrôles en direct ; après un envoi refusé, toutes les erreurs se montrent.
   let revealed = $state(false)
@@ -89,7 +106,17 @@
     const nextDueOn = precise ? preciseNextDue : null
     // La précision n'est envoyée que pour « Autre » (le serveur la refuse ailleurs).
     const label = kind === 'OTHER' ? otherLabel.trim() || null : null
-    return { performedOn, kind, mileageKm, costCents, note: note.trim() || null, nextDueOn, otherLabel: label }
+    const choice = budgetOffered && addToBudget ? { categoryId, payerId } : null
+    return {
+      performedOn,
+      kind,
+      mileageKm,
+      costCents,
+      note: note.trim() || null,
+      nextDueOn,
+      otherLabel: label,
+      budget: choice,
+    }
   }
 </script>
 
@@ -156,6 +183,20 @@
       <input bind:value={note} maxlength="140" placeholder="Garage, pièces…" />
     </label>
   </div>
+  {#if budgetOffered && budget}
+    <div class="budget stack" transition:slide={{ duration: ms(180) }}>
+      <label class="check">
+        <input type="checkbox" bind:checked={addToBudget} />
+        <span>
+          Ajouter au budget
+          <small>Le coût devient une dépense du mois de l'opération.</small>
+        </span>
+      </label>
+      {#if addToBudget}
+        <BudgetChoiceFields context={budget} bind:categoryId bind:payerId />
+      {/if}
+    </div>
+  {/if}
   {#if error}
     <p class="error" role="alert">{error}</p>
   {/if}
@@ -193,6 +234,33 @@
   }
   .hint {
     font-weight: 500;
+  }
+  .budget {
+    padding: 12px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-muted);
+  }
+  .check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .check input {
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+    flex-shrink: 0;
+    accent-color: var(--color-primary);
+  }
+  .check span {
+    display: grid;
+    gap: 2px;
+  }
+  .check small {
+    font-weight: 500;
+    color: var(--color-text-muted);
   }
   .chips {
     display: flex;

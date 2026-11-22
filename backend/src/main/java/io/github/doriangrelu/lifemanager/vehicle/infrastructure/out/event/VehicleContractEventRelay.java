@@ -1,7 +1,11 @@
 package io.github.doriangrelu.lifemanager.vehicle.infrastructure.out.event;
 
 import io.github.doriangrelu.lifemanager.kernel.infrastructure.outbox.Outbox;
+import io.github.doriangrelu.lifemanager.vehicle.contract.event.MaintenanceExpenseSentV1;
+import io.github.doriangrelu.lifemanager.vehicle.contract.event.MaintenanceExpenseWithdrawnV1;
 import io.github.doriangrelu.lifemanager.vehicle.contract.event.VehicleDeadlinesChangedV1;
+import io.github.doriangrelu.lifemanager.vehicle.domain.event.MaintenanceExpenseSent;
+import io.github.doriangrelu.lifemanager.vehicle.domain.event.MaintenanceExpenseWithdrawn;
 import io.github.doriangrelu.lifemanager.vehicle.contract.event.VehicleRemovedV1;
 import io.github.doriangrelu.lifemanager.vehicle.domain.event.VehicleRegistered;
 import io.github.doriangrelu.lifemanager.vehicle.domain.event.VehicleRemoved;
@@ -44,6 +48,21 @@ class VehicleContractEventRelay {
             transactionManager = "vehicle")
     void on(VehicleRemoved event) {
         outbox.record(new VehicleRemovedV1(event.vehicleId().value(), event.householdId().value(),
+                event.occurredAt()));
+    }
+
+    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.BEFORE_COMMIT,
+            transactionManager = "vehicle")
+    void on(MaintenanceExpenseSent event) {
+        outbox.record(new MaintenanceExpenseSentV1(event.entryId().value(), event.householdId().value(),
+                event.label(), event.amountCents(), event.performedOn(), event.target().categoryId(),
+                event.target().payer().value(), event.occurredAt()));
+    }
+
+    @TransactionalEventListener(value = TransactionalEventListener.TransactionPhase.BEFORE_COMMIT,
+            transactionManager = "vehicle")
+    void on(MaintenanceExpenseWithdrawn event) {
+        outbox.record(new MaintenanceExpenseWithdrawnV1(event.entryId().value(), event.householdId().value(),
                 event.occurredAt()));
     }
 

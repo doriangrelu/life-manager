@@ -9,18 +9,25 @@ import java.util.Optional;
 
 /** Type d'une opération d'entretien. */
 public enum MaintenanceKind {
-    SERVICE(Period.ofYears(1)),
-    OIL_CHANGE(null),
-    TECHNICAL_INSPECTION(Period.ofYears(2)),
-    TIRES(null),
-    REPAIR(null),
-    OTHER(null);
+    SERVICE(Period.ofYears(1), "Révision"),
+    OIL_CHANGE(null, "Vidange"),
+    TECHNICAL_INSPECTION(Period.ofYears(2), "Contrôle technique"),
+    TIRES(null, "Pneus"),
+    REPAIR(null, "Réparation"),
+    OTHER(null, "Entretien");
 
     /** Durée avant la prochaine opération du même type, ou {@code null} si elle ne fixe pas d'échéance. */
     private final Period validity;
+    /** Nom affiché (libellé de la dépense dans le budget). */
+    private final String label;
 
-    MaintenanceKind(Period validity) {
+    MaintenanceKind(Period validity, String label) {
         this.validity = validity;
+        this.label = label;
+    }
+
+    public String label() {
+        return label;
     }
 
     /** Retrouve le type à partir de son nom (« SERVICE »…), refuse un nom inconnu. */

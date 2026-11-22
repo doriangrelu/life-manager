@@ -6,6 +6,7 @@ import io.github.doriangrelu.lifemanager.vehicle.application.port.out.Maintenanc
 import io.github.doriangrelu.lifemanager.vehicle.application.port.out.MaintenanceEntryRepository;
 import io.github.doriangrelu.lifemanager.vehicle.application.service.AttachmentRemoval;
 import io.github.doriangrelu.lifemanager.vehicle.application.service.MaintenanceEntryAccess;
+import io.github.doriangrelu.lifemanager.vehicle.application.service.MaintenanceExpenseRecorder;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 
@@ -17,13 +18,16 @@ class DeleteMaintenanceEntryUseCase implements DeleteMaintenanceEntry {
     private final MaintenanceEntryRepository entries;
     private final MaintenanceAttachmentRepository attachments;
     private final AttachmentRemoval removal;
+    private final MaintenanceExpenseRecorder budget;
 
     DeleteMaintenanceEntryUseCase(MaintenanceEntryAccess access, MaintenanceEntryRepository entries,
-                                  MaintenanceAttachmentRepository attachments, AttachmentRemoval removal) {
+                                  MaintenanceAttachmentRepository attachments, AttachmentRemoval removal,
+                                  MaintenanceExpenseRecorder budget) {
         this.access = access;
         this.entries = entries;
         this.attachments = attachments;
         this.removal = removal;
+        this.budget = budget;
     }
 
     @Override
@@ -32,6 +36,7 @@ class DeleteMaintenanceEntryUseCase implements DeleteMaintenanceEntry {
         var entry = access.entryForMember(command.householdId(), command.vehicleId(), command.entryId(),
                 command.requesterId());
         removal.removeAll(attachments.findAllByEntry(entry.id()));
+        budget.withdraw(entry);
         entries.delete(entry);
     }
 }

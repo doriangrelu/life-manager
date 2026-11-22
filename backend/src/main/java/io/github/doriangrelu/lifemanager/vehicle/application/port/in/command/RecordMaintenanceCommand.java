@@ -6,6 +6,8 @@ import java.util.UUID;
  * @param householdId foyer concerné
  * @param vehicleId   véhicule entretenu
  * @param input       opération saisie
+ * @param budget      choix « Ajouter au budget », ou {@code null} pour ne pas l'y ajouter
  */
-public record RecordMaintenanceCommand(String requesterId, UUID householdId, UUID vehicleId, MaintenanceInput input) {
+public record RecordMaintenanceCommand(String requesterId, UUID householdId, UUID vehicleId, MaintenanceInput input,
+                                       BudgetInput budget) {
 }

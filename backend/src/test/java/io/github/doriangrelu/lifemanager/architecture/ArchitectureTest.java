@@ -103,7 +103,7 @@ class ArchitectureTest {
             "JoinHouseholdUseCase", "ListMembershipsUseCase", "ListMyHouseholdsUseCase", "UpdateMemberProfileUseCase",
             "GetCurrentUserUseCase", "SyncUserAccountUseCase", "ForgetVehicleDeadlinesUseCase",
             "TrackChargeDeadlineUseCase", "TrackVehicleDeadlinesUseCase", "TrackTaskDeadlineUseCase",
-            "TrackProjectUseCase", "ForgetProjectUseCase",
+            "TrackProjectUseCase", "ForgetProjectUseCase", "WithdrawLinkedExpenseUseCase",
             "ForgetHouseholdMemberUseCase", "ForgetHouseholdUseCase", "PurgeReminderHistoryUseCase",
             // Compte de l'utilisateur connecté lui-même, sans foyer dans l'adresse.
             "AcceptTermsUseCase", "ExportMyDataUseCase", "DeleteMyAccountUseCase", "ForgetUserUseCase");
