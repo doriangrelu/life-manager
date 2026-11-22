@@ -2,26 +2,29 @@
 
 Lot 8 de la feuille de route, avancé avant les e-mails (6b) par Dorian le 2026-11-22 : il le juge plus intéressant à l'usage. Un foyer mène des projets (travaux, vacances, mariage, achat d'une voiture…) qui mêlent **de l'argent** (un budget, des dépenses) et **des choses à faire**. Aujourd'hui, ces dépenses se perdent dans le budget du mois, et les tâches n'ont pas de place.
 
-## Ce que je propose (à valider)
+## Ce qui change
 
-- **Un projet** : un nom, une description facultative, un **budget prévu facultatif**, des dates facultatives (début, fin visée), un état (en cours, terminé). Visible par tout le foyer, comme le reste.
-- **Dépenses rattachées** : à la saisie ou à la correction d'une dépense, un choix facultatif **« Projet »**. L'écran du projet montre le total dépensé face au budget prévu (même barre que le budget prévu par catégorie) et la liste des dépenses. Une dépense de projet **reste une dépense normale** : elle compte dans son mois, sa catégorie et le Bilan.
-- **Liste de tâches** : titre, case « fait », et en option qui s'en charge et une date. Une tâche avec une date apparaît dans les rappels.
-- **Place dans la navigation** : un sous-onglet **« Projets »** dans l'espace **Maison** (Véhicules · Rappels · Projets). La barre du bas reste à 4 entrées.
-- **Hors périmètre de cette version** : épargne dédiée à un projet, pièces jointes (devis, factures), partage hors du foyer, modèles de projet.
+- **Un projet** : nom, description facultative, couleur, budget prévu facultatif, dates facultatives (début, fin visée), état (en cours, terminé, abandonné), option « compte dans le budget du mois » (cochée par défaut). Visible par tout le foyer.
+- **Dépenses rattachées** : un choix facultatif « Projet » à la saisie ou à la correction d'une dépense (projets en cours seulement). La fiche du projet montre le total dépensé face au budget prévu et la liste des dépenses.
+  - Projet **compté dans le budget** : la dépense reste une dépense normale (mois, catégorie, budget prévu, reste à vivre, Bilan).
+  - Projet **hors budget** : ses dépenses sortent des totaux du mois, des catégories, du budget prévu, du reste à vivre et du Bilan ; elles restent visibles dans les opérations du mois, marquées « hors budget ».
+- **Tâches** : titre, case « fait », et en option qui s'en charge (un membre du foyer) et une date. Une tâche datée non faite apparaît dans les rappels du foyer.
+- **Navigation** : sous-onglet « Projets » dans l'espace Maison (Véhicules · Rappels · Projets).
+- **Une seule version : v0.14.0.**
+- **Hors périmètre** : charges récurrentes rattachées à un projet (plus tard), épargne dédiée, pièces jointes, partage hors du foyer, modèles de projet.
 
-## Questions pour Dorian
+## Réponses de Dorian (2026-11-22)
 
-1. **Contenu d'un projet** : nom, description, budget prévu, dates, état (en cours / terminé), ça te va ? Faut-il aussi « abandonné », ou une photo / couleur ?
-2. **Dépenses** : rattacher une dépense existante à un projet depuis la saisie de la dépense te convient ? Et une dépense de projet doit-elle bien continuer à compter dans le budget du mois et sa catégorie (ma recommandation), ou en être sortie ?
-3. **Tâches** : une simple liste à cocher, ou aussi « qui s'en charge » et une date (avec rappel) ? Je recommande les deux en option, sans rien imposer.
-4. **Navigation** : sous-onglet « Projets » dans l'espace Maison, ou plutôt dans l'espace Argent ?
-5. **Charges récurrentes** : faut-il pouvoir rattacher aussi un récurrent à un projet (ex. un crédit travaux) ? Je propose de le garder pour plus tard.
-6. **Découpage** : une seule version (v0.14.0), ou d'abord projets + tâches, puis les dépenses rattachées ?
+1. Contenu : nom, description, budget, dates, **3 états** (en cours, terminé, abandonné) **et une couleur**.
+2. Dépenses : **au choix par projet** (compter ou non dans le budget du mois), **compté par défaut**.
+3. Tâches : responsable et date en option, rappel pour les tâches datées.
+4. Navigation : espace **Maison**.
+5. Récurrents : plus tard.
+6. Découpage : une seule version v0.14.0.
 
-## Impact (si validé)
+## Impact
 
-- Nouveau domaine `project` (schéma `project`, migrations, cloisonnement par foyer, effacement avec le foyer).
-- `budget` : un identifiant de projet facultatif sur la dépense (sans clé étrangère, comme la catégorie d'une charge), et un total des dépenses par projet.
-- `reminder` : les tâches datées deviennent des rappels (événement de contrat, comme les échéances des charges).
-- PWA : écran Projets (liste, fiche, tâches), champ « Projet » dans la saisie d'une dépense.
+- Nouveau domaine `project` (schéma `project`, migrations, cloisonnement par foyer, effacement avec le foyer et départ d'un membre).
+- `budget` : identifiant de projet facultatif sur la dépense ; copie locale des projets (existence, état, compté ou non) tenue par événements de contrat ; totaux qui écartent les dépenses hors budget ; liste des dépenses d'un projet.
+- `reminder` : les tâches datées deviennent des rappels (copie tenue par événements de contrat).
+- PWA : écran Projets (liste, fiche, tâches), champ « Projet » dans la saisie d'une dépense, mention « hors budget ».
